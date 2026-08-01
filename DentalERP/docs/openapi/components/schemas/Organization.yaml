@@ -1,0 +1,26 @@
+# Organization Schemas (summary only — used by nested relations)
+
+OrganizationSummary:
+  type: object
+  description: Condensed Organization data returned when nested in Branch responses.
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: "01927f3e-0000-7000-8000-000000000000"
+    company_code:
+      type: string
+      example: "ORG-0001"
+    company_name:
+      type: string
+      example: "My Dent Care"
+    status:
+      type: string
+      enum: [active, inactive]
+      example: active
+    timezone:
+      type: string
+      example: "Asia/Jakarta"
+    currency:
+      type: string
+      example: "IDR"

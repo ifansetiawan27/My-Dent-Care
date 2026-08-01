@@ -1,0 +1,515 @@
+# Branch API Paths
+# Prefix: /api/v1
+# Auth:   BearerAuth (Sanctum)
+# Tag:    Branch
+
+branches:
+  # -------------------------------------------------------------------------
+  # GET /api/v1/branches
+  # -------------------------------------------------------------------------
+  get:
+    tags:
+      - Branch
+    summary: List branches
+    description: |
+      Returns a paginated list of branches scoped to a specific organization.
+
+      **Multi-tenant:** `organization_id` is required. Users can only access
+      branches within their own organization boundary.
+
+      **Supports:** search, filter by status/city/branch_type, sort by name.
+    operationId: branches.index
+    security:
+      - BearerAuth: []
+    parameters:
+      - name: organization_id
+        in: query
+        required: true
+        description: UUID of the organization to scope branches.
+        schema:
+          type: string
+          format: uuid
+          example: "01927f3e-0000-7000-8000-000000000000"
+      - name: search
+        in: query
+        required: false
+        description: Keyword to search across branch_code, branch_name, city, email, phone.
+        schema:
+          type: string
+          example: "Sudirman"
+      - name: per_page
+        in: query
+        required: false
+        description: Number of items per page.
+        schema:
+          type: integer
+          default: 15
+          minimum: 1
+          maximum: 100
+          example: 15
+      - name: sort_by
+        in: query
+        required: false
+        description: Column to sort by.
+        schema:
+          type: string
+          enum: [branch_name, branch_code, city, status, created_at, updated_at]
+          default: branch_name
+          example: branch_name
+      - name: sort_dir
+        in: query
+        required: false
+        description: Sort direction.
+        schema:
+          type: string
+          enum: [asc, desc]
+          default: asc
+          example: asc
+      - name: status
+        in: query
+        required: false
+        description: Filter by branch status.
+        schema:
+          type: string
+          enum: [active, inactive]
+      - name: city
+        in: query
+        required: false
+        description: Filter by city name.
+        schema:
+          type: string
+          example: "Jakarta"
+      - name: branch_type
+        in: query
+        required: false
+        description: Filter by branch type.
+        schema:
+          type: string
+          enum: [clinic, mobile, hospital]
+    responses:
+      "200":
+        description: Paginated list of branches retrieved successfully.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Branches retrieved successfully."
+                data:
+                  type: array
+                  items:
+                    $ref: '../components/schemas/Branch.yaml#/BranchResource'
+                errors:
+                  nullable: true
+                  example: null
+                meta:
+                  type: object
+                  properties:
+                    pagination:
+                      type: object
+                      properties:
+                        total:
+                          type: integer
+                          example: 42
+                        per_page:
+                          type: integer
+                          example: 15
+                        current_page:
+                          type: integer
+                          example: 1
+                        last_page:
+                          type: integer
+                          example: 3
+                        from:
+                          type: integer
+                          example: 1
+                        to:
+                          type: integer
+                          example: 15
+            example:
+              success: true
+              message: "Branches retrieved successfully."
+              data:
+                - id: "01927f3e-0000-7000-8000-000000000001"
+                  organization_id: "01927f3e-0000-7000-8000-000000000000"
+                  branch_code: "BRC-0001"
+                  branch_name: "My Dent Care - Sudirman"
+                  branch_type: "clinic"
+                  email: "sudirman@mydentcare.com"
+                  phone: "+62-21-1234567"
+                  city: "Jakarta Selatan"
+                  status: "active"
+                  status_label: "Active"
+              errors: null
+              meta:
+                pagination:
+                  total: 1
+                  per_page: 15
+                  current_page: 1
+                  last_page: 1
+                  from: 1
+                  to: 1
+      "401":
+        $ref: '../components/responses/common.yaml#/Unauthorized'
+      "403":
+        $ref: '../components/responses/common.yaml#/Forbidden'
+      "500":
+        $ref: '../components/responses/common.yaml#/ServerError'
+
+  # -------------------------------------------------------------------------
+  # POST /api/v1/branches
+  # -------------------------------------------------------------------------
+  post:
+    tags:
+      - Branch
+    summary: Create branch
+    description: |
+      Creates a new branch under the specified organization.
+
+      **Business Rules:**
+      - `organization_id` must reference an existing organization.
+      - `branch_code` must be unique within the organization.
+      - `branch_type` must be one of: `clinic`, `mobile`, `hospital`.
+      - `timezone` must be a valid IANA timezone identifier.
+      - `status` must be one of: `active`, `inactive`.
+
+      **Permission required:** `branch.create`
+    operationId: branches.store
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/Branch.yaml#/StoreBranchRequest'
+          example:
+            organization_id: "01927f3e-0000-7000-8000-000000000000"
+            branch_code: "BRC-0001"
+            branch_name: "My Dent Care - Sudirman"
+            branch_type: "clinic"
+            email: "sudirman@mydentcare.com"
+            phone: "+62-21-1234567"
+            address: "Jl. Jenderal Sudirman No. 10"
+            city: "Jakarta Selatan"
+            province: "DKI Jakarta"
+            country: "Indonesia"
+            postal_code: "12190"
+            timezone: "Asia/Jakarta"
+            status: "active"
+    responses:
+      "201":
+        description: Branch created successfully.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Branch created successfully."
+                data:
+                  $ref: '../components/schemas/Branch.yaml#/BranchResource'
+                errors:
+                  nullable: true
+                  example: null
+                meta:
+                  nullable: true
+                  example: null
+      "401":
+        $ref: '../components/responses/common.yaml#/Unauthorized'
+      "403":
+        $ref: '../components/responses/common.yaml#/Forbidden'
+      "422":
+        description: Validation error or business rule violation.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/responses/common.yaml#/UnprocessableEntity'
+            examples:
+              validationError:
+                summary: Validation error
+                value:
+                  success: false
+                  message: "The given data was invalid."
+                  data: null
+                  errors:
+                    branch_code: ["Branch Code is required."]
+                    organization_id: ["The selected Organization does not exist."]
+                  meta: null
+              businessRuleError:
+                summary: Business rule — duplicate branch code
+                value:
+                  success: false
+                  message: "Branch code [BRC-0001] already exists in this organization."
+                  data: null
+                  errors: null
+                  meta: null
+      "500":
+        $ref: '../components/responses/common.yaml#/ServerError'
+
+branchesId:
+  # -------------------------------------------------------------------------
+  # GET /api/v1/branches/{id}
+  # -------------------------------------------------------------------------
+  get:
+    tags:
+      - Branch
+    summary: Get branch
+    description: |
+      Returns a single branch by UUID.
+
+      The response includes nested `organization` data.
+
+      **Permission required:** `branch.view`
+    operationId: branches.show
+    security:
+      - BearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: UUID of the branch.
+        schema:
+          type: string
+          format: uuid
+          example: "01927f3e-0000-7000-8000-000000000001"
+    responses:
+      "200":
+        description: Branch retrieved successfully.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Branch retrieved successfully."
+                data:
+                  $ref: '../components/schemas/Branch.yaml#/BranchResource'
+                errors:
+                  nullable: true
+                  example: null
+                meta:
+                  nullable: true
+                  example: null
+      "401":
+        $ref: '../components/responses/common.yaml#/Unauthorized'
+      "403":
+        $ref: '../components/responses/common.yaml#/Forbidden'
+      "404":
+        $ref: '../components/responses/common.yaml#/NotFound'
+      "500":
+        $ref: '../components/responses/common.yaml#/ServerError'
+
+  # -------------------------------------------------------------------------
+  # PUT /api/v1/branches/{id}
+  # -------------------------------------------------------------------------
+  put:
+    tags:
+      - Branch
+    summary: Update branch
+    description: |
+      Updates an existing branch. All fields are optional — only provided fields are updated.
+
+      **Business Rules:**
+      - `branch_code` must remain unique within the organization when changed.
+      - `organization_id` cannot be changed — it is ignored if provided.
+
+      **Permission required:** `branch.update`
+    operationId: branches.update
+    security:
+      - BearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: UUID of the branch to update.
+        schema:
+          type: string
+          format: uuid
+          example: "01927f3e-0000-7000-8000-000000000001"
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/Branch.yaml#/UpdateBranchRequest'
+          example:
+            branch_name: "My Dent Care - Thamrin"
+            city: "Jakarta Pusat"
+            status: "active"
+    responses:
+      "200":
+        description: Branch updated successfully.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Branch updated successfully."
+                data:
+                  $ref: '../components/schemas/Branch.yaml#/BranchResource'
+                errors:
+                  nullable: true
+                  example: null
+                meta:
+                  nullable: true
+                  example: null
+      "401":
+        $ref: '../components/responses/common.yaml#/Unauthorized'
+      "403":
+        $ref: '../components/responses/common.yaml#/Forbidden'
+      "404":
+        $ref: '../components/responses/common.yaml#/NotFound'
+      "422":
+        $ref: '../components/responses/common.yaml#/UnprocessableEntity'
+      "500":
+        $ref: '../components/responses/common.yaml#/ServerError'
+
+  # -------------------------------------------------------------------------
+  # DELETE /api/v1/branches/{id}
+  # -------------------------------------------------------------------------
+  delete:
+    tags:
+      - Branch
+    summary: Delete branch
+    description: |
+      Soft-deletes a branch. The record is not permanently removed.
+
+      **Delete Guards — cannot delete if branch still has:**
+      - Users
+      - Patients
+      - Appointments
+      - Inventory records
+      - Finance Transactions
+
+      **Permission required:** `branch.delete`
+    operationId: branches.destroy
+    security:
+      - BearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: UUID of the branch to delete.
+        schema:
+          type: string
+          format: uuid
+          example: "01927f3e-0000-7000-8000-000000000001"
+    responses:
+      "200":
+        description: Branch deleted successfully.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Branch deleted successfully."
+                data:
+                  nullable: true
+                  example: null
+                errors:
+                  nullable: true
+                  example: null
+                meta:
+                  nullable: true
+                  example: null
+      "401":
+        $ref: '../components/responses/common.yaml#/Unauthorized'
+      "403":
+        $ref: '../components/responses/common.yaml#/Forbidden'
+      "404":
+        $ref: '../components/responses/common.yaml#/NotFound'
+      "422":
+        description: Business rule violation — branch still has related records.
+        content:
+          application/json:
+            schema:
+              $ref: '../components/responses/common.yaml#/UnprocessableEntity'
+            example:
+              success: false
+              message: "Cannot delete branch. It still has Users."
+              data: null
+              errors: null
+              meta: null
+      "500":
+        $ref: '../components/responses/common.yaml#/ServerError'
+
+branchesIdRestore:
+  # -------------------------------------------------------------------------
+  # POST /api/v1/branches/{id}/restore
+  # -------------------------------------------------------------------------
+  post:
+    tags:
+      - Branch
+    summary: Restore branch
+    description: |
+      Restores a previously soft-deleted branch.
+
+      **Permission required:** `branch.restore`
+    operationId: branches.restore
+    security:
+      - BearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: UUID of the soft-deleted branch to restore.
+        schema:
+          type: string
+          format: uuid
+          example: "01927f3e-0000-7000-8000-000000000001"
+    responses:
+      "200":
+        description: Branch restored successfully.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Branch restored successfully."
+                data:
+                  nullable: true
+                  example: null
+                errors:
+                  nullable: true
+                  example: null
+                meta:
+                  nullable: true
+                  example: null
+      "401":
+        $ref: '../components/responses/common.yaml#/Unauthorized'
+      "403":
+        $ref: '../components/responses/common.yaml#/Forbidden'
+      "404":
+        description: Branch not found or was not soft-deleted.
+        $ref: '../components/responses/common.yaml#/NotFound'
+      "500":
+        $ref: '../components/responses/common.yaml#/ServerError'

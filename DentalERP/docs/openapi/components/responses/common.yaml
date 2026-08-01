@@ -1,0 +1,122 @@
+# Shared HTTP responses used across all domains
+
+Unauthorized:
+  description: Unauthenticated — missing or invalid Bearer token.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          success:
+            type: boolean
+            example: false
+          message:
+            type: string
+            example: "Unauthenticated."
+          data:
+            nullable: true
+            example: null
+          errors:
+            nullable: true
+            example: null
+          meta:
+            nullable: true
+            example: null
+
+Forbidden:
+  description: Forbidden — authenticated but lacks required permission.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          success:
+            type: boolean
+            example: false
+          message:
+            type: string
+            example: "This action is unauthorized."
+          data:
+            nullable: true
+            example: null
+          errors:
+            nullable: true
+            example: null
+          meta:
+            nullable: true
+            example: null
+
+NotFound:
+  description: Not Found — the requested resource does not exist.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          success:
+            type: boolean
+            example: false
+          message:
+            type: string
+            example: "Resource not found."
+          data:
+            nullable: true
+            example: null
+          errors:
+            nullable: true
+            example: null
+          meta:
+            nullable: true
+            example: null
+
+UnprocessableEntity:
+  description: Unprocessable Entity — validation or business rule violation.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          success:
+            type: boolean
+            example: false
+          message:
+            type: string
+            example: "The given data was invalid."
+          data:
+            nullable: true
+            example: null
+          errors:
+            type: object
+            additionalProperties:
+              type: array
+              items:
+                type: string
+            example:
+              branch_code: ["Branch Code is required."]
+              organization_id: ["The selected Organization does not exist."]
+          meta:
+            nullable: true
+            example: null
+
+ServerError:
+  description: Internal Server Error — unexpected server failure.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          success:
+            type: boolean
+            example: false
+          message:
+            type: string
+            example: "Internal server error."
+          data:
+            nullable: true
+            example: null
+          errors:
+            nullable: true
+            example: null
+          meta:
+            nullable: true
+            example: null

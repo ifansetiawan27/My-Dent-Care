@@ -1,0 +1,82 @@
+# Standard API Response Envelope
+# Used by all endpoints in the Dental ERP API.
+
+ApiResponse:
+  type: object
+  description: Standard API response wrapper used by all endpoints.
+  properties:
+    success:
+      type: boolean
+      description: Whether the request was successful.
+      example: true
+    message:
+      type: string
+      description: Human-readable status message.
+      example: "Success."
+    data:
+      description: Response payload. Null for error responses.
+      nullable: true
+    errors:
+      type: object
+      description: Field-level validation errors. Null for success responses.
+      nullable: true
+      additionalProperties:
+        type: array
+        items:
+          type: string
+    meta:
+      type: object
+      description: Additional metadata (e.g. pagination). Null when not applicable.
+      nullable: true
+
+ApiResponseSuccess:
+  allOf:
+    - $ref: '#/ApiResponse'
+    - type: object
+      properties:
+        success:
+          example: true
+        errors:
+          example: null
+
+ApiResponseError:
+  allOf:
+    - $ref: '#/ApiResponse'
+    - type: object
+      properties:
+        success:
+          example: false
+        data:
+          example: null
+
+PaginationMeta:
+  type: object
+  description: Pagination metadata returned by list endpoints.
+  properties:
+    pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of records.
+          example: 42
+        per_page:
+          type: integer
+          description: Records per page.
+          example: 15
+        current_page:
+          type: integer
+          description: Current page number.
+          example: 1
+        last_page:
+          type: integer
+          description: Last available page number.
+          example: 3
+        from:
+          type: integer
+          description: Record index of first item on this page.
+          example: 1
+        to:
+          type: integer
+          description: Record index of last item on this page.
+          example: 15

@@ -1,0 +1,243 @@
+# Branch Schemas
+
+BranchStatus:
+  type: string
+  enum: [active, inactive]
+  description: Operational status of the branch.
+  example: active
+
+BranchType:
+  type: string
+  enum: [clinic, mobile, hospital]
+  description: Physical type of the branch.
+  example: clinic
+
+BranchResource:
+  type: object
+  description: Full Branch representation returned by API responses.
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Unique identifier (UUID).
+      example: "01927f3e-0000-7000-8000-000000000001"
+    organization_id:
+      type: string
+      format: uuid
+      description: Parent organization UUID.
+      example: "01927f3e-0000-7000-8000-000000000000"
+    branch_code:
+      type: string
+      description: Unique branch code within the organization.
+      example: "BRC-0001"
+    branch_name:
+      type: string
+      description: Display name of the branch.
+      example: "My Dent Care - Sudirman"
+    branch_type:
+      $ref: '#/BranchType'
+    organization:
+      description: Parent organization data. Only present when eager-loaded.
+      nullable: true
+      allOf:
+        - $ref: './Organization.yaml#/OrganizationSummary'
+    email:
+      type: string
+      format: email
+      nullable: true
+      example: "sudirman@mydentcare.com"
+    phone:
+      type: string
+      example: "+62-21-1234567"
+    address:
+      type: string
+      example: "Jl. Jenderal Sudirman No. 10"
+    city:
+      type: string
+      example: "Jakarta Selatan"
+    province:
+      type: string
+      example: "DKI Jakarta"
+    country:
+      type: string
+      example: "Indonesia"
+    postal_code:
+      type: string
+      example: "12190"
+    latitude:
+      type: string
+      nullable: true
+      description: Geographic latitude with 8 decimal places.
+      example: "-6.20880000"
+    longitude:
+      type: string
+      nullable: true
+      description: Geographic longitude with 8 decimal places.
+      example: "106.84560000"
+    timezone:
+      type: string
+      description: IANA timezone identifier.
+      example: "Asia/Jakarta"
+    status:
+      $ref: '#/BranchStatus'
+    status_label:
+      type: string
+      description: Human-readable status label.
+      example: "Active"
+    created_by:
+      type: string
+      format: uuid
+      nullable: true
+      example: "01927f3e-0000-7000-8000-000000000099"
+    updated_by:
+      type: string
+      format: uuid
+      nullable: true
+      example: "01927f3e-0000-7000-8000-000000000099"
+    created_at:
+      type: string
+      format: date-time
+      example: "2026-08-01T00:00:00.000000Z"
+    updated_at:
+      type: string
+      format: date-time
+      example: "2026-08-01T00:00:00.000000Z"
+
+StoreBranchRequest:
+  type: object
+  required:
+    - organization_id
+    - branch_code
+    - branch_name
+    - branch_type
+    - phone
+    - address
+    - city
+    - province
+    - country
+    - postal_code
+    - timezone
+    - status
+  properties:
+    organization_id:
+      type: string
+      format: uuid
+      description: UUID of the parent organization. Must exist in the database.
+      example: "01927f3e-0000-7000-8000-000000000000"
+    branch_code:
+      type: string
+      maxLength: 30
+      pattern: '^[a-zA-Z0-9_-]+$'
+      description: Unique code within the organization. Letters, numbers, dashes, underscores only.
+      example: "BRC-0001"
+    branch_name:
+      type: string
+      maxLength: 200
+      example: "My Dent Care - Sudirman"
+    branch_type:
+      $ref: '#/BranchType'
+    email:
+      type: string
+      format: email
+      maxLength: 150
+      nullable: true
+      example: "sudirman@mydentcare.com"
+    phone:
+      type: string
+      maxLength: 30
+      example: "+62-21-1234567"
+    address:
+      type: string
+      maxLength: 500
+      example: "Jl. Jenderal Sudirman No. 10"
+    city:
+      type: string
+      maxLength: 100
+      example: "Jakarta Selatan"
+    province:
+      type: string
+      maxLength: 100
+      example: "DKI Jakarta"
+    country:
+      type: string
+      maxLength: 100
+      example: "Indonesia"
+    postal_code:
+      type: string
+      maxLength: 20
+      example: "12190"
+    latitude:
+      type: number
+      format: float
+      minimum: -90
+      maximum: 90
+      nullable: true
+      example: -6.2088
+    longitude:
+      type: number
+      format: float
+      minimum: -180
+      maximum: 180
+      nullable: true
+      example: 106.8456
+    timezone:
+      type: string
+      description: Valid IANA timezone identifier.
+      example: "Asia/Jakarta"
+    status:
+      $ref: '#/BranchStatus'
+
+UpdateBranchRequest:
+  type: object
+  description: All fields are optional. Only provided fields are updated.
+  properties:
+    branch_code:
+      type: string
+      maxLength: 30
+      pattern: '^[a-zA-Z0-9_-]+$'
+      example: "BRC-0002"
+    branch_name:
+      type: string
+      maxLength: 200
+      example: "My Dent Care - Thamrin"
+    branch_type:
+      $ref: '#/BranchType'
+    email:
+      type: string
+      format: email
+      maxLength: 150
+      nullable: true
+    phone:
+      type: string
+      maxLength: 30
+    address:
+      type: string
+      maxLength: 500
+    city:
+      type: string
+      maxLength: 100
+    province:
+      type: string
+      maxLength: 100
+    country:
+      type: string
+      maxLength: 100
+    postal_code:
+      type: string
+      maxLength: 20
+    latitude:
+      type: number
+      format: float
+      minimum: -90
+      maximum: 90
+      nullable: true
+    longitude:
+      type: number
+      format: float
+      minimum: -180
+      maximum: 180
+      nullable: true
+    timezone:
+      type: string
+    status:
+      $ref: '#/BranchStatus'

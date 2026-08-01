@@ -1,0 +1,105 @@
+openapi: 3.1.0
+
+info:
+  title: Dental ERP API
+  version: 1.0.0
+  description: |
+    REST API for Dental ERP — a multi-branch dental clinic management system.
+
+    ## Authentication
+    All endpoints require a Bearer token obtained via the Authentication module.
+    Include the token in every request:
+    ```
+    Authorization: Bearer {token}
+    ```
+
+    ## Standard Response Envelope
+    All responses follow this structure:
+    ```json
+    {
+      "success": true,
+      "message": "...",
+      "data": {},
+      "errors": null,
+      "meta": null
+    }
+    ```
+
+    ## Pagination Meta
+    Paginated endpoints include:
+    ```json
+    {
+      "meta": {
+        "pagination": {
+          "total": 100,
+          "per_page": 15,
+          "current_page": 1,
+          "last_page": 7,
+          "from": 1,
+          "to": 15
+        }
+      }
+    }
+    ```
+
+  contact:
+    name: Dental ERP Team
+    email: dev@mydentcare.com
+
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost/api/v1
+    description: Local Development
+  - url: https://api.staging.mydentcare.com/api/v1
+    description: Staging
+  - url: https://api.mydentcare.com/api/v1
+    description: Production
+
+# ---------------------------------------------------------------------------
+# Security
+# ---------------------------------------------------------------------------
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Laravel Sanctum API token.
+
+# ---------------------------------------------------------------------------
+# Shared components (inline for single-file clarity; extracted to components/)
+# ---------------------------------------------------------------------------
+  schemas:
+    $ref: './components/schemas/_index.yaml'
+
+  parameters:
+    $ref: './components/parameters/_index.yaml'
+
+  responses:
+    $ref: './components/responses/_index.yaml'
+
+# ---------------------------------------------------------------------------
+# Tags — one per domain module
+# ---------------------------------------------------------------------------
+tags:
+  - name: Branch
+    description: Clinic branch management — create, update, delete, restore branches.
+  - name: Organization
+    description: Organization (clinic group) management.
+
+# ---------------------------------------------------------------------------
+# Paths — one file per domain
+# ---------------------------------------------------------------------------
+paths:
+  # Branch
+  /branches:
+    $ref: './paths/branches.yaml#/branches'
+  /branches/{id}:
+    $ref: './paths/branches.yaml#/branchesId'
+  /branches/{id}/restore:
+    $ref: './paths/branches.yaml#/branchesIdRestore'

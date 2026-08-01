@@ -114,7 +114,24 @@ Phase 8  →  Resource (API Resource)
 Phase 9  →  Controller
 Phase 10 →  Route
 Phase 11 →  Test
+Phase 12 →  OpenAPI Documentation
 ```
+
+### OpenAPI Documentation Standard
+
+Documentation is written **per module, immediately after Phase 11**.
+Do NOT wait until all modules are complete before documenting.
+
+Rules:
+- Every endpoint MUST have a complete OpenAPI 3.1 specification.
+- Spec files are located at `docs/openapi/paths/{domain}.yaml`.
+- Shared schemas live at `docs/openapi/components/schemas/`.
+- The main entry point is `docs/openapi/openapi.yaml`.
+- Every path must document: summary, description, parameters, request body, responses (200, 201, 400, 401, 403, 404, 422, 500).
+- Response schemas must match the actual `ApiResponse` envelope.
+- Security scheme: `BearerAuth` (Sanctum token).
+- Tags must match the domain name (e.g. `Branch`, `Organization`, `Patient`).
+- Never leave `TODO` or empty descriptions in production spec files.
 
 ---
 
@@ -248,6 +265,19 @@ Phase 11 →  Test
 - [ ] Asserts correct JSON structure
 - [ ] Asserts business rule violations return correct error responses
 
+### Phase 12 — OpenAPI Documentation
+
+- [ ] Spec file created at `docs/openapi/paths/{domain}.yaml`
+- [ ] All endpoints documented: index, show, store, update, destroy, restore (where applicable)
+- [ ] Every path has: summary, description, operationId, tags
+- [ ] Parameters documented: path params, query params (search, filter, sort, pagination)
+- [ ] Request body documented with required fields and examples
+- [ ] All response codes documented: 200, 201, 401, 403, 404, 422, 500
+- [ ] Response schema references shared `ApiResponse` envelope
+- [ ] Security applied: `BearerAuth` on all protected endpoints
+- [ ] `openapi.yaml` updated to include new path file
+- [ ] No empty descriptions or TODO placeholders
+
 ---
 
 ## Quality Gate
@@ -260,3 +290,4 @@ Every file must pass ALL of the following before being considered done:
 - [ ] Designed for 10–100 branches — scoping, indexing, and performance considered
 - [ ] No business logic in the wrong layer
 - [ ] Production ready — no dd(), dump(), hardcoded credentials, or open TODOs
+- [ ] OpenAPI documentation written and synced with implementation (Phase 12)
