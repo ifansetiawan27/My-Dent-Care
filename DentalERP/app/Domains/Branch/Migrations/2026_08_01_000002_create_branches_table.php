@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('organizations', function (Blueprint $table): void {
+        Schema::create('branches', function (Blueprint $table): void {
 
             // ---------------------------------------------------------------
             // Primary Key
@@ -29,37 +29,31 @@ return new class extends Migration
             $table->uuid('id')->primary();
 
             // ---------------------------------------------------------------
+            // Foreign Key
+            // ---------------------------------------------------------------
+            $table->uuid('organization_id')
+                ->comment('References organizations.id');
+
+            // ---------------------------------------------------------------
             // Identity
             // ---------------------------------------------------------------
-            $table->string('company_code', 30)->unique()
-                ->comment('Unique company / clinic group code');
+            $table->string('branch_code', 30)
+                ->comment('Branch code — unique within organization');
 
-            $table->string('company_name', 200)
-                ->comment('Trading or brand name');
+            $table->string('branch_name', 200)
+                ->comment('Branch or clinic name');
 
-            $table->string('legal_name', 200)->nullable()
-                ->comment('Legal registered company name');
-
-            $table->string('tax_number', 50)->nullable()->unique()
-                ->comment('NPWP — tax identification number');
+            $table->string('branch_type', 50)
+                ->comment('Type of branch e.g. clinic, mobile, hospital');
 
             // ---------------------------------------------------------------
             // Contact
             // ---------------------------------------------------------------
-            $table->string('email', 150)
-                ->comment('Primary company email');
+            $table->string('email', 150)->nullable()
+                ->comment('Branch email address');
 
             $table->string('phone', 30)
-                ->comment('Primary company phone number');
-
-            $table->string('website', 150)->nullable()
-                ->comment('Company website URL');
-
-            // ---------------------------------------------------------------
-            // Media
-            // ---------------------------------------------------------------
-            $table->string('logo', 255)->nullable()
-                ->comment('Logo relative storage path');
+                ->comment('Branch phone number');
 
             // ---------------------------------------------------------------
             // Address
@@ -80,13 +74,19 @@ return new class extends Migration
                 ->comment('Postal or ZIP code');
 
             // ---------------------------------------------------------------
+            // Geolocation
+            // ---------------------------------------------------------------
+            $table->decimal('latitude', 10, 8)->nullable()
+                ->comment('Geographic latitude — decimal(10,8) ~1mm precision');
+
+            $table->decimal('longitude', 11, 8)->nullable()
+                ->comment('Geographic longitude — decimal(11,8) ~1mm precision');
+
+            // ---------------------------------------------------------------
             // Locale
             // ---------------------------------------------------------------
             $table->string('timezone', 100)->default('Asia/Jakarta')
                 ->comment('IANA timezone identifier e.g. Asia/Jakarta');
-
-            $table->string('currency', 10)->default('IDR')
-                ->comment('ISO 4217 currency code e.g. IDR');
 
             // ---------------------------------------------------------------
             // Status
@@ -115,9 +115,25 @@ return new class extends Migration
             // ---------------------------------------------------------------
             // Indexes
             // ---------------------------------------------------------------
-            $table->index('email',   'organizations_email_index');
-            $table->index('status',  'organizations_status_index');
-            $table->index('country', 'organizations_country_index');
+            // Note: organization_id standalone index is intentionally omitted.
+            // The composite unique index (organization_id, branch_code) already
+            // covers single-column lookups on organization_id via its leftmost prefix.
+            $table->index('city',   'branches_city_index');
+            $table->index('status', 'branches_status_index');
+
+            // Composite unique: branch_code is unique per organization
+            $table->unique(
+                ['organization_id', 'branch_code'],
+                'branches_organization_id_branch_code_unique'
+            );
+
+            // ---------------------------------------------------------------
+            // Foreign Key Constraint
+            // ---------------------------------------------------------------
+            $table->foreign('organization_id', 'branches_organization_id_foreign')
+                ->references('id')
+                ->on('organizations')
+                ->restrictOnDelete();
         });
 
         // ---------------------------------------------------------------
@@ -125,8 +141,8 @@ return new class extends Migration
         // Ensures only allowed values are inserted at the database level.
         // ---------------------------------------------------------------
         DB::statement("
-            ALTER TABLE organizations
-            ADD CONSTRAINT organizations_status_check
+            ALTER TABLE branches
+            ADD CONSTRAINT branches_status_check
             CHECK (status IN ('active', 'inactive'))
         ");
     }
@@ -136,13 +152,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Drop FK on branches first to avoid RESTRICT violation
-        if (Schema::hasTable('branches')) {
-            Schema::table('branches', function (Blueprint $table): void {
-                $table->dropForeign('branches_organization_id_foreign');
-            });
-        }
+        Schema::table('branches', function (Blueprint $table): void {
+            $table->dropForeign('branches_organization_id_foreign');
+        });
 
-        Schema::dropIfExists('organizations');
+        Schema::dropIfExists('branches');
     }
 };
