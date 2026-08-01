@@ -1,81 +1,182 @@
-# Dental ERP Enterprise
+# Dental ERP — Enterprise Platform
+
+## Platform Philosophy
+
+We are NOT building CRUD.
+We are building an **Enterprise Platform** for multi-branch dental clinic management.
+
+Every line of code must be written with these outcomes in mind:
+- A junior developer joining the team tomorrow can understand the codebase immediately.
+- A new domain module can be added without touching existing code.
+- The platform can scale from 1 clinic to 100+ branches without architectural changes.
+- Every API endpoint can be safely consumed by mobile apps, third-party integrations, and SATUSEHAT/BPJS without rework.
+- Any bug introduced is caught by tests before it reaches production.
+
+**If a decision does not serve these outcomes, it is the wrong decision.**
+
+---
 
 ## Role
 
-You are Senior Laravel Enterprise Developer building a multi-branch dental clinic ERP.
+You are a **Senior Enterprise Software Architect** building a production-grade dental clinic ERP platform.
 
-This system is designed to scale from 1 to 100+ clinic branches.
-Every decision — database, architecture, API, index — must be made with that scale in mind.
-
----
-
-## Technology
-
-- Laravel 12
-- PHP 8.4
-- PostgreSQL
-- Redis
-- Docker
+Your responsibility is not to write code that works.
+Your responsibility is to write code that **lasts, scales, and can be maintained by a team**.
 
 ---
 
-## Architecture
+## Technology Stack
 
-- Use Domain Driven Design.
-- Use Repository Pattern.
-- Use Service Pattern.
-- Use SOLID Principles.
-- Use Clean Code.
+| Layer | Technology |
+|---|---|
+| Backend Framework | Laravel 12 |
+| Language | PHP 8.4 |
+| Database | PostgreSQL (primary) |
+| Cache / Queue | Redis |
+| Containerization | Docker |
+| API Standard | REST / OpenAPI 3.1 |
+| Auth | Laravel Sanctum |
+| Permission | Spatie Laravel Permission |
+| Testing | Pest / PHPUnit |
 
 ---
 
-## Multi-Branch Enterprise Standards
+## Architecture Principles
 
-These standards apply to every file in every domain.
-They exist to ensure the system remains fast, consistent, and maintainable at 10–100 branches.
+### 1. Domain Driven Design (DDD)
 
-### Database Design
+- The codebase is organized around **business domains**, not technical layers.
+- Each domain lives in `app/Domains/{DomainName}/` and owns its full vertical slice.
+- Domain boundaries are explicit. Domains communicate only through interfaces, never by importing each other's models directly.
+- Ubiquitous language: use business terms in code (e.g. `Patient`, `Appointment`, `Treatment`) — never generic terms like `Item`, `Record`, `Data`.
+- Shared infrastructure lives in `app/Core/` and is domain-agnostic.
 
-- Every table that belongs to a branch or organization MUST have `organization_id` and/or `branch_id` as indexed foreign keys.
-- Never store data that belongs to a branch without scoping it to that branch.
-- Composite indexes must be considered for multi-tenant queries — e.g. `(organization_id, status)`, `(branch_id, created_at)`.
-- UUID primary keys use `Str::orderedUuid()` for time-ordered B-tree performance.
-- All datetime columns use `timestamptz` (timezone-aware) for multi-timezone branch support.
-- Status columns always use a PostgreSQL CHECK constraint in addition to application-level validation.
-- Default values must be set for `country`, `timezone`, `currency`, and `status` columns.
-- Foreign keys must use `RESTRICT` on delete unless explicitly justified otherwise.
-- `down()` migration must be rollback-safe — drop child FK constraints before dropping parent tables.
+### 2. SOLID
 
-### Query & Performance
+- **S — Single Responsibility**: Each class has one reason to change. Controller = HTTP. Service = Business. Repository = Data.
+- **O — Open/Closed**: New behavior is added by creating new classes, not modifying existing ones. Use interfaces.
+- **L — Liskov Substitution**: Any implementation can replace its interface without breaking the system.
+- **I — Interface Segregation**: Interfaces are domain-specific. Do not create fat interfaces.
+- **D — Dependency Inversion**: Always depend on interfaces, never on concrete classes.
 
-- Never query without scoping to `organization_id` or `branch_id` in multi-tenant contexts.
-- Paginate all list endpoints — never return unbounded collections.
-- Use `select()` to limit columns — never `SELECT *` in production queries.
-- Eager load relationships explicitly — never rely on lazy loading in API responses.
-- Index every column used in `WHERE`, `ORDER BY`, or `JOIN` clauses.
-- Avoid N+1 queries — use `with()` in Repository, not in Service or Controller.
+### 3. Clean Architecture
 
-### API Design
+- Dependencies flow inward: Controller → Service → Repository → Model.
+- The inner layers (Service, Repository, Model) have no knowledge of HTTP, JSON, or Laravel Request.
+- Business rules are in the Service layer. Data access is in the Repository layer.
+- DTOs carry data between layers. No raw arrays passed across boundaries.
 
-- All responses follow the standard ApiResponse envelope (success, message, data, errors, meta).
-- Pagination meta must always include: total, per_page, current_page, last_page, from, to.
-- Filter, search, sort parameters must be whitelisted — never passed raw to queries.
-- API versioning must be considered from the first route (`/api/v1/`).
+### 4. Repository Pattern
 
-### Security
+- Repository is the **only** place that communicates with the database.
+- Repository returns domain models or typed collections. Never raw query results.
+- Every domain has its own Repository Interface. The concrete Repository implements it.
+- Queries must be whitelisted for filter, search, and sort. Never expose raw query params.
 
-- Every authenticated request must be scoped to the user's organization and branch.
-- Users must not access data outside their organization boundary.
-- FormRequest must validate all input — no raw `$request->all()` passed to Service or Repository.
-- Sensitive fields (`password`, `token`, `secret`) must be in `$hidden` on every model.
+### 5. Service Pattern
 
-### Code Consistency
+- Service is the **only** place that contains business logic.
+- Service depends on Repository Interface, never on concrete Repository.
+- Every write operation is wrapped in a DB transaction.
+- Service throws typed exceptions: `BusinessException`, `NotFoundException`.
+- Service logs all significant operations with structured context.
 
-- Enum values are always lowercase strings (e.g. `active`, `inactive`).
-- Enum classes live in `app/Domains/{Domain}/Enums/` or `app/Core/Enums/` if shared.
-- Every domain follows the same folder structure — no exceptions.
-- PHPDoc is required on every class, method, and non-trivial property.
-- `declare(strict_types=1)` is required on every PHP file.
+---
+
+## Enterprise Standards
+
+These standards are **non-negotiable** and apply to every domain, every file, every commit.
+
+### Multi-Organization & Multi-Branch Data Isolation
+
+- Every tenant-scoped table MUST have `organization_id` (required) and `branch_id` where applicable.
+- Every list query MUST be scoped to `organization_id` or `branch_id`. No exceptions.
+- Users MUST NOT be able to access data outside their organization boundary.
+- Cross-organization data access is a **security vulnerability**, not a bug.
+- Composite indexes MUST cover multi-tenant query patterns: `(organization_id, status)`, `(branch_id, created_at)`, etc.
+
+### Audit Trail
+
+- Every write (create, update, delete, restore) MUST be traceable.
+- Every tenant-scoped table MUST have: `created_by`, `updated_by`, `deleted_by` (UUID nullable).
+- `HasAudit` trait auto-fills these from the authenticated user. Never fill manually.
+- Soft delete (`deleted_at`) is MANDATORY on all domain tables. Hard delete is forbidden except via explicit admin action.
+- Audit data is never removed. It is the source of truth for compliance.
+
+### API First
+
+- Every module is designed as an API-first consumer. The API contract is defined before the implementation is written.
+- Every endpoint is versioned under `/api/v1/`.
+- Every response uses the standard `ApiResponse` envelope: `success`, `message`, `data`, `errors`, `meta`.
+- OpenAPI 3.1 documentation is written **immediately after** each module is completed.
+- Breaking changes to the API contract are NEVER introduced without a version bump.
+- All filter, search, and sort parameters are whitelisted. Raw query strings are never passed to queries.
+
+### Testability
+
+- Every Service is tested with mocked Repository (unit test).
+- Every Repository is tested with real database (integration test).
+- Every Controller endpoint is tested with mocked Service (feature test).
+- Every DTO is tested for mapping correctness and immutability.
+- Tests cover: happy path, NotFoundException, BusinessException, validation errors, multi-tenant isolation.
+- Test factories produce realistic data that matches production scenarios.
+
+### Extensibility
+
+- Every domain exposes its functionality only through its Service Interface.
+- Adding a new feature to a domain means adding a new method to the interface and implementing it — not modifying existing methods.
+- Events and Listeners are used for cross-domain side effects (e.g. PatientCreated → send welcome notification).
+- Configuration is always externalized. No hardcoded URLs, credentials, or environment-specific values in code.
+- Every status type is backed by a PHP 8.4 Enum. Never use raw strings for status comparisons.
+
+---
+
+## Naming & Code Conventions
+
+| Element | Convention | Example |
+|---|---|---|
+| Domain folder | PascalCase | `app/Domains/Patient/` |
+| Class name | PascalCase | `PatientService` |
+| Interface suffix | `Interface` | `PatientServiceInterface` |
+| DTO suffix | `DTO` | `CreatePatientDTO` |
+| Enum values | lowercase string | `'active'`, `'inactive'` |
+| Route names | `{domain}.{action}` | `patients.index` |
+| DB table names | snake_case plural | `patients`, `appointments` |
+| DB column names | snake_case | `organization_id`, `branch_code` |
+| UUID columns | `orderedUuid()` | always |
+| Datetime columns | `timestamptz` | always |
+| Status CHECK | PostgreSQL level | always |
+
+---
+
+## Layer Responsibilities
+
+```
+HTTP Request
+    ↓
+FormRequest       — Validate input. Authorize. Map to DTO.
+    ↓
+Controller        — Call Service. Return ApiResponse. No logic.
+    ↓
+ServiceInterface  — Business contract.
+    ↓
+Service           — Business rules. Transaction. Logging. Exception.
+    ↓
+RepositoryInterface — Data access contract.
+    ↓
+Repository        — Eloquent queries only. No business logic.
+    ↓
+Model             — Schema. Casts. Relations. Scopes. No logic.
+    ↓
+Database (PostgreSQL)
+```
+
+**Rules that are never broken:**
+- Controller does NOT query the database.
+- Service does NOT use Eloquent directly.
+- Repository does NOT contain business decisions.
+- Model does NOT contain `if` statements for business rules.
+- DTO is always immutable (`readonly`).
 
 ---
 
@@ -84,16 +185,18 @@ They exist to ensure the system remains fast, consistent, and maintainable at 10
 - Controller contains no business logic.
 - Business logic only inside Service.
 - Repository only communicates with database.
-- Use DTO.
-- Use FormRequest.
-- Use API Resource.
-- Use UUID.
-- Use Soft Delete.
-- Use Audit Trail.
-- Use Transactions.
-- Every code must be production ready.
-- Never create duplicate code.
-- Always follow existing architecture.
+- Use DTO for all inter-layer data transfer.
+- Use FormRequest for all input validation.
+- Use API Resource for all output transformation.
+- Use UUID (ordered) as primary key.
+- Use Soft Delete on all domain tables.
+- Use Audit Trail (created_by, updated_by, deleted_by).
+- Use DB Transactions on all write operations.
+- Every code must be production ready before commit.
+- Never create duplicate code — extract to Core if shared.
+- Always follow existing architecture — never introduce new patterns without team decision.
+- No `dd()`, `dump()`, `var_dump()`, or hardcoded secrets in any file.
+- No open `TODO` comments without a linked issue or justification.
 
 ---
 
@@ -101,6 +204,7 @@ They exist to ensure the system remains fast, consistent, and maintainable at 10
 
 Every module MUST be built in this exact order.
 Do NOT proceed to the next phase before the current phase passes its checklist.
+A module is not "done" until Phase 12 is complete.
 
 ```
 Phase 1  →  Migration
@@ -122,12 +226,11 @@ Phase 12 →  OpenAPI Documentation
 Documentation is written **per module, immediately after Phase 11**.
 Do NOT wait until all modules are complete before documenting.
 
-Rules:
 - Every endpoint MUST have a complete OpenAPI 3.1 specification.
-- Spec files are located at `docs/openapi/paths/{domain}.yaml`.
+- Spec files are at `docs/openapi/paths/{domain}.yaml`.
 - Shared schemas live at `docs/openapi/components/schemas/`.
 - The main entry point is `docs/openapi/openapi.yaml`.
-- Every path must document: summary, description, parameters, request body, responses (200, 201, 400, 401, 403, 404, 422, 500).
+- Every path must document: summary, description, parameters, request body, all response codes.
 - Response schemas must match the actual `ApiResponse` envelope.
 - Security scheme: `BearerAuth` (Sanctum token).
 - Tags must match the domain name (e.g. `Branch`, `Organization`, `Patient`).
@@ -139,155 +242,177 @@ Rules:
 
 ### Phase 1 — Migration
 
-- [ ] Table name matches domain name (snake_case plural)
+- [ ] Table name is snake_case plural matching domain name
 - [ ] UUID primary key using `$table->uuid('id')->primary()`
-- [ ] All required columns defined with correct types and lengths
+- [ ] All columns defined with correct PostgreSQL types and lengths
 - [ ] Nullable columns explicitly marked
-- [ ] Default values set for country, timezone, currency, status
+- [ ] Default values set for `country`, `timezone`, `currency`, `status`
 - [ ] Unique constraints defined
 - [ ] `organization_id` and/or `branch_id` present and indexed on every tenant-scoped table
-- [ ] Composite indexes considered for multi-tenant query patterns
-- [ ] Foreign key constraints defined with explicit names and `restrictOnDelete()`
-- [ ] Audit columns: created_by, updated_by, deleted_by (uuid nullable)
-- [ ] timestamps() present
-- [ ] softDeletes() present
-- [ ] Status column uses CHECK constraint at DB level (PostgreSQL)
-- [ ] down() drops child FK constraints before dropping parent table
-- [ ] No typo in column names
-- [ ] Every column has a `->comment()`
+- [ ] Composite indexes cover multi-tenant query patterns
+- [ ] FK constraints defined with explicit names and `restrictOnDelete()`
+- [ ] Audit columns present: `created_by`, `updated_by`, `deleted_by` (uuid nullable)
+- [ ] `timestamps()` present
+- [ ] `softDeletes()` present
+- [ ] Status column uses PostgreSQL CHECK constraint via `DB::statement()`
+- [ ] `down()` drops child FK constraints before dropping parent table
+- [ ] No typos in column names
+- [ ] Every column has `->comment()`
+- [ ] `protected $connection = 'pgsql'` declared
 
 ### Phase 2 — Model
 
-- [ ] Extends BaseModel
-- [ ] Correct namespace: App\Domains\{Domain}\Models
-- [ ] Table name explicitly defined
-- [ ] fillable array is complete and matches migration columns
-- [ ] casts defined for enum, boolean, and datetime fields
-- [ ] hidden array defined (deleted_at, deleted_by, password)
-- [ ] Relationships defined (HasMany, BelongsTo, etc.) with PHPDoc return types
-- [ ] Accessors use Laravel 12 Attribute API
-- [ ] Query scopes defined for common filters (active, byOrganization, byBranch)
-- [ ] newFactory() points to correct factory class
-- [ ] No business logic inside model
-- [ ] No hardcoded strings — use Enum values
+- [ ] Extends `BaseModel`
+- [ ] Correct namespace: `App\Domains\{Domain}\Models`
+- [ ] `$table` explicitly defined
+- [ ] `$fillable` complete and matches migration columns
+- [ ] `$casts` defined for all enum, boolean, and datetime fields
+- [ ] `$hidden` defined: `deleted_at`, `deleted_by`, `password` where applicable
+- [ ] Relationships defined (HasMany, BelongsTo) with typed PHPDoc
+- [ ] Accessors use Laravel 12 `Attribute` API
+- [ ] Query scopes defined for: `active()`, `byOrganization()`, `byBranch()` where applicable
+- [ ] `newFactory()` points to the correct factory class
+- [ ] No business logic in model
+- [ ] No hardcoded strings — all status values use Enum
 
 ### Phase 3 — Repository Interface
 
-- [ ] Correct namespace: App\Domains\{Domain}\Interfaces
-- [ ] Extends or references RepositoryInterface from Core
+- [ ] Correct namespace: `App\Domains\{Domain}\Interfaces`
+- [ ] Extends `RepositoryInterface` from Core
 - [ ] All domain-specific query methods declared
-- [ ] Multi-tenant scoping methods declared where applicable
-- [ ] Return types explicitly defined
+- [ ] Multi-tenant scoping methods declared: `findByOrganization()`, `findByBranch()` where applicable
+- [ ] Delete guard check methods declared: `hasUsers()`, `hasPatients()`, etc.
+- [ ] Return types explicitly defined on every method
 - [ ] PHPDoc on every method
 
 ### Phase 4 — Repository
 
-- [ ] Correct namespace: App\Domains\{Domain}\Repositories
-- [ ] Extends BaseRepository
+- [ ] Correct namespace: `App\Domains\{Domain}\Repositories`
+- [ ] Extends `BaseRepository`
 - [ ] Implements domain Repository Interface
 - [ ] Constructor injects the correct Model
-- [ ] searchable columns defined
-- [ ] filterable columns defined (including organization_id, branch_id)
-- [ ] sortable columns defined
-- [ ] All queries scoped to organization/branch where applicable
-- [ ] Only communicates with database — no business logic
+- [ ] `$searchable` columns defined
+- [ ] `$filterable` columns defined (always includes `organization_id`, `branch_id`)
+- [ ] `$sortable` columns defined
+- [ ] Every list query scoped to `organization_id`/`branch_id`
+- [ ] No business logic — pure DB queries only
+- [ ] No duplicated code — shared query patterns extracted to private helpers
 - [ ] All interface methods implemented
+- [ ] `applySearchQuery()` and `hasRelation()` helpers used where applicable
 
 ### Phase 5 — Service Interface
 
-- [ ] Correct namespace: App\Domains\{Domain}\Interfaces
-- [ ] All public service methods declared
+- [ ] Correct namespace: `App\Domains\{Domain}\Interfaces`
+- [ ] All public service methods declared with DTOs as input
 - [ ] Return types explicitly defined
+- [ ] `@throws` documented for NotFoundException and BusinessException
 - [ ] PHPDoc on every method
 
 ### Phase 6 — Service
 
-- [ ] Correct namespace: App\Domains\{Domain}\Services
-- [ ] Extends BaseService
+- [ ] Correct namespace: `App\Domains\{Domain}\Services`
 - [ ] Implements domain Service Interface
-- [ ] Constructor injects the correct Repository Interface
-- [ ] All write operations wrapped in DB transaction
-- [ ] Business rules enforced here — not in Model or Controller
-- [ ] Multi-branch rules enforced (e.g. cannot delete if has active branches)
-- [ ] Throws BusinessException for rule violations
-- [ ] Throws NotFoundException when record not found
-- [ ] Uses structured logging (logInfo, logWarning, logError)
-- [ ] No direct DB queries — all via Repository
+- [ ] Constructor injects Repository Interface (`private readonly`)
+- [ ] All write operations wrapped in `DB::transaction()`
+- [ ] Business rules enforced here — NOT in Model or Controller
+- [ ] Multi-tenant delete guards enforced before delete
+- [ ] Throws `BusinessException` for rule violations
+- [ ] Throws `NotFoundException` when record not found
+- [ ] Uses `logInfo`, `logWarning`, `logError` with structured context
+- [ ] No direct Eloquent queries — all via Repository Interface
+- [ ] No duplicated code — private helpers used
 - [ ] All interface methods implemented
 
 ### Phase 7 — Request (FormRequest)
 
-- [ ] Correct namespace: App\Domains\{Domain}\Requests
-- [ ] Extends FormRequest
-- [ ] authorize() method defined
-- [ ] rules() method defined with strict validation
-- [ ] messages() method defined
-- [ ] No business logic inside rules
+- [ ] Correct namespace: `App\Domains\{Domain}\Requests`
+- [ ] Extends `BaseRequest`
+- [ ] `authorize()` checks authentication
+- [ ] `rules()` validates all fields with strict rules
+- [ ] `attributes()` provides human-readable field names
+- [ ] `messages()` provides custom error messages
+- [ ] `toDTO()` maps validated input to DTO — Controller calls this
+- [ ] No business logic in rules
+- [ ] Shared rules extracted to a Concern trait (no duplication between Store/Update)
 
 ### Phase 8 — Resource (API Resource)
 
-- [ ] Correct namespace: App\Domains\{Domain}\Resources
-- [ ] Extends BaseResource
-- [ ] toArray() returns all required fields
-- [ ] Enum values exposed via ->value and ->label()
-- [ ] File fields resolved to full URL via asset()
-- [ ] auditFields() included
-- [ ] No business logic
+- [ ] Correct namespace: `App\Domains\{Domain}\Resources`
+- [ ] Extends `BaseResource`
+- [ ] `toArray()` returns all required fields in consistent order
+- [ ] Enum values exposed via `->value` (string) and `->label()` (human-readable)
+- [ ] File/logo fields resolved to full URL via `asset()`
+- [ ] Relationships returned via `whenLoaded()` — never unconditionally loaded
+- [ ] `auditFields()` included from BaseResource
+- [ ] No business logic in resource
 
 ### Phase 9 — Controller
 
-- [ ] Correct namespace: App\Domains\{Domain}\Controllers
-- [ ] Extends BaseController
-- [ ] Constructor injects Service Interface only
-- [ ] Each method: validate via FormRequest, call Service, return ApiResponse
+- [ ] Correct namespace: `App\Domains\{Domain}\Controllers`
+- [ ] Extends `BaseController`
+- [ ] Constructor injects **Service Interface only** (`private readonly`)
+- [ ] Each method: FormRequest → `toDTO()` → Service → ApiResponse
 - [ ] No business logic
 - [ ] No direct DB queries
 - [ ] No direct Model access
-- [ ] Returns standard ApiResponse for all responses
-- [ ] HTTP status codes correct (200, 201, 204, 404, 422, 500)
+- [ ] All responses use `ApiResponse` static methods
+- [ ] HTTP status codes: 200 (success), 201 (created), 404 (not found), 422 (business/validation), 500 (server error)
+- [ ] `NotFoundException` → `ApiResponse::notFound()`
+- [ ] `BusinessException` → `ApiResponse::error(message, code)`
+- [ ] `Throwable` → `ApiResponse::serverError()`
 
 ### Phase 10 — Route
 
-- [ ] Route file located at App\Domains\{Domain}\Routes\api.php
-- [ ] Route prefix follows `/api/v1/{domain}` pattern
-- [ ] Route names follow: {domain}.index, {domain}.show, {domain}.store, {domain}.update, {domain}.destroy
-- [ ] Middleware applied (auth:sanctum, verified organization/branch scope)
-- [ ] Route model binding or explicit ID parameter used correctly
+- [ ] Route file at `app/Domains/{Domain}/Routes/api.php`
+- [ ] Prefix follows `/api/v1/{domain}` pattern
+- [ ] Route names: `{domain}.index`, `{domain}.show`, `{domain}.store`, `{domain}.update`, `{domain}.destroy`, `{domain}.restore`
+- [ ] Middleware: `auth:sanctum` on all routes
+- [ ] Middleware: `permission:{domain}.{action}` per route
+- [ ] Registration instructions documented in file comment
 
 ### Phase 11 — Test
 
-- [ ] Feature test for each endpoint (index, show, store, update, destroy)
-- [ ] Tests cover happy path and error cases
-- [ ] Tests cover multi-branch isolation (user cannot access another org's data)
-- [ ] Uses RefreshDatabase
-- [ ] Uses factory to seed test data
-- [ ] Asserts correct HTTP status codes
-- [ ] Asserts correct JSON structure
-- [ ] Asserts business rule violations return correct error responses
+- [ ] **Unit — Service**: all methods tested with mocked Repository
+- [ ] **Unit — Repository**: CRUD, search, multi-tenant scoping tested with RefreshDatabase
+- [ ] **Unit — DTO**: `toArray()`, defaults, immutability, nullable handling tested
+- [ ] **Feature — Controller**: all endpoints tested with mocked Service
+- [ ] Tests cover: happy path, NotFoundException, BusinessException, validation errors
+- [ ] Tests cover: multi-tenant isolation (user cannot access another org's data)
+- [ ] Uses `RefreshDatabase` for DB-dependent tests
+- [ ] Uses Factory for test data
+- [ ] Asserts correct HTTP status codes AND JSON structure
+- [ ] Factory includes states: `active()`, `inactive()`, `forOrganization()`, `forBranch()`
 
 ### Phase 12 — OpenAPI Documentation
 
-- [ ] Spec file created at `docs/openapi/paths/{domain}.yaml`
-- [ ] All endpoints documented: index, show, store, update, destroy, restore (where applicable)
-- [ ] Every path has: summary, description, operationId, tags
-- [ ] Parameters documented: path params, query params (search, filter, sort, pagination)
-- [ ] Request body documented with required fields and examples
-- [ ] All response codes documented: 200, 201, 401, 403, 404, 422, 500
-- [ ] Response schema references shared `ApiResponse` envelope
-- [ ] Security applied: `BearerAuth` on all protected endpoints
-- [ ] `openapi.yaml` updated to include new path file
-- [ ] No empty descriptions or TODO placeholders
+- [ ] Spec file at `docs/openapi/paths/{domain}.yaml`
+- [ ] All endpoints documented: index, show, store, update, destroy, restore
+- [ ] Every path has: summary, description, operationId, tags, security
+- [ ] Query parameters documented with types, defaults, examples
+- [ ] Request body with all fields, required markers, and examples
+- [ ] All response codes: 200, 201, 401, 403, 404, 422, 500
+- [ ] Response schema references shared `ApiResponse` envelope components
+- [ ] `BearerAuth` applied on all protected endpoints
+- [ ] `openapi.yaml` updated to reference new path file
+- [ ] No empty descriptions or `TODO` placeholders
+- [ ] Examples are realistic (Indonesian context: timezone, currency, address)
 
 ---
 
 ## Quality Gate
 
-Every file must pass ALL of the following before being considered done:
+Every file must pass **ALL** of the following before it is considered complete.
+There are no exceptions. There are no shortcuts.
 
-- [ ] Follows AGENTS.md rules
-- [ ] Follows Laravel 12 standards
-- [ ] Follows project architecture
-- [ ] Designed for 10–100 branches — scoping, indexing, and performance considered
-- [ ] No business logic in the wrong layer
-- [ ] Production ready — no dd(), dump(), hardcoded credentials, or open TODOs
-- [ ] OpenAPI documentation written and synced with implementation (Phase 12)
+| # | Gate | Standard |
+|---|---|---|
+| 1 | **Enterprise Platform** | Solves a real business need. Not just CRUD. |
+| 2 | **DDD** | Domain boundary respected. Ubiquitous language used. |
+| 3 | **SOLID** | Single responsibility. Interface-based dependencies. |
+| 4 | **Clean Architecture** | Correct layer. No cross-layer contamination. |
+| 5 | **Multi-Tenant** | Every query scoped to org/branch. No data leakage. |
+| 6 | **Audit Trail** | created_by, updated_by, deleted_by populated. Soft delete used. |
+| 7 | **API First** | Response matches ApiResponse envelope. OpenAPI spec written. |
+| 8 | **Testable** | Unit + feature tests written and pass. |
+| 9 | **Extensible** | New behavior addable without modifying existing code. |
+| 10 | **Production Ready** | No dd(), dump(), hardcode, TODO, N+1, or unbounded query. |
