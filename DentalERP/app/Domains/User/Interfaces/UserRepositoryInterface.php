@@ -7,7 +7,7 @@ namespace App\Domains\User\Interfaces;
 use App\Core\Contracts\RepositoryInterface;
 use App\Domains\User\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 /**
  * UserRepositoryInterface
