@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * User Model
@@ -55,6 +56,7 @@ class User extends BaseModel implements
 {
     use HasApiTokens;
     use HasFactory;
+    use HasRoles;
     use AuthenticatableTrait;
     use Authorizable;
     use MustVerifyEmail;
