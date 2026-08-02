@@ -149,6 +149,116 @@ These standards are **non-negotiable** and apply to every domain, every file, ev
 
 ---
 
+## PHP Enum Standard
+
+**This is a non-negotiable rule applied to every status and category field in the platform.**
+
+### Why Enum — Not Raw String
+
+Raw strings like `"ACTIVE"`, `"active"`, `1`, `0` are:
+- Impossible to autocomplete — typos go undetected until runtime.
+- Impossible to refactor safely across the codebase.
+- Not type-safe — any string can be passed where a status is expected.
+- Invisible to static analysis tools (PHPStan, Psalm).
+
+PHP 8.1+ backed Enums solve all of these problems.
+
+### Placement Rules
+
+| Scope | Location | Example |
+|---|---|---|
+| Used by **one domain only** | `app/Domains/{Domain}/Enums/` | `BranchStatus`, `UserStatus` |
+| Used by **multiple domains** | `app/Core/Enums/` | `Gender`, `PaymentStatus`, `BloodType` |
+
+### Mandatory Enum Structure
+
+Every Enum in this codebase MUST implement:
+
+```php
+enum SomeStatus: string
+{
+    case Active   = 'active';    // lowercase value — matches DB CHECK constraint
+    case Inactive = 'inactive';
+
+    // Human-readable label for API responses and UI display
+    public function label(): string
+    {
+        return match ($this) {
+            self::Active   => 'Active',
+            self::Inactive => 'Inactive',
+        };
+    }
+
+    // All valid values as array — used in Rule::in() validation
+    public static function values(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
+}
+```
+
+Optional context methods where applicable:
+- `canLogin(): bool` — for auth-related status
+- `isOperational(): bool` — for organization/branch status
+- `isFinal(): bool` — for payment/invoice status
+
+### Usage Rules Per Layer
+
+| Layer | Rule | Example |
+|---|---|---|
+| **Model `$casts`** | Cast column to Enum class | `'status' => UserStatus::class` |
+| **Migration CHECK** | Use enum values in constraint | `CHECK (status IN ('active', 'inactive'))` |
+| **FormRequest** | Validate via enum | `Rule::in(UserStatus::values())` |
+| **API Resource** | Expose value + label | `'status' => $this->status->value, 'status_label' => $this->status->label()` |
+| **Service** | Compare via enum case | `$user->status === UserStatus::Active` |
+| **Factory / Seeder** | Use enum value | `UserStatus::Active->value` |
+
+### Forbidden Patterns
+
+```php
+// FORBIDDEN — raw string comparison
+if ($user->status === 'active') { }
+if ($user->status === 1) { }
+
+// FORBIDDEN — raw string in validation
+'status' => ['required', 'in:active,inactive']
+
+// FORBIDDEN — raw string in factory or seeder
+'status' => 'active'
+
+// CORRECT
+if ($user->status === UserStatus::Active) { }
+'status' => ['required', Rule::in(UserStatus::values())]
+'status' => UserStatus::Active->value
+```
+
+### Enum Inventory
+
+**Domain-specific (`app/Domains/{Domain}/Enums/`):**
+
+| Enum | Domain | Values |
+|---|---|---|
+| `OrganizationStatus` | Organization | `active`, `inactive` |
+| `BranchStatus` | Branch | `active`, `inactive` |
+| `UserStatus` | User | `active`, `inactive` |
+| `UserGender` | User | `male`, `female` |
+
+**Shared (`app/Core/Enums/`):**
+
+| Enum | Used By | Values |
+|---|---|---|
+| `Gender` | Patient, User (HR) | `male`, `female` |
+| `BloodType` | Patient, EMR | `A`, `B`, `AB`, `O` |
+| `MaritalStatus` | Patient, HR | `single`, `married`, `divorced`, `widowed` |
+| `Religion` | Patient, HR | `islam`, `christian`, `catholic`, `hindu`, `buddha`, `konghucu` |
+| `PaymentStatus` | Finance, Appointment | `pending`, `paid`, `partial`, `cancelled`, `refunded` |
+| `InvoiceStatus` | Finance | `draft`, `sent`, `paid`, `overdue`, `cancelled` |
+| `AppointmentStatus` | Appointment | `scheduled`, `confirmed`, `in_progress`, `completed`, `cancelled`, `no_show` |
+| `VisitStatus` | EMR | `open`, `in_progress`, `completed`, `cancelled` |
+| `ToothType` | Odontogram, Treatment | `permanent`, `deciduous` |
+
+---
+
 ## Layer Responsibilities
 
 ```
