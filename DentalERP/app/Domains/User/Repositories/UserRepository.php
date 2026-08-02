@@ -369,38 +369,26 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     /**
      * Check whether the user has any appointments as the assigned clinician.
-     * Uses direct table query — does not depend on Eloquent relationship.
      */
     public function hasAppointments(string $userId): bool
     {
-        return DB::table('appointments')
-            ->where('user_id', $userId)
-            ->whereNull('deleted_at')
-            ->exists();
+        return $this->hasRecordsInTable('appointments', $userId);
     }
 
     /**
      * Check whether the user has any clinical (EMR) records.
-     * Uses direct table query — does not depend on Eloquent relationship.
      */
     public function hasClinicalRecords(string $userId): bool
     {
-        return DB::table('medical_records')
-            ->where('user_id', $userId)
-            ->whereNull('deleted_at')
-            ->exists();
+        return $this->hasRecordsInTable('medical_records', $userId);
     }
 
     /**
      * Check whether the user has any finance transactions.
-     * Uses direct table query — does not depend on Eloquent relationship.
      */
     public function hasFinanceTransactions(string $userId): bool
     {
-        return DB::table('finance_transactions')
-            ->where('user_id', $userId)
-            ->whereNull('deleted_at')
-            ->exists();
+        return $this->hasRecordsInTable('finance_transactions', $userId);
     }
 
     // -------------------------------------------------------------------------
@@ -418,5 +406,20 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
                 $q->orWhere($column, 'ILIKE', "%{$keyword}%");
             }
         });
+    }
+
+    /**
+     * Check whether a given table has non-deleted records linked to a user.
+     * Extracted to remove duplication across all has*() guard methods.
+     *
+     * @param  string $table   Table name to query.
+     * @param  string $userId  UUID of the user.
+     */
+    private function hasRecordsInTable(string $table, string $userId): bool
+    {
+        return DB::table($table)
+            ->where('user_id', $userId)
+            ->whereNull('deleted_at')
+            ->exists();
     }
 }
