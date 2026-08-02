@@ -310,57 +310,83 @@ Database (PostgreSQL)
 
 ---
 
-## Platform Build Roadmap
+## Platform Build Roadmap — FINAL (LOCKED)
 
-Urutan pengembangan modul mengikuti dependency yang benar.
-Modul berikutnya hanya dimulai setelah modul sebelumnya dinyatakan selesai (Phase 12 complete).
+> **Architectural Decision (Lead Software Architect):**
+> We have stopped building *features*. We are building a *Platform*.
+> Every step we take from now on MUST be reusable by the entire ERP.
+>
+> **This roadmap is FINAL and MUST NOT be changed.**
+> All future work references the phase numbers below.
 
 ```
-✅ 1. Organization        — Tenant boundary
-✅ 2. Branch              — Operational unit
-✅ 3. User                — Staff & authentication subject
-   4. Role & Permission   — Spatie Laravel Permission (RBAC)
-   5. Authentication      — Sanctum: Login, Refresh Token, Logout
-   6. Profile             — Self-service user profile
-   7. Master Data         — Shared lookup tables (diagnoses, procedures, etc.)
-   8. Patient             — Core clinical entity
-   9. Appointment         — Scheduling
-  10. EMR / Odontogram    — Clinical records
-  11. Treatment           — Treatment planning & execution
-  12. Inventory           — Clinic supplies
-  13. Pharmacy            — Medication dispensing
-  14. Finance             — Billing & transactions
-  15. HR                  — Staff & payroll
-  16. Reporting           — Dashboards & analytics
-  17. Integration         — SATUSEHAT, BPJS, Payment Gateway
+Phase 00  Project Foundation                     ✅
+Phase 01  Core Framework                          ✅
+Phase 02  Base Foundation                         ✅
+Phase 03  Organization                            ✅
+Phase 04  Branch                                  ✅
+Phase 05  User                                    ✅
+Phase 06  Role & Permission                       ✅
+Phase 07  Platform Services                       ← current focus
+Phase 08  Authentication
+Phase 09  Master Data
+Phase 10  Employee
+Phase 11  Doctor
+Phase 12  Patient
+Phase 13  Appointment
+Phase 14  EMR
+Phase 15  Odontogram
+Phase 16  Treatment
+Phase 17  Billing
+Phase 18  Inventory
+Phase 19  Pharmacy
+Phase 20  Laboratory
+Phase 21  Procurement
+Phase 22  Asset
+Phase 23  HR
+Phase 24  CRM
+Phase 25  Reporting
+Phase 26  Dashboard
+Phase 27  Integration Hub
+Phase 28  AI Engine
+Phase 29  Deployment
 ```
+
+**Platform-first principle:**
+- Before writing anything domain-specific, ask: *"Can this be reused by other domains?"*
+- If yes → build it in `app/Core/` or as a Platform Service (Phase 07).
+- If it is truly domain-specific → build it inside the domain, but expose it via interface.
+- No domain module may duplicate infrastructure that belongs in the Platform layer.
 
 ---
 
 ## Module Development Order
 
-Every module MUST be built in this exact order.
-Do NOT proceed to the next phase before the current phase passes its checklist.
-A module is not "done" until Phase 12 is complete.
+> Terminology: "Phase" refers to the roadmap (Phase 00–29).
+> The 12 build steps below are called "Steps" to avoid confusion with roadmap phases.
+
+Every module MUST be built in this exact order of steps.
+Do NOT proceed to the next step before the current step passes its checklist.
+A module is not "done" until Step 12 is complete.
 
 ```
-Phase 1  →  Migration
-Phase 2  →  Model
-Phase 3  →  Repository Interface
-Phase 4  →  Repository
-Phase 5  →  Service Interface
-Phase 6  →  Service
-Phase 7  →  Request (FormRequest)
-Phase 8  →  Resource (API Resource)
-Phase 9  →  Controller
-Phase 10 →  Route
-Phase 11 →  Test
-Phase 12 →  OpenAPI Documentation
+Step 1  →  Migration
+Step 2  →  Model
+Step 3  →  Repository Interface
+Step 4  →  Repository
+Step 5  →  Service Interface
+Step 6  →  Service
+Step 7  →  Request (FormRequest)
+Step 8  →  Resource (API Resource)
+Step 9  →  Controller
+Step 10 →  Route
+Step 11 →  Test
+Step 12 →  OpenAPI Documentation
 ```
 
 ### OpenAPI Documentation Standard
 
-Documentation is written **per module, immediately after Phase 11**.
+Documentation is written **per module, immediately after Step 11**.
 Do NOT wait until all modules are complete before documenting.
 
 - Every endpoint MUST have a complete OpenAPI 3.1 specification.
@@ -375,9 +401,9 @@ Do NOT wait until all modules are complete before documenting.
 
 ---
 
-## Phase Checklists
+## Step Checklists
 
-### Phase 1 — Migration
+### Step 1 — Migration
 
 - [ ] Table name is snake_case plural matching domain name
 - [ ] UUID primary key using `$table->uuid('id')->primary()`
@@ -397,7 +423,7 @@ Do NOT wait until all modules are complete before documenting.
 - [ ] Every column has `->comment()`
 - [ ] `protected $connection = 'pgsql'` declared
 
-### Phase 2 — Model
+### Step 2 — Model
 
 - [ ] Extends `BaseModel`
 - [ ] Correct namespace: `App\Domains\{Domain}\Models`
@@ -412,7 +438,7 @@ Do NOT wait until all modules are complete before documenting.
 - [ ] No business logic in model
 - [ ] No hardcoded strings — all status values use Enum
 
-### Phase 3 — Repository Interface
+### Step 3 — Repository Interface
 
 - [ ] Correct namespace: `App\Domains\{Domain}\Interfaces`
 - [ ] Extends `RepositoryInterface` from Core
@@ -422,7 +448,7 @@ Do NOT wait until all modules are complete before documenting.
 - [ ] Return types explicitly defined on every method
 - [ ] PHPDoc on every method
 
-### Phase 4 — Repository
+### Step 4 — Repository
 
 - [ ] Correct namespace: `App\Domains\{Domain}\Repositories`
 - [ ] Extends `BaseRepository`
@@ -437,7 +463,7 @@ Do NOT wait until all modules are complete before documenting.
 - [ ] All interface methods implemented
 - [ ] `applySearchQuery()` and `hasRelation()` helpers used where applicable
 
-### Phase 5 — Service Interface
+### Step 5 — Service Interface
 
 - [ ] Correct namespace: `App\Domains\{Domain}\Interfaces`
 - [ ] All public service methods declared with DTOs as input
@@ -445,7 +471,7 @@ Do NOT wait until all modules are complete before documenting.
 - [ ] `@throws` documented for NotFoundException and BusinessException
 - [ ] PHPDoc on every method
 
-### Phase 6 — Service
+### Step 6 — Service
 
 - [ ] Correct namespace: `App\Domains\{Domain}\Services`
 - [ ] Implements domain Service Interface
@@ -460,7 +486,7 @@ Do NOT wait until all modules are complete before documenting.
 - [ ] No duplicated code — private helpers used
 - [ ] All interface methods implemented
 
-### Phase 7 — Request (FormRequest)
+### Step 7 — Request (FormRequest)
 
 - [ ] Correct namespace: `App\Domains\{Domain}\Requests`
 - [ ] Extends `BaseRequest`
@@ -472,7 +498,7 @@ Do NOT wait until all modules are complete before documenting.
 - [ ] No business logic in rules
 - [ ] Shared rules extracted to a Concern trait (no duplication between Store/Update)
 
-### Phase 8 — Resource (API Resource)
+### Step 8 — Resource (API Resource)
 
 - [ ] Correct namespace: `App\Domains\{Domain}\Resources`
 - [ ] Extends `BaseResource`
@@ -483,7 +509,7 @@ Do NOT wait until all modules are complete before documenting.
 - [ ] `auditFields()` included from BaseResource
 - [ ] No business logic in resource
 
-### Phase 9 — Controller
+### Step 9 — Controller
 
 - [ ] Correct namespace: `App\Domains\{Domain}\Controllers`
 - [ ] Extends `BaseController`
@@ -498,7 +524,7 @@ Do NOT wait until all modules are complete before documenting.
 - [ ] `BusinessException` → `ApiResponse::error(message, code)`
 - [ ] `Throwable` → `ApiResponse::serverError()`
 
-### Phase 10 — Route
+### Step 10 — Route
 
 - [ ] Route file at `app/Domains/{Domain}/Routes/api.php`
 - [ ] Prefix follows `/api/v1/{domain}` pattern
@@ -507,7 +533,7 @@ Do NOT wait until all modules are complete before documenting.
 - [ ] Middleware: `permission:{domain}.{action}` per route
 - [ ] Registration instructions documented in file comment
 
-### Phase 11 — Test
+### Step 11 — Test
 
 - [ ] **Unit — Service**: all methods tested with mocked Repository
 - [ ] **Unit — Repository**: CRUD, search, multi-tenant scoping tested with RefreshDatabase
@@ -520,7 +546,7 @@ Do NOT wait until all modules are complete before documenting.
 - [ ] Asserts correct HTTP status codes AND JSON structure
 - [ ] Factory includes states: `active()`, `inactive()`, `forOrganization()`, `forBranch()`
 
-### Phase 12 — OpenAPI Documentation
+### Step 12 — OpenAPI Documentation
 
 - [ ] Spec file at `docs/openapi/paths/{domain}.yaml`
 - [ ] All endpoints documented: index, show, store, update, destroy, restore
