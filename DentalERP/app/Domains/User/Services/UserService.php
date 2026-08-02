@@ -386,10 +386,9 @@ class UserService implements UserServiceInterface
     public function getProfile(string $userId): User
     {
         try {
-            $user = $this->repository->findByUuid($userId);
-            $user->load(['organization', 'branch']);
-
-            return $user;
+            // Relations (organization, branch) are loaded by the Controller
+            // via $user->loadMissing([...]) before passing to the Resource.
+            return $this->repository->findByUuid($userId);
         } catch (NotFoundException $e) {
             $this->logWarning('getProfile', $e->getMessage(), ['user_id' => $userId]);
             throw $e;
