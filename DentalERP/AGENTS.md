@@ -310,6 +310,33 @@ Database (PostgreSQL)
 
 ---
 
+## Platform Build Roadmap
+
+Urutan pengembangan modul mengikuti dependency yang benar.
+Modul berikutnya hanya dimulai setelah modul sebelumnya dinyatakan selesai (Phase 12 complete).
+
+```
+✅ 1. Organization        — Tenant boundary
+✅ 2. Branch              — Operational unit
+✅ 3. User                — Staff & authentication subject
+   4. Role & Permission   — Spatie Laravel Permission (RBAC)
+   5. Authentication      — Sanctum: Login, Refresh Token, Logout
+   6. Profile             — Self-service user profile
+   7. Master Data         — Shared lookup tables (diagnoses, procedures, etc.)
+   8. Patient             — Core clinical entity
+   9. Appointment         — Scheduling
+  10. EMR / Odontogram    — Clinical records
+  11. Treatment           — Treatment planning & execution
+  12. Inventory           — Clinic supplies
+  13. Pharmacy            — Medication dispensing
+  14. Finance             — Billing & transactions
+  15. HR                  — Staff & payroll
+  16. Reporting           — Dashboards & analytics
+  17. Integration         — SATUSEHAT, BPJS, Payment Gateway
+```
+
+---
+
 ## Module Development Order
 
 Every module MUST be built in this exact order.
