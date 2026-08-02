@@ -360,13 +360,55 @@ Phase 29  Deployment
 
 ---
 
-## Module Development Order
+## Design-First Workflow (MANDATORY)
 
-> Terminology: "Phase" refers to the roadmap (Phase 00–29).
-> The 12 build steps below are called "Steps" to avoid confusion with roadmap phases.
+> **Architectural Rule (Lead Software Architect):**
+> **No code is written before its design is complete.**
+>
+> This rule is absolute. Implementation (the 12 Steps below) may ONLY begin
+> after all 5 design stages are finished and reviewed.
+
+Every module MUST pass through these design stages **in order** before any code:
+
+```
+Stage 1  Requirement       — What problem does this module solve? Who uses it?
+Stage 2  Business Rules     — What rules, constraints, and invariants govern it?
+Stage 3  Flow               — How does data and control move through the module?
+Stage 4  Database Design    — Tables, columns, indexes, relationships, constraints.
+Stage 5  API Contract       — Endpoints, request/response shapes, status codes.
+─────────────────────────────────────────────────────────────────────────────
+Stage 6  Implementation     — The 12 Steps (Migration → OpenAPI). Code starts HERE.
+```
+
+**Why design-first:**
+- Quality is far higher when the foundation is designed before it is built.
+- Future changes can be made without tearing down what already exists.
+- Design artifacts are the contract; code merely fulfills it.
+
+**Design artifact locations:**
+
+| Stage | Artifact | Location |
+|---|---|---|
+| Requirement    | `{Module}Requirement.md`    | `docs/{Module}/` |
+| Business Rules | `{Module}BusinessRule.md`   | `docs/` |
+| Flow           | `{Module}Flow.md`           | `docs/{Module}/` |
+| Database Design| `NNN_{Module}.md`           | `database_design/` |
+| API Contract   | `{module}.yaml`             | `docs/openapi/paths/` |
+
+**Gate:** Do NOT start Stage 6 (code) until Stages 1–5 exist and are reviewed.
+
+---
+
+## Module Development Order (Stage 6 — Implementation)
+
+> Terminology:
+> - "Phase" refers to the roadmap (Phase 00–29).
+> - "Stage" refers to the 6 design-first stages above.
+> - "Step" refers to the 12 implementation steps below (Stage 6).
 
 Every module MUST be built in this exact order of steps.
 Do NOT proceed to the next step before the current step passes its checklist.
+Do NOT begin Step 1 until the Design-First stages (1–5) are complete.
 A module is not "done" until Step 12 is complete.
 
 ```
