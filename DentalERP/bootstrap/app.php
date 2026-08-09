@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
         App\Platform\Providers\PlatformServiceProvider::class,
         App\Domains\MasterData\Providers\MasterDataServiceProvider::class,
+        App\Domains\Employee\Providers\EmployeeServiceProvider::class,
     ])
     ->withExceptions()
     ->create();

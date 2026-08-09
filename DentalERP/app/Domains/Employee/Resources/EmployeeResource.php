@@ -1,0 +1,6 @@
+<?php
+declare(strict_types=1);
+namespace App\Domains\Employee\Resources;
+use Illuminate\Http\Request; use Illuminate\Http\Resources\Json\JsonResource;
+/** @mixin \App\Domains\Employee\Models\Employee */
+final class EmployeeResource extends JsonResource { public function toArray(Request $r): array { return ['id'=>$this->id,'employee_code'=>$this->employee_code,'full_name'=>$this->full_name,'organization_id'=>$this->organization_id,'organization'=>['id'=>$this->organization?->id,'name'=>$this->organization?->name],'branch_id'=>$this->branch_id,'branch'=>$this->branch?->id ? ['id'=>$this->branch->id,'name'=>$this->branch->name] : null,'employment_status'=>$this->employment_status,'hire_date'=>$this->hire_date?->toDateString(),'resignation_date'=>$this->resignation_date?->toDateString(),'position'=>$this->position,'gender'=>$this->gender,'religion'=>$this->religion,'marital_status'=>$this->marital_status,'nationality_id'=>$this->nationality_id,'phone'=>$this->phone,'email'=>$this->email,'address'=>$this->address,'district_id'=>$this->district_id,'village_id'=>$this->village_id,'is_active'=>$this->is_active,'created_at'=>$this->created_at?->toISOString(),'updated_at'=>$this->updated_at?->toISOString()]; } }
