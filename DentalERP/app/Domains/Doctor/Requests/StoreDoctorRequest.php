@@ -1,0 +1,5 @@
+<?php
+declare(strict_types=1);
+namespace App\Domains\Doctor\Requests;
+use Illuminate\Foundation\Http\FormRequest;
+final class StoreDoctorRequest extends FormRequest { public function authorize(): bool { return true; } public function rules(): array { return ['doctor_code'=>'required|string|max:30','full_name'=>'required|string|max:200','organization_id'=>'required|uuid|exists:organizations,id','branch_id'=>'nullable|uuid|exists:branches,id','specialty_id'=>'nullable|uuid|exists:doctor_specialties,id','license_number'=>'nullable|string|max:50','consultation_fee'=>'nullable|numeric|min:0','hire_date'=>'nullable|date|before_or_equal:today','resignation_date'=>'nullable|date|after_or_equal:hire_date','gender'=>'nullable|string','religion'=>'nullable|string','marital_status'=>'nullable|string','nationality_id'=>'nullable|uuid|exists:nationalities,id','phone'=>'nullable|string|max:20','email'=>'nullable|email|max:100','address'=>'nullable|string','district_id'=>'nullable|uuid|exists:districts,id','village_id'=>'nullable|uuid|exists:villages,id']; } }
