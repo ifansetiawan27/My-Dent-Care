@@ -200,6 +200,46 @@ abstract class BaseMasterDataRepository implements MasterDataRepositoryInterface
     }
 
     // -------------------------------------------------------------------------
+    // CRUD Operations
+    // -------------------------------------------------------------------------
+
+    /** @param  array<string, mixed> $data */
+    public function create(array $data): BaseMasterDataModel
+    {
+        return $this->model->create($data);
+    }
+
+    /** @param  array<string, mixed> $data */
+    public function update(string $id, array $data): BaseMasterDataModel
+    {
+        $record = $this->findByIdOrFail($id);
+        $record->update($data);
+
+        return $record->refresh();
+    }
+
+    /** @throws NotFoundException */
+    public function delete(string $id): bool
+    {
+        $record = $this->findByIdOrFail($id);
+
+        return (bool) $record->delete();
+    }
+
+    public function toggleActive(string $id): BaseMasterDataModel
+    {
+        $record = $this->findByIdOrFail($id);
+        $record->update(['is_active' => ! $record->is_active]);
+
+        return $record->refresh();
+    }
+
+    public function countByParent(string $parentColumn, string $parentId): int
+    {
+        return $this->model->where($parentColumn, $parentId)->count();
+    }
+
+    // -------------------------------------------------------------------------
     // Private Helpers
     // -------------------------------------------------------------------------
 

@@ -209,6 +209,91 @@ abstract class BaseMasterDataService implements MasterDataServiceInterface
     }
 
     // -------------------------------------------------------------------------
+    // CRUD Operations
+    // -------------------------------------------------------------------------
+
+    /** @param  array<string, mixed> $data */
+    public function create(array $data): BaseMasterDataModel
+    {
+        try {
+            if ($this->repository->existsByCode($data['code'])) {
+                throw new \App\Core\Exceptions\BusinessException("The code '{$data['code']}' already exists.");
+            }
+
+            return DB::transaction(function () use ($data): BaseMasterDataModel {
+                $record = $this->repository->create($data);
+                $this->logInfo('create', 'Record created.', ['id' => $record->id, 'code' => $data['code']]);
+                return $record;
+            });
+        } catch (\App\Core\Exceptions\BusinessException $e) {
+            $this->logWarning('create', $e->getMessage(), $data);
+            throw $e;
+        } catch (Throwable $e) {
+            $this->logError('create', $e, $data);
+            throw $e;
+        }
+    }
+
+    /** @param  array<string, mixed> $data */
+    public function update(string $id, array $data): BaseMasterDataModel
+    {
+        try {
+            if (isset($data['code']) && $this->repository->existsByCode($data['code'], $id)) {
+                throw new \App\Core\Exceptions\BusinessException("The code '{$data['code']}' already exists.");
+            }
+
+            return DB::transaction(function () use ($id, $data): BaseMasterDataModel {
+                $record = $this->repository->update($id, $data);
+                $this->logInfo('update', 'Record updated.', ['id' => $id]);
+                return $record;
+            });
+        } catch (NotFoundException $e) {
+            $this->logWarning('update', $e->getMessage(), ['id' => $id]);
+            throw $e;
+        } catch (\App\Core\Exceptions\BusinessException $e) {
+            $this->logWarning('update', $e->getMessage(), ['id' => $id]);
+            throw $e;
+        } catch (Throwable $e) {
+            $this->logError('update', $e, ['id' => $id]);
+            throw $e;
+        }
+    }
+
+    public function delete(string $id): bool
+    {
+        try {
+            return DB::transaction(function () use ($id): bool {
+                $result = $this->repository->delete($id);
+                $this->logInfo('delete', 'Record soft-deleted.', ['id' => $id]);
+                return $result;
+            });
+        } catch (NotFoundException $e) {
+            $this->logWarning('delete', $e->getMessage(), ['id' => $id]);
+            throw $e;
+        } catch (Throwable $e) {
+            $this->logError('delete', $e, ['id' => $id]);
+            throw $e;
+        }
+    }
+
+    public function toggleActive(string $id): BaseMasterDataModel
+    {
+        try {
+            return DB::transaction(function () use ($id): BaseMasterDataModel {
+                $record = $this->repository->toggleActive($id);
+                $this->logInfo('toggleActive', 'Record active status toggled.', ['id' => $id, 'is_active' => $record->is_active]);
+                return $record;
+            });
+        } catch (NotFoundException $e) {
+            $this->logWarning('toggleActive', $e->getMessage(), ['id' => $id]);
+            throw $e;
+        } catch (Throwable $e) {
+            $this->logError('toggleActive', $e, ['id' => $id]);
+            throw $e;
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // Private — Logging Helpers
     // -------------------------------------------------------------------------
 

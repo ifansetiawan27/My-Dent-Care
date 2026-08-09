@@ -122,4 +122,21 @@ interface MasterDataRepositoryInterface
      * @throws \App\Core\Exceptions\NotFoundException
      */
     public function deactivate(string $id): bool;
+
+    // -------------------------------------------------------------------------
+    // CRUD Operations
+    // -------------------------------------------------------------------------
+
+    /** @param  array<string, mixed> $data */
+    public function create(array $data): BaseMasterDataModel;
+
+    /** @param  array<string, mixed> $data */
+    public function update(string $id, array $data): BaseMasterDataModel;
+
+    /** @throws \App\Core\Exceptions\NotFoundException */
+    public function delete(string $id): bool;
+
+    public function toggleActive(string $id): BaseMasterDataModel;
+
+    public function countByParent(string $parentColumn, string $parentId): int;
 }
