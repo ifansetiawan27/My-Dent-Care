@@ -1,0 +1,2 @@
+<?php declare(strict_types=1); namespace App\Domains\Odontogram\Models; use App\Core\Base\BaseModel;
+class Odontogram extends BaseModel { protected $table = 'odontograms'; protected $fillable = ['organization_id','patient_id','tooth_number','tooth_type','surface','condition','notes','findings','created_by','updated_by','deleted_by']; protected $casts = ['findings'=>'array','created_at'=>'datetime','updated_at'=>'datetime','deleted_at'=>'datetime']; }
