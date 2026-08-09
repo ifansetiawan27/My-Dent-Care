@@ -1,0 +1,31 @@
+.env
+.env.*
+!.env.example
+
+/vendor/
+/.phpunit.cache/
+/storage/logs/
+/storage/framework/
+/storage/app/
+/bootstrap/cache/*.php
+/node_modules/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Editor files
+*.swp
+*.swo
+*~
+\#*\#
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project

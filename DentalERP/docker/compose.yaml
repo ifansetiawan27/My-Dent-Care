@@ -1,0 +1,57 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: dentalerp_test
+    working_dir: /var/www
+    volumes:
+      - ..:/var/www
+    environment:
+      - APP_ENV=testing
+      - DB_CONNECTION=pgsql
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=dentalerp_test
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CACHE_DRIVER=redis
+      - SESSION_DRIVER=redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - dentalerp_test
+
+  postgres:
+    image: postgres:17
+    container_name: dentalerp_test_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: dentalerp_test
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    networks:
+      - dentalerp_test
+
+  redis:
+    image: redis:7-alpine
+    container_name: dentalerp_test_redis
+    ports:
+      - "6380:6379"
+    networks:
+      - dentalerp_test
+
+networks:
+  dentalerp_test:
+    driver: bridge

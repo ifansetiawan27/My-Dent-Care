@@ -12,5 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ],
         health: '/up',
     )
+    ->withProviders([
+        App\Platform\Providers\PlatformServiceProvider::class,
+    ])
     ->withExceptions()
     ->create();
