@@ -225,13 +225,13 @@ class Organization extends BaseModel
     /**
      * An Organization has many Users.
      *
-     * @return HasMany<\App\Domains\Authentication\Models\User>
+     * @return HasMany<\App\Domains\User\Models\User>
      */
     public function users(): HasMany
     {
         /** @phpstan-ignore-next-line */
         return $this->hasMany(
-            \App\Domains\Authentication\Models\User::class,
+            \App\Domains\User\Models\User::class,
             'organization_id',
             'id',
         );

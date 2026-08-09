@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Domains\User\Models;
 
 use App\Core\Base\BaseModel;
+use App\Domains\Authentication\Models\LoginHistory;
+use App\Domains\Authentication\Models\UserDevice;
+use App\Domains\Authentication\Models\UserSession;
 use App\Domains\User\Enums\UserGender;
 use App\Domains\User\Enums\UserStatus;
 use App\Domains\User\Factories\UserFactory;
@@ -15,6 +18,7 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -248,5 +252,24 @@ class User extends BaseModel implements
     public function getRememberTokenName(): string
     {
         return '';
+    }
+
+    // -------------------------------------------------------------------------
+    // Authentication Entity Relationships
+    // -------------------------------------------------------------------------
+
+    public function devices(): HasMany
+    {
+        return $this->hasMany(UserDevice::class, 'user_id', 'id');
+    }
+
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(UserSession::class, 'user_id', 'id');
+    }
+
+    public function loginHistories(): HasMany
+    {
+        return $this->hasMany(LoginHistory::class, 'user_id', 'id');
     }
 }

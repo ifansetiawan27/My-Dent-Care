@@ -1,0 +1,74 @@
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    protected $connection = 'pgsql';
+
+    public function up(): void
+    {
+        Schema::create('user_devices', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->uuid('user_id')->index();
+            $table->uuid('organization_id')->index();
+            $table->uuid('branch_id')->index();
+            $table->string('device_uuid', 100);
+            $table->string('device_name', 150)->nullable();
+            $table->string('device_type', 30)->index();
+            $table->string('platform', 50)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->string('browser', 100)->nullable();
+            $table->string('operating_system', 100)->nullable();
+            $table->ipAddress('ip_address')->nullable();
+            $table->timestampTz('last_login_at')->nullable()->index();
+            $table->timestampTz('last_activity_at')->nullable()->index();
+            $table->boolean('is_trusted')->default(false)->index();
+            $table->timestampTz('revoked_at')->nullable()->index();
+            $table->timestampTz('created_at')->nullable();
+            $table->timestampTz('updated_at')->nullable();
+
+            $table->unique(['user_id', 'device_uuid'], 'user_devices_user_device_uuid_unique');
+            $table->index(['user_id', 'revoked_at', 'last_activity_at'], 'user_devices_user_active_activity_index');
+
+            $table->foreign('user_id', 'user_devices_user_id_foreign')
+                ->references('id')
+                ->on('users')
+                ->restrictOnDelete();
+
+            $table->foreign('organization_id', 'user_devices_organization_id_foreign')
+                ->references('id')
+                ->on('organizations')
+                ->restrictOnDelete();
+
+            $table->foreign('branch_id', 'user_devices_branch_id_foreign')
+                ->references('id')
+                ->on('branches')
+                ->restrictOnDelete();
+        });
+
+        DB::statement('ALTER TABLE user_devices ALTER COLUMN ip_address TYPE inet USING ip_address::inet');
+        DB::statement("ALTER TABLE user_devices ADD CONSTRAINT user_devices_type_check CHECK (device_type IN ('web', 'mobile', 'tablet', 'api'))");
+
+        Schema::table('login_histories', function (Blueprint $table): void {
+            $table->foreign('device_id', 'login_histories_device_id_foreign')
+                ->references('id')
+                ->on('user_devices')
+                ->nullOnDelete();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('login_histories', function (Blueprint $table): void {
+            $table->dropForeign('login_histories_device_id_foreign');
+        });
+
+        Schema::dropIfExists('user_devices');
+    }
+};

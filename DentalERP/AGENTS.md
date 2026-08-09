@@ -98,10 +98,10 @@ These standards are **non-negotiable** and apply to every domain, every file, ev
 ### Audit Trail
 
 - Every write (create, update, delete, restore) MUST be traceable.
-- Every tenant-scoped table MUST have: `created_by`, `updated_by`, `deleted_by` (UUID nullable).
-- `HasAudit` trait auto-fills these from the authenticated user. Never fill manually.
-- Soft delete (`deleted_at`) is MANDATORY on all domain tables. Hard delete is forbidden except via explicit admin action.
-- Audit data is never removed. It is the source of truth for compliance.
+- Tenant-scoped Business Record tables MUST have `created_by`, `updated_by`, and `deleted_by` (UUID nullable) unless an Accepted Decision/ADR classifies the object under a different primary Data Category with an explicit audit policy.
+- `HasAudit` trait auto-fills Business Record audit columns from the authenticated user. Never fill manually.
+- Business Records use soft delete (`deleted_at`) by default. Immutable Audit Events, Operational History Projections, Mutable Operational State, Revocable Security Data, and Expiring Security Data follow their Accepted lifecycle policy under ADR-005; hard deletion requires `Hard Deletable`, retention eligibility, Legal Hold evaluation, authorization, and immutable evidence.
+- Immutable Audit Events are never removed under current governance and remain canonical compliance evidence. Operational projections, technical logs, and transient state are not substitutes for canonical Audit Events.
 
 ### API First
 
@@ -299,8 +299,8 @@ Database (PostgreSQL)
 - Use FormRequest for all input validation.
 - Use API Resource for all output transformation.
 - Use UUID (ordered) as primary key.
-- Use Soft Delete on all domain tables.
-- Use Audit Trail (created_by, updated_by, deleted_by).
+- Use soft delete on Business Record tables by default; other primary Data Categories follow their Accepted lifecycle policy under ADR-005.
+- Use the ADR-005 Data Category and lifecycle policy; Business Records use Audit Trail (`created_by`, `updated_by`, `deleted_by`) and soft delete by default.
 - Use DB Transactions on all write operations.
 - Every code must be production ready before commit.
 - Never create duplicate code — extract to Core if shared.
@@ -360,247 +360,385 @@ Phase 29  Deployment
 
 ---
 
-## Design-First Workflow (MANDATORY)
+## SDLC Module Workflow — FINAL (LOCKED)
 
-> **Architectural Rule (Lead Software Architect):**
-> **No code is written before its design is complete.**
->
-> This rule is absolute. Implementation (the 12 Steps below) may ONLY begin
-> after all 5 design stages are finished and reviewed.
+> **Architectural Decision (Lead Software Architect):**
+> Every module MUST follow this Software Development Life Cycle in exact order.
+> This sequence is FINAL and MUST NOT be changed, skipped, reordered, or merged.
 
-Every module MUST pass through these design stages **in order** before any code:
+Terminology:
+- **Phase** refers only to the platform roadmap (Phase 00–29).
+- **SDLC Stage** refers to the 20 mandatory stages below.
 
 ```
-Stage 1  Requirement       — What problem does this module solve? Who uses it?
-Stage 2  Business Rules     — What rules, constraints, and invariants govern it?
-Stage 3  Flow               — How does data and control move through the module?
-Stage 4  Database Design    — Tables, columns, indexes, relationships, constraints.
-Stage 5  API Contract       — Endpoints, request/response shapes, status codes.
-─────────────────────────────────────────────────────────────────────────────
-Stage 6  Implementation     — The 12 Steps (Migration → OpenAPI). Code starts HERE.
+Stage 01  Requirement
+Stage 02  Business Rules
+Stage 03  Database Design (ERD)
+Stage 04  API Contract (OpenAPI)
+Stage 05  Folder Structure
+Stage 06  Migration
+Stage 07  Model
+Stage 08  Repository Interface
+Stage 09  Repository
+Stage 10  Service Interface
+Stage 11  Service
+Stage 12  Request
+Stage 13  Resource
+Stage 14  Policy
+Stage 15  Controller
+Stage 16  Routes
+Stage 17  Feature Test
+Stage 18  Unit Test
+Stage 19  Documentation
+Stage 20  Git Commit
 ```
 
-**Why design-first:**
-- Quality is far higher when the foundation is designed before it is built.
-- Future changes can be made without tearing down what already exists.
-- Design artifacts are the contract; code merely fulfills it.
+## Design and Implementation Separation — MANDATORY
 
-**Design artifact locations:**
+> Design and implementation are separate deliverables and MUST NOT be mixed.
+
+### Design Outputs
+
+Design stages produce documentation only:
+
+- Requirements, business rules, and flow: `docs/`
+- Database design and ERD: `database_design/`
+- API contract: `docs/openapi/`
+- Folder and class architecture: documented in `docs/{Module}/Architecture.md`
+
+During Stages 01–05, do NOT create or modify implementation artifacts in:
+
+- `app/`
+- `database/migrations/` or domain migration directories
+- `routes/`
+- `tests/`
+
+A Flow document remains mandatory as a supporting design artifact. It is written during the design stages and reviewed before implementation, without adding or changing the locked 20-stage sequence.
+
+### Implementation Outputs
+
+Implementation begins at Stage 06 and may produce:
+
+- Application code: `app/`
+- Migrations and seeders: `database/` or approved domain migration directories
+- Routes: `routes/` or approved domain route directories
+- Tests: `tests/`
+
+Implementation MUST conform to the approved Requirement, Business Rules, Flow, ERD, API Contract, and Architecture documents.
+
+---
+### SDLC Enforcement Rules
+
+1. A stage starts only after the previous stage is complete and reviewed.
+2. Stages 01–05 produce documentation only; no files may be created or modified in `app/`, migration, routes, or tests directories.
+3. API behavior is governed by the OpenAPI contract written at Stage 04.
+4. Business rules are implemented only in the Service layer and authorized through Policy.
+5. Tests must validate the Requirement, Business Rules, and API Contract.
+6. Documentation must be synchronized before commit.
+7. Git Commit is the final stage, never an intermediate shortcut.
+8. Any change to an earlier artifact requires reviewing all dependent later stages.
+
+### Artifact Locations
 
 | Stage | Artifact | Location |
 |---|---|---|
-| Requirement    | `{Module}Requirement.md`    | `docs/{Module}/` |
-| Business Rules | `{Module}BusinessRule.md`   | `docs/` |
-| Flow           | `{Module}Flow.md`           | `docs/{Module}/` |
-| Database Design| `NNN_{Module}.md`           | `database_design/` |
-| API Contract   | `{module}.yaml`             | `docs/openapi/paths/` |
-
-**Gate:** Do NOT start Stage 6 (code) until Stages 1–5 exist and are reviewed.
-
----
-
-## Module Development Order (Stage 6 — Implementation)
-
-> Terminology:
-> - "Phase" refers to the roadmap (Phase 00–29).
-> - "Stage" refers to the 6 design-first stages above.
-> - "Step" refers to the 12 implementation steps below (Stage 6).
-
-Every module MUST be built in this exact order of steps.
-Do NOT proceed to the next step before the current step passes its checklist.
-Do NOT begin Step 1 until the Design-First stages (1–5) are complete.
-A module is not "done" until Step 12 is complete.
-
-```
-Step 1  →  Migration
-Step 2  →  Model
-Step 3  →  Repository Interface
-Step 4  →  Repository
-Step 5  →  Service Interface
-Step 6  →  Service
-Step 7  →  Request (FormRequest)
-Step 8  →  Resource (API Resource)
-Step 9  →  Controller
-Step 10 →  Route
-Step 11 →  Test
-Step 12 →  OpenAPI Documentation
-```
-
-### OpenAPI Documentation Standard
-
-Documentation is written **per module, immediately after Step 11**.
-Do NOT wait until all modules are complete before documenting.
-
-- Every endpoint MUST have a complete OpenAPI 3.1 specification.
-- Spec files are at `docs/openapi/paths/{domain}.yaml`.
-- Shared schemas live at `docs/openapi/components/schemas/`.
-- The main entry point is `docs/openapi/openapi.yaml`.
-- Every path must document: summary, description, parameters, request body, all response codes.
-- Response schemas must match the actual `ApiResponse` envelope.
-- Security scheme: `BearerAuth` (Sanctum token).
-- Tags must match the domain name (e.g. `Branch`, `Organization`, `Patient`).
-- Never leave `TODO` or empty descriptions in production spec files.
+| Requirement | `{Module}Requirement.md` | `docs/{Module}/` |
+| Business Rules | `{Module}BusinessRule.md` | `docs/{Module}/` or `docs/` |
+| Database Design / ERD | `NNN_{Module}.md` | `database_design/` |
+| API Contract | `{module}.yaml` | `docs/openapi/paths/` |
+| Folder Structure | `{Module}Architecture.md` | `docs/{Module}/` |
+| Feature Test | `{Endpoint}Test.php` | `tests/Feature/Domains/{Module}/` |
+| Unit Test | `{Class}Test.php` | `tests/Unit/Domains/{Module}/` |
+| Flow | `{Module}Flow.md` | `docs/{Module}/` |
+| Documentation | Module docs and implementation prompts | `docs/{Module}/`, `prompts/{Module}/` |
 
 ---
 
-## Step Checklists
+## SDLC Stage Checklists
 
-### Step 1 — Migration
+### Stage 01 — Requirement
 
-- [ ] Table name is snake_case plural matching domain name
-- [ ] UUID primary key using `$table->uuid('id')->primary()`
-- [ ] All columns defined with correct PostgreSQL types and lengths
-- [ ] Nullable columns explicitly marked
-- [ ] Default values set for `country`, `timezone`, `currency`, `status`
-- [ ] Unique constraints defined
-- [ ] `organization_id` and/or `branch_id` present and indexed on every tenant-scoped table
-- [ ] Composite indexes cover multi-tenant query patterns
-- [ ] FK constraints defined with explicit names and `restrictOnDelete()`
-- [ ] Audit columns present: `created_by`, `updated_by`, `deleted_by` (uuid nullable)
-- [ ] `timestamps()` present
-- [ ] `softDeletes()` present
-- [ ] Status column uses PostgreSQL CHECK constraint via `DB::statement()`
-- [ ] `down()` drops child FK constraints before dropping parent table
-- [ ] No typos in column names
-- [ ] Every column has `->comment()`
-- [ ] `protected $connection = 'pgsql'` declared
+- [ ] Problem, actors, goals, scope, and exclusions are documented.
+- [ ] Functional and non-functional requirements are explicit.
+- [ ] Multi-organization and multi-branch implications are identified.
+- [ ] Acceptance criteria are testable.
 
-### Step 2 — Model
+### Stage 02 — Business Rules
 
-- [ ] Extends `BaseModel`
-- [ ] Correct namespace: `App\Domains\{Domain}\Models`
-- [ ] `$table` explicitly defined
-- [ ] `$fillable` complete and matches migration columns
-- [ ] `$casts` defined for all enum, boolean, and datetime fields
-- [ ] `$hidden` defined: `deleted_at`, `deleted_by`, `password` where applicable
-- [ ] Relationships defined (HasMany, BelongsTo) with typed PHPDoc
-- [ ] Accessors use Laravel 12 `Attribute` API
-- [ ] Query scopes defined for: `active()`, `byOrganization()`, `byBranch()` where applicable
-- [ ] `newFactory()` points to the correct factory class
-- [ ] No business logic in model
-- [ ] No hardcoded strings — all status values use Enum
+- [ ] Rules, invariants, permissions, state transitions, and delete guards are documented.
+- [ ] Tenant isolation and audit requirements are explicit.
+- [ ] Edge cases and failure conditions are defined.
+- [ ] No implementation detail replaces a business rule.
 
-### Step 3 — Repository Interface
+### Stage 03 — Database Design (ERD)
 
-- [ ] Correct namespace: `App\Domains\{Domain}\Interfaces`
-- [ ] Extends `RepositoryInterface` from Core
-- [ ] All domain-specific query methods declared
-- [ ] Multi-tenant scoping methods declared: `findByOrganization()`, `findByBranch()` where applicable
-- [ ] Delete guard check methods declared: `hasUsers()`, `hasPatients()`, etc.
-- [ ] Return types explicitly defined on every method
-- [ ] PHPDoc on every method
+- [ ] Tables, UUID keys, columns, types, indexes, and constraints are defined.
+- [ ] Relationships and delete behavior are documented.
+- [ ] Tenant and audit columns are included where applicable.
+- [ ] PostgreSQL performance for 10–100 branches is considered.
 
-### Step 4 — Repository
+### Stage 04 — API Contract (OpenAPI)
 
-- [ ] Correct namespace: `App\Domains\{Domain}\Repositories`
-- [ ] Extends `BaseRepository`
-- [ ] Implements domain Repository Interface
-- [ ] Constructor injects the correct Model
-- [ ] `$searchable` columns defined
-- [ ] `$filterable` columns defined (always includes `organization_id`, `branch_id`)
-- [ ] `$sortable` columns defined
-- [ ] Every list query scoped to `organization_id`/`branch_id`
-- [ ] No business logic — pure DB queries only
-- [ ] No duplicated code — shared query patterns extracted to private helpers
-- [ ] All interface methods implemented
-- [ ] `applySearchQuery()` and `hasRelation()` helpers used where applicable
+- [ ] Every endpoint has method, path, operationId, tags, and security.
+- [ ] Parameters, request bodies, response schemas, examples, and error codes are complete.
+- [ ] Standard `ApiResponse` envelope is used.
+- [ ] OpenAPI is reviewed before implementation starts.
 
-### Step 5 — Service Interface
+### Stage 05 — Folder Structure
 
-- [ ] Correct namespace: `App\Domains\{Domain}\Interfaces`
-- [ ] All public service methods declared with DTOs as input
-- [ ] Return types explicitly defined
-- [ ] `@throws` documented for NotFoundException and BusinessException
-- [ ] PHPDoc on every method
+- [ ] Domain boundary and namespaces are defined.
+- [ ] Only required folders are documented in the architecture artifact.
+- [ ] Reusable concerns are placed in Core or Platform, not duplicated in domains.
+- [ ] No physical implementation folders or code are created at this stage.
 
-### Step 6 — Service
+### Stage 06 — Migration
 
-- [ ] Correct namespace: `App\Domains\{Domain}\Services`
-- [ ] Implements domain Service Interface
-- [ ] Constructor injects Repository Interface (`private readonly`)
-- [ ] All write operations wrapped in `DB::transaction()`
-- [ ] Business rules enforced here — NOT in Model or Controller
-- [ ] Multi-tenant delete guards enforced before delete
-- [ ] Throws `BusinessException` for rule violations
-- [ ] Throws `NotFoundException` when record not found
-- [ ] Uses `logInfo`, `logWarning`, `logError` with structured context
-- [ ] No direct Eloquent queries — all via Repository Interface
-- [ ] No duplicated code — private helpers used
-- [ ] All interface methods implemented
+- [ ] Laravel 12/PostgreSQL conventions are followed.
+- [ ] UUID, indexes, FKs, audit columns, timestamps, and soft delete are correct.
+- [ ] `down()` is rollback-safe.
+- [ ] Migration matches the approved ERD exactly.
 
-### Step 7 — Request (FormRequest)
+### Stage 07 — Model
 
-- [ ] Correct namespace: `App\Domains\{Domain}\Requests`
-- [ ] Extends `BaseRequest`
-- [ ] `authorize()` checks authentication
-- [ ] `rules()` validates all fields with strict rules
-- [ ] `attributes()` provides human-readable field names
-- [ ] `messages()` provides custom error messages
-- [ ] `toDTO()` maps validated input to DTO — Controller calls this
-- [ ] No business logic in rules
-- [ ] Shared rules extracted to a Concern trait (no duplication between Store/Update)
+- [ ] Extends the approved base model/auth model.
+- [ ] Fillable, hidden, casts, enums, and relationships match the migration.
+- [ ] No business logic exists in the model.
+- [ ] PHPDoc and imports are complete and clean.
 
-### Step 8 — Resource (API Resource)
+### Stage 08 — Repository Interface
 
-- [ ] Correct namespace: `App\Domains\{Domain}\Resources`
-- [ ] Extends `BaseResource`
-- [ ] `toArray()` returns all required fields in consistent order
-- [ ] Enum values exposed via `->value` (string) and `->label()` (human-readable)
-- [ ] File/logo fields resolved to full URL via `asset()`
-- [ ] Relationships returned via `whenLoaded()` — never unconditionally loaded
-- [ ] `auditFields()` included from BaseResource
-- [ ] No business logic in resource
+- [ ] Interface only; no implementation.
+- [ ] Strict parameter and return types are complete.
+- [ ] Multi-tenant and domain query contracts are explicit.
+- [ ] No Eloquent dependency leaks into the contract where avoidable.
 
-### Step 9 — Controller
+### Stage 09 — Repository
 
-- [ ] Correct namespace: `App\Domains\{Domain}\Controllers`
-- [ ] Extends `BaseController`
-- [ ] Constructor injects **Service Interface only** (`private readonly`)
-- [ ] Each method: FormRequest → `toDTO()` → Service → ApiResponse
-- [ ] No business logic
-- [ ] No direct DB queries
-- [ ] No direct Model access
-- [ ] All responses use `ApiResponse` static methods
-- [ ] HTTP status codes: 200 (success), 201 (created), 404 (not found), 422 (business/validation), 500 (server error)
-- [ ] `NotFoundException` → `ApiResponse::notFound()`
-- [ ] `BusinessException` → `ApiResponse::error(message, code)`
-- [ ] `Throwable` → `ApiResponse::serverError()`
+- [ ] Implements the repository interface.
+- [ ] Contains database access only; no validation or business decisions.
+- [ ] Search/filter/sort are whitelisted and queries are tenant-scoped.
+- [ ] Queries are efficient and duplicate query patterns are extracted.
 
-### Step 10 — Route
+### Stage 10 — Service Interface
 
-- [ ] Route file at `app/Domains/{Domain}/Routes/api.php`
-- [ ] Prefix follows `/api/v1/{domain}` pattern
-- [ ] Route names: `{domain}.index`, `{domain}.show`, `{domain}.store`, `{domain}.update`, `{domain}.destroy`, `{domain}.restore`
-- [ ] Middleware: `auth:sanctum` on all routes
-- [ ] Middleware: `permission:{domain}.{action}` per route
-- [ ] Registration instructions documented in file comment
+- [ ] Public business operations are declared with immutable DTO inputs.
+- [ ] Strict return types and documented domain exceptions are present.
+- [ ] Interface contains no implementation.
 
-### Step 11 — Test
+### Stage 11 — Service
 
-- [ ] **Unit — Service**: all methods tested with mocked Repository
-- [ ] **Unit — Repository**: CRUD, search, multi-tenant scoping tested with RefreshDatabase
-- [ ] **Unit — DTO**: `toArray()`, defaults, immutability, nullable handling tested
-- [ ] **Feature — Controller**: all endpoints tested with mocked Service
-- [ ] Tests cover: happy path, NotFoundException, BusinessException, validation errors
-- [ ] Tests cover: multi-tenant isolation (user cannot access another org's data)
-- [ ] Uses `RefreshDatabase` for DB-dependent tests
-- [ ] Uses Factory for test data
-- [ ] Asserts correct HTTP status codes AND JSON structure
-- [ ] Factory includes states: `active()`, `inactive()`, `forOrganization()`, `forBranch()`
+- [ ] Implements the service interface and injects repository interfaces.
+- [ ] Business rules and transactions are implemented here.
+- [ ] No direct Eloquent/database queries exist.
+- [ ] Logging, audit dispatch, and exception handling are production-ready.
 
-### Step 12 — OpenAPI Documentation
+### Stage 12 — Request
 
-- [ ] Spec file at `docs/openapi/paths/{domain}.yaml`
-- [ ] All endpoints documented: index, show, store, update, destroy, restore
-- [ ] Every path has: summary, description, operationId, tags, security
-- [ ] Query parameters documented with types, defaults, examples
-- [ ] Request body with all fields, required markers, and examples
-- [ ] All response codes: 200, 201, 401, 403, 404, 422, 500
-- [ ] Response schema references shared `ApiResponse` envelope components
-- [ ] `BearerAuth` applied on all protected endpoints
-- [ ] `openapi.yaml` updated to reference new path file
-- [ ] No empty descriptions or `TODO` placeholders
-- [ ] Examples are realistic (Indonesian context: timezone, currency, address)
+- [ ] FormRequest validates input and authorization.
+- [ ] Custom messages and attributes are defined.
+- [ ] Validated input maps to a DTO.
+- [ ] No business logic exists in validation rules.
+
+### Stage 13 — Resource
+
+- [ ] API output matches the OpenAPI schema exactly.
+- [ ] Enums expose value and label consistently.
+- [ ] Relationships use `whenLoaded()` to prevent N+1 queries.
+- [ ] Sensitive fields are never exposed.
+
+### Stage 14 — Policy
+
+- [ ] Authorization rules are centralized in Policy.
+- [ ] Organization, branch, ownership, role, and permission boundaries are enforced.
+- [ ] Policy contains authorization decisions only, not business or database orchestration.
+
+### Stage 15 — Controller
+
+- [ ] Controller is thin: Request → DTO → Service → Resource/ApiResponse.
+- [ ] Service interface only is injected.
+- [ ] No business logic, direct model access, or direct database query exists.
+- [ ] HTTP status codes match OpenAPI.
+
+### Stage 16 — Routes
+
+- [ ] Versioned `/api/v1` routes and names are consistent.
+- [ ] Sanctum, permission, and relevant scope middleware are applied.
+- [ ] Route parameters match Controller and OpenAPI definitions.
+
+### Stage 17 — Feature Test
+
+- [ ] Every endpoint covers happy path, validation, auth, authorization, not found, and business failure.
+- [ ] Multi-tenant isolation is tested.
+- [ ] HTTP status and JSON structure match OpenAPI.
+
+### Stage 18 — Unit Test
+
+- [ ] Service business rules are tested with mocked repositories.
+- [ ] Repository behavior is tested against a database where applicable.
+- [ ] DTOs, enums, policies, and reusable helpers are tested.
+- [ ] Tests are deterministic and independent.
+
+### Stage 19 — Documentation
+
+- [ ] Requirement, Business Rules, ERD, OpenAPI, and implementation docs are synchronized.
+- [ ] Every endpoint has Business Rule, OpenAPI entry, and Feature Test.
+- [ ] Reusable implementation prompt exists at `prompts/{Module}/{Endpoint}.md` where required.
+- [ ] No stale examples, empty descriptions, or undocumented behavior remain.
+
+### Stage 20 — Git Commit
+
+- [ ] Quality Gate and all previous stages pass.
+- [ ] `git status`, diff, tests, and staged files are reviewed.
+- [ ] Only intended files are staged.
+- [ ] Commit message matches repository conventions.
+
+---
+
+## Architecture Governance — Mandatory Across All Domains
+
+This governance applies to Platform, Authentication, Organization, Patient, Appointment, EMR, Odontogram, Finance, Inventory, Procurement, HR, CRM, AI, Laboratory, Asset, Integration Hub, Payment Gateway, SATUSEHAT bridging, Insurance bridging, and every future domain.
+
+### Final Design Lifecycle
+
+```text
+Requirement
+    ↓
+Business Rules
+    ↓
+Decision Record
+    ↓
+ADR (when the decision affects multiple domains or the Platform)
+    ↓
+Database Design
+    ↓
+ERD
+    ↓
+API.md
+    ↓
+OpenAPI
+    ↓
+Traceability Matrix
+    ↓
+Full Drift Detection
+    ↓
+Architecture Review
+    ↓
+Design Freeze
+    ↓
+Implementation
+    ↓
+Testing
+    ↓
+Deployment
+```
+
+Architecture Review is an explicit gate. Design Freeze is forbidden until Architecture Review and Full Drift Detection both PASS.
+
+### Decision Record Standard — Fixed Structure
+
+Every Decision Record MUST use the following section order. Sections cannot be omitted; use `Not Applicable` with a reason when a section genuinely does not apply.
+
+Canonical definitions are maintained in `docs/Architecture/Standards/index.md`. Decision Records MUST use those terms and must not redefine classification vocabulary locally.
+
+```text
+Problem
+    ↓
+Current State
+    ↓
+Options
+    ↓
+Decision
+    ↓
+Field Classification
+    ↓
+Exposure Classification
+    ↓
+Lifecycle Semantics
+    ↓
+Ownership Exceptions
+    ↓
+Consequences
+    ↓
+Affected Documents
+    ↓
+Review Status
+    ↓
+Traceability
+```
+
+Required content:
+
+| Section | Required Content |
+|---|---|
+| **Problem** | The architecture/design conflict, risk, and question requiring a decision. |
+| **Current State** | Existing approved artifacts, implementation state, and known drift. |
+| **Options** | Viable alternatives with trade-offs; no false or impossible options. |
+| **Decision** | Selected option and explicit final policy. Use `TBD` until reviewed. |
+| **Field Classification** | Use `FieldClassification.md`: Core Identity, Tenant Ownership, Business Data, Enrichment Metadata, Lifecycle Generated, Audit Metadata, Sensitive, Secret, Derived. Include type, nullability, invariant, default, and formula where applicable. |
+| **Exposure Classification** | Use `ExposureClassification.md`: Public API, Derived Public, Persistence Only, Audit Only, Sensitive, Secret, Excluded. Do not use ambiguous `Internal`. |
+| **Lifecycle Semantics** | Creation, activation, transition, rotation, revocation, expiry, deletion, and retention behavior. |
+| **Ownership Exceptions** | User/Organization/Branch/Platform ownership, tenant exceptions, and explicit rationale. |
+| **Consequences** | Security, performance, migration, compatibility, operational, and testing consequences. |
+| **Affected Documents** | Exact canonical paths that must be synchronized. |
+| **Review Status** | Architecture, Security, Data, API, Performance, Compliance reviews as applicable; final status must be explicit. |
+| **Traceability** | Requirement IDs, Business Rule IDs, ADRs, API operations, data entities, and planned tests. |
+
+### Decision Status and Immutability
+
+- `TBD` and `Proposed` Decision Records may be edited during review.
+- `Accepted` Decision Records are immutable in intent and content.
+- A material change to an Accepted Decision requires the next unused unique sequential Decision ID (for example `DD-AUTH-017`) and a `Supersedes: DD-AUTH-005` reference.
+- Version suffixes such as `-v2`, `-v3`, or `-final` are forbidden.
+- The old Decision is marked `Superseded` and links to the replacement.
+- Never rewrite accepted history to hide a changed architecture decision.
+- Downstream artifact synchronization may reference an Accepted Decision but must not alter it.
+
+### Governance Rules
+
+1. **Sequential Development** — each stage must PASS before the next stage begins.
+2. **Downstream Invalidation** — any upstream change invalidates every affected downstream PASS until re-reviewed.
+3. **Single Source of Truth** — Requirement owns business need; Business Rules own invariants; Decision Records own scoped design choices; ADRs own accepted cross-domain/platform decisions; Database Design owns persistent structure; API.md owns business API behavior; OpenAPI owns technical API specification; Traceability Matrix owns artifact relationships.
+4. **No Orphan Artifacts** — every Requirement must trace to Business Rules, Decision/ADR, data design, API contract, implementation, and tests or be explicitly marked Not Applicable.
+5. **Drift Detection** — every change must run the relevant cross-artifact comparisons.
+6. **Design Freeze** — requires all artifacts PASS, relevant Decisions Accepted, no active drift, and Architecture Review PASS.
+7. **Implementation Rule** — Migration, Model, Repository, Service, Controller, Routes, API implementation, and Tests are forbidden before Design Freeze PASS.
+8. **Domain Standardization** — the same governance applies to all current and future domains.
+9. **Explicit Gate Result** — every review returns only an explicit status such as `STEP_xxx_PASS` or `STEP_xxx_FAIL`; ambiguous statuses are forbidden.
+10. **Architecture Decision Immutability** — Accepted Decision Records and ADRs are superseded, never rewritten.
+
+### Global Architecture Standards
+
+All domains MUST reference the canonical standards in `docs/Architecture/Standards/`:
+
+- `FieldClassification.md`
+- `ExposureClassification.md`
+- `LifecycleSemantics.md`
+- `OwnershipResolution.md`
+- `AuditPolicy.md`
+- `DecisionLifecycle.md`
+- `TraceabilityRules.md`
+- `DriftDetection.md`
+- `ArchitectureReviewChecklist.md`
+
+Domain-specific documents add context and decisions but cannot redefine these global terms.
+
+### Decision Record Quality Gate
+
+- [ ] Fixed section order is present.
+- [ ] Decision status is explicit (`TBD`, `Proposed`, `Accepted`, `Superseded`, or `Rejected`).
+- [ ] Field and exposure classifications cover all affected fields or explicitly state Not Applicable.
+- [ ] Classifications use canonical terms from `docs/Architecture/Standards/`.
+- [ ] Every Derived field includes an explicit formula and canonical source fields.
+- [ ] Lifecycle semantics cover every relevant state transition.
+- [ ] Allowed mutations are explicit; all unlisted fields inherit the entity default.
+- [ ] Ownership/tenant exceptions are explicit.
+- [ ] Ownership exceptions use Resolved, Partially Resolved, or Unresolved states.
+- [ ] Consequences include security, performance, migration/compatibility, operations, and tests.
+- [ ] Affected Documents use canonical paths.
+- [ ] Review Status lists every required review and final result.
+- [ ] Traceability maps to Requirement, Business Rules, ADR, data entities, API operations, and planned tests.
+- [ ] Accepted records have not been edited directly; superseding decisions are used for material changes.
+- [ ] Superseding decisions use a new sequential ID; version suffixes are not used.
 
 ---
 
@@ -616,8 +754,48 @@ There are no exceptions. There are no shortcuts.
 | 3 | **SOLID** | Single responsibility. Interface-based dependencies. |
 | 4 | **Clean Architecture** | Correct layer. No cross-layer contamination. |
 | 5 | **Multi-Tenant** | Every query scoped to org/branch. No data leakage. |
-| 6 | **Audit Trail** | created_by, updated_by, deleted_by populated. Soft delete used. |
+| 6 | **Audit Trail** | Primary Data Category is explicit; immutable evidence is preserved; Business Record audit columns are populated and soft delete is used by default. |
 | 7 | **API First** | Response matches ApiResponse envelope. OpenAPI spec written. |
 | 8 | **Testable** | Unit + feature tests written and pass. |
 | 9 | **Extensible** | New behavior addable without modifying existing code. |
 | 10 | **Production Ready** | No dd(), dump(), hardcode, TODO, N+1, or unbounded query. |
+| 11 | **SDLC Compliance** | Stages 01–20 completed in exact order; no stage skipped or reordered. |
+| 12 | **Drift Detection** | All upstream design artifacts, implementation, tests, and documentation remain mutually consistent. |
+
+## Drift Detection — Mandatory Quality Gate
+
+Drift Detection is required at every stage review and before every Design Freeze, implementation transition, test sign-off, and Git Commit.
+
+Required comparisons:
+
+- [ ] Requirement ↔ Business Rules
+- [ ] Requirement ↔ API Contract
+- [ ] Business Rules ↔ Flow
+- [ ] Business Rules ↔ OpenAPI
+- [ ] ERD ↔ Flow
+- [ ] ERD ↔ OpenAPI
+- [ ] ERD ↔ ADR
+- [ ] Flow ↔ OpenAPI
+- [ ] ADR ↔ Business Rules
+- [ ] ADR ↔ ERD
+- [ ] Migration ↔ ERD
+- [ ] Model ↔ Migration
+- [ ] Repository Interface ↔ Repository
+- [ ] Repository ↔ ERD
+- [ ] Service Interface ↔ Service
+- [ ] Service ↔ Business Rules
+- [ ] Request ↔ OpenAPI request schema
+- [ ] Resource ↔ OpenAPI response schema
+- [ ] Policy ↔ Business Rules and authorization requirements
+- [ ] Controller and Routes ↔ OpenAPI operations
+- [ ] Feature Tests ↔ OpenAPI and Business Rules
+- [ ] Unit Tests ↔ Service, Repository, DTO, Enum, and Policy behavior
+- [ ] Documentation ↔ final implementation
+
+Rules:
+
+1. Every comparison must be marked PASS or FAIL with evidence.
+2. A change to an upstream artifact invalidates all affected downstream PASS results until they are re-reviewed.
+3. A single unresolved drift blocks the current stage, Design Freeze, implementation transition, or commit.
+4. Accepted ADRs take precedence over conflicting implementation drafts; material decision changes require a new or superseding ADR.
+5. Drift checks must include naming, fields, types, indexes, status values, endpoint count, HTTP behavior, tenant scope, security rules, examples, and traceability IDs.

@@ -76,10 +76,10 @@ return new class extends Migration
             // ---------------------------------------------------------------
             // Session & Verification
             // ---------------------------------------------------------------
-            $table->timestamp('last_login_at')->nullable()
-                ->comment('Timestamp of the last successful login — auto-updated on auth');
+            $table->timestampTz('last_login_at')->nullable()
+                ->comment('Timestamp of the latest successful login');
 
-            $table->timestamp('email_verified_at')->nullable()
+            $table->timestampTz('email_verified_at')->nullable()
                 ->comment('Timestamp when email address was verified');
 
             // ---------------------------------------------------------------
@@ -103,8 +103,8 @@ return new class extends Migration
             // ---------------------------------------------------------------
             // Timestamps & Soft Delete
             // ---------------------------------------------------------------
-            $table->timestamps();
-            $table->softDeletes();
+            $table->timestampsTz();
+            $table->softDeletesTz();
 
             // ---------------------------------------------------------------
             // Indexes

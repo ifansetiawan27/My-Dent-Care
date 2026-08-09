@@ -1,0 +1,994 @@
+openapi: 3.1.0
+info:
+  title: Dental ERP Authentication API
+  version: 1.0.0
+  description: |
+    Authentication contract using Laravel Sanctum and Spatie Permission.
+
+    Lifecycle governance follows Accepted DD-AUTH-007 and Accepted ADR-005.
+    Field classification, exposure, nullability, and field governance follow
+    Accepted DD-AUTH-017. DD-AUTH-005 remains superseded historical evidence.
+
+    All Session and Device operations are self-service. Super Admin uses the same
+    ownership boundary. Cross-user administration is outside this contract under
+    Accepted DD-AUTH-003.
+
+    Token TTL:
+    - Access Token: 60 minutes.
+    - Refresh Token: 30 days.
+    - Password Reset Token: 15 minutes.
+servers:
+  - url: /api/v1
+tags:
+  - name: Authentication
+security:
+  - BearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      summary: Authenticate a user
+      description: |
+        Authenticates an active user in an active Organization and Branch, registers
+        the Device, creates a User Session, and issues an Access/Refresh Token pair
+        linked to that Session.
+
+        Every successful authentication creates exactly one active User Session.
+
+        One Device may own multiple Sessions.
+
+        Each active Session owns exactly one active Sanctum Access Token and exactly
+        one active Refresh Token family.
+
+        Access Token expires in 60 minutes.
+
+        Refresh Token expires in 30 days.
+      operationId: auth.login
+      x-business-rules: [AUTH-BR-001, AUTH-BR-003, AUTH-BR-013, AUTH-BR-014]
+      x-decisions: [ADR-001, ADR-002, ADR-006, DD-AUTH-001, DD-AUTH-007, DD-AUTH-008, DD-AUTH-017, ADR-005]
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+            examples:
+              mobileDoctor:
+                value:
+                  identifier: doctor@example.com
+                  password: StrongPassword123!
+                  organization_id: 01927f3e-0000-7000-8000-000000000001
+                  branch_id: 01927f3e-0000-7000-8000-000000000002
+                  device_uuid: mobile-6f12b92d
+                  device_name: Doctor iPhone
+                  device_type: mobile
+                  platform: ios
+      responses:
+        '200':
+          description: Authentication succeeded.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResponse' }
+              examples:
+                success: { $ref: '#/components/examples/LoginSuccess' }
+        '401': { $ref: '#/components/responses/InvalidCredentials' }
+        '403': { $ref: '#/components/responses/InactiveTenant' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '423': { $ref: '#/components/responses/AccountLocked' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /auth/logout:
+    post:
+      summary: Log out the current session
+      description: Revokes the current User Session and all descendant Access/Refresh Tokens. Other Sessions remain active and the registered Device remains available.
+      operationId: auth.logout
+      x-business-rules: [AUTH-BR-008]
+      x-decisions: [ADR-002, ADR-006, DD-AUTH-001, DD-AUTH-007, DD-AUTH-017, ADR-005]
+      tags: [Authentication]
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200':
+          description: Current session revoked.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MessageResponse' }
+              examples:
+                success:
+                  value: { success: true, message: 'Logout successful.', data: null, errors: null, meta: null }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /auth/logout-all:
+    post:
+      summary: Log out all sessions
+      description: 'AUTH-BR-009: Revokes all active User Sessions owned by the authenticated User and every descendant token. Devices remain registered, Login History Operational History Projections are retained, and canonical Audit Events remain immutable.'
+      operationId: auth.logoutAll
+      x-business-rules: [AUTH-BR-009]
+      x-decisions: [ADR-002, ADR-006, DD-AUTH-001, DD-AUTH-003, DD-AUTH-007, DD-AUTH-017, ADR-005]
+      tags: [Authentication]
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200':
+          description: All sessions were revoked.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MessageResponse' }
+              examples:
+                success:
+                  value: { success: true, message: 'All sessions revoked successfully.', data: null, errors: null, meta: null }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /auth/refresh:
+    post:
+      summary: Rotate a refresh token
+      description: |
+        Rotates Refresh Token within the current User Session and revalidates
+        Session, User, Organization, Branch, and Device state.
+
+        Access Token expires in 60 minutes.
+
+        Refresh Token expires in 30 days.
+
+        Old Refresh Token becomes invalid immediately.
+
+        Reuse of a rotated Refresh Token revokes its entire token family, owning
+        Session, and descendant Access Token under DD-AUTH-007.
+
+        Rotation remains within the same Refresh Token family and User Session. The
+        previous active Access Token and Refresh Token become invalid before the
+        replacement pair becomes active.
+      operationId: auth.refresh
+      x-business-rules: [AUTH-BR-002, AUTH-BR-013]
+      x-decisions: [ADR-002, DD-AUTH-001, DD-AUTH-007, DD-AUTH-017, ADR-005]
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshTokenRequest' }
+            examples:
+              rotate: { value: { refresh_token: refresh-token-placeholder-0000000000000001 } }
+      responses:
+        '200':
+          description: Token pair rotated successfully.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenPairResponse' }
+              examples:
+                success: { $ref: '#/components/examples/RefreshSuccess' }
+        '401': { $ref: '#/components/responses/InvalidRefreshToken' }
+        '403': { $ref: '#/components/responses/InactiveTenant' }
+        '409': { $ref: '#/components/responses/TokenReuseDetected' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /auth/forgot-password:
+    post:
+      summary: Request password reset instructions
+      description: |
+        Queues reset instructions when an account exists and always returns the same
+        accepted response to prevent enumeration.
+
+        Password Reset Token expires in 15 minutes and can be used only once.
+      operationId: auth.forgotPassword
+      x-business-rules: [AUTH-BR-010]
+      x-decisions: [ADR-003, ADR-006, DD-AUTH-007, DD-AUTH-017, ADR-005]
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ForgotPasswordRequest' }
+            examples:
+              requestReset: { value: { email: doctor@example.com } }
+      responses:
+        '202':
+          description: Reset request accepted.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MessageResponse' }
+              examples:
+                accepted:
+                  value: { success: true, message: 'If the email is registered, password reset instructions will be sent.', data: null, errors: null, meta: null }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /auth/reset-password:
+    post:
+      summary: Reset a forgotten password
+      description: |
+        Resets the password using a single-use Password Reset Token, revokes every
+        active User Session and all descendant Access Tokens and Refresh Token families,
+        preserves registered Devices, and records an audit event.
+
+        Password Reset Token is valid for 15 minutes and can be used only once.
+      operationId: auth.resetPassword
+      x-business-rules: [AUTH-BR-011]
+      x-decisions: [ADR-003, ADR-006, DD-AUTH-007, DD-AUTH-017, ADR-005]
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ResetPasswordRequest' }
+            examples:
+              reset:
+                value:
+                  email: doctor@example.com
+                  token: reset-token-placeholder
+                  password: NewStrongPassword456!
+                  password_confirmation: NewStrongPassword456!
+      responses:
+        '200':
+          description: Password reset and sessions revoked.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MessageResponse' }
+              examples:
+                success:
+                  value: { success: true, message: 'Password reset successfully. Please log in again.', data: null, errors: null, meta: null }
+        '400': { $ref: '#/components/responses/InvalidResetToken' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /auth/change-password:
+    post:
+      summary: Change the authenticated user's password
+      description: |
+        Verifies the current password and changes it according to the approved policy.
+
+        Current Session and its active Access/Refresh Token pair remain active.
+
+        Every other active Session is revoked together with descendant Access Tokens
+        and Refresh Token families.
+
+        Registered Devices remain registered. An immutable PASSWORD_CHANGED audit event
+        is generated, and Login History remains unchanged. DD-AUTH-018 defines
+        credential-change revocation as an exception to the generic logout_at trigger.
+      operationId: auth.changePassword
+      x-business-rules: [AUTH-BR-012, AUTH-BR-016]
+      x-decisions: [ADR-006, DD-AUTH-004, DD-AUTH-007, DD-AUTH-017, DD-AUTH-018, ADR-005]
+      tags: [Authentication]
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChangePasswordRequest' }
+            examples:
+              change:
+                value:
+                  current_password: StrongPassword123!
+                  password: NewStrongPassword456!
+                  password_confirmation: NewStrongPassword456!
+      responses:
+        '200':
+          description: Password changed successfully.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ChangePasswordResponse' }
+              examples:
+                success:
+                  value:
+                    success: true
+                    message: Password changed successfully.
+                    data:
+                      current_session_active: true
+                      other_sessions_revoked: true
+                      registered_devices_retained: true
+                    errors: null
+                    meta: null
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /auth/profile:
+    get:
+      summary: Get the authenticated user's profile
+      description: Returns the user, active Organization and Branch context, roles, and permissions without sensitive attributes.
+      operationId: auth.profile.show
+      x-business-rules: [AUTH-BR-004]
+      x-decisions: [ADR-002, ADR-006]
+      tags: [Authentication]
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200':
+          description: Profile retrieved successfully.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProfileResponse' }
+              examples:
+                success: { $ref: '#/components/examples/ProfileSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/InactiveTenant' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      summary: Update the authenticated user's profile
+      description: Updates safe self-service fields only; tenant, username, status, roles, and permissions are immutable here.
+      operationId: auth.profile.update
+      x-business-rules: [AUTH-BR-004]
+      x-decisions: [ADR-006]
+      tags: [Authentication]
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/UpdateProfileRequest' }
+            examples:
+              update:
+                value:
+                  name: Dr. Budi Santoso, Sp.Ort
+                  phone: '+62-812-1111-2222'
+                  photo: profile.jpg
+      responses:
+        '200':
+          description: Profile updated successfully.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProfileResponse' }
+              examples:
+                success: { $ref: '#/components/examples/ProfileUpdated' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /auth/login-history:
+    get:
+      summary: Get login history
+      description: Returns the paginated Login History Operational History Projection for the authenticated User within the active tenant context. This projection is not canonical audit evidence; canonical Audit Events remain append-only and immutable. logout_at follows the field policy in DD-AUTH-017 and lifecycle authority in DD-AUTH-007.
+      operationId: auth.loginHistory.index
+      x-business-rules: [AUTH-BR-005]
+      x-decisions: [ADR-006, DD-AUTH-007, DD-AUTH-010, DD-AUTH-017, ADR-005]
+      tags: [Authentication]
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - name: login_status
+          in: query
+          required: false
+          schema: { type: string, enum: [success, failed] }
+        - name: from
+          in: query
+          required: false
+          schema: { type: string, format: date }
+        - name: to
+          in: query
+          required: false
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Login history retrieved successfully.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginHistoryListResponse' }
+              examples:
+                success: { $ref: '#/components/examples/LoginHistorySuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /auth/devices:
+    get:
+      summary: List recognized devices
+      description: |
+        Returns recognized Devices owned by the authenticated User.
+
+        Each Device represents an independent hardware/browser identity and may own
+        multiple User Sessions.
+
+        Device lifecycle is independent from Session lifecycle. Session revocation is
+        performed through Logout, Logout All, or Device Revocation.
+      operationId: auth.devices.index
+      x-business-rules: [AUTH-BR-006, AUTH-BR-015]
+      x-decisions: [ADR-002, ADR-006, DD-AUTH-003, DD-AUTH-006, DD-AUTH-007, DD-AUTH-017, ADR-005]
+      tags: [Authentication]
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/DevicePerPage' }
+        - { $ref: '#/components/parameters/DeviceSort' }
+        - { $ref: '#/components/parameters/SortDirection' }
+        - { $ref: '#/components/parameters/DevicePlatform' }
+        - { $ref: '#/components/parameters/DeviceTrusted' }
+        - { $ref: '#/components/parameters/DeviceActive' }
+        - { $ref: '#/components/parameters/DeviceRevoked' }
+      responses:
+        '200':
+          description: Devices retrieved successfully.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeviceListResponse' }
+              examples:
+                success: { $ref: '#/components/examples/DeviceListSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /auth/devices/{deviceId}:
+    delete:
+      summary: Revoke a device
+      description: Revokes a Device owned by the authenticated User, every User Session under it, and all descendant Access/Refresh Tokens. Current-device revocation uses logout. Login History Operational History Projections and immutable Audit Events are retained.
+      operationId: auth.devices.destroy
+      x-business-rules: [AUTH-BR-007]
+      x-decisions: [ADR-002, ADR-006, DD-AUTH-001, DD-AUTH-003, DD-AUTH-007, DD-AUTH-017, ADR-005]
+      tags: [Authentication]
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          description: UUID of the device to revoke.
+          schema: { type: string, format: uuid }
+          example: 01927f3e-0000-7000-8000-000000000020
+      responses:
+        '200':
+          description: Device and its sessions were revoked.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MessageResponse' }
+              examples:
+                success:
+                  value: { success: true, message: 'Device revoked successfully.', data: null, errors: null, meta: null }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/DeviceNotFound' }
+        '409': { $ref: '#/components/responses/CurrentDeviceConflict' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+
+  schemas:
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [identifier, password, organization_id, branch_id, device_uuid, device_type]
+      properties:
+        identifier: { type: string, maxLength: 150 }
+        password: { type: string, format: password, minLength: 8, writeOnly: true }
+        organization_id: { type: string, format: uuid }
+        branch_id: { type: string, format: uuid }
+        device_uuid: { type: string, minLength: 1, maxLength: 100 }
+        device_name: { type: [string, 'null'], maxLength: 150 }
+        device_type: { type: string, enum: [web, mobile, tablet, api] }
+        platform: { type: [string, 'null'], maxLength: 50 }
+
+    RefreshTokenRequest:
+      type: object
+      additionalProperties: false
+      required: [refresh_token]
+      properties:
+        refresh_token:
+          type: string
+          minLength: 32
+          writeOnly: true
+          description: Single-use opaque Refresh Token with a 30-day TTL.
+
+    ForgotPasswordRequest:
+      type: object
+      additionalProperties: false
+      required: [email]
+      properties:
+        email: { type: string, format: email, maxLength: 150 }
+
+    ResetPasswordRequest:
+      type: object
+      additionalProperties: false
+      required: [email, token, password, password_confirmation]
+      properties:
+        email: { type: string, format: email, maxLength: 150 }
+        token:
+          type: string
+          writeOnly: true
+          description: Single-use Password Reset Token with a 15-minute TTL.
+        password: { type: string, format: password, minLength: 8, writeOnly: true }
+        password_confirmation: { type: string, format: password, minLength: 8, writeOnly: true }
+
+    ChangePasswordRequest:
+      type: object
+      additionalProperties: false
+      required: [current_password, password, password_confirmation]
+      properties:
+        current_password: { type: string, format: password, writeOnly: true }
+        password: { type: string, format: password, minLength: 8, writeOnly: true }
+        password_confirmation: { type: string, format: password, minLength: 8, writeOnly: true }
+
+    UpdateProfileRequest:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name: { type: string, maxLength: 200 }
+        phone: { type: [string, 'null'], maxLength: 30 }
+        photo: { type: string, format: binary }
+
+    TokenPair:
+      type: object
+      required: [token_type, access_token, access_token_expires_at, refresh_token, refresh_token_expires_at]
+      properties:
+        token_type: { type: string, const: Bearer }
+        access_token: { type: string, description: Opaque Access Token returned only at issuance or rotation. }
+        access_token_expires_at:
+          type: string
+          format: date-time
+          description: Access Token expiry timestamp; default lifetime is 60 minutes.
+        refresh_token: { type: string, description: Opaque Refresh Token returned only at issuance or rotation. }
+        refresh_token_expires_at:
+          type: string
+          format: date-time
+          description: Refresh Token expiry timestamp; default lifetime is 30 days.
+
+    UserSummary:
+      type: object
+      required: [id, name, username, email, organization_id, branch_id, status]
+      properties:
+        id: { type: string, format: uuid }
+        employee_code: { type: string }
+        name: { type: string }
+        username: { type: string }
+        email: { type: string, format: email }
+        phone: { type: [string, 'null'] }
+        photo: { type: [string, 'null'], format: uri }
+        gender: { type: [string, 'null'], enum: [male, female, null] }
+        birth_date: { type: [string, 'null'], format: date }
+        organization_id: { type: string, format: uuid }
+        branch_id: { type: string, format: uuid }
+        status: { type: string, enum: [active, inactive] }
+
+    OrganizationSummary:
+      type: object
+      required: [id, company_code, company_name]
+      properties:
+        id: { type: string, format: uuid }
+        company_code: { type: string }
+        company_name: { type: string }
+
+    BranchSummary:
+      type: object
+      required: [id, branch_code, branch_name]
+      properties:
+        id: { type: string, format: uuid }
+        branch_code: { type: string }
+        branch_name: { type: string }
+
+    Profile:
+      allOf:
+        - $ref: '#/components/schemas/UserSummary'
+        - type: object
+          required: [organization, branch, roles, permissions]
+          properties:
+            organization: { $ref: '#/components/schemas/OrganizationSummary' }
+            branch: { $ref: '#/components/schemas/BranchSummary' }
+            roles: { type: array, items: { type: string } }
+            permissions: { type: array, items: { type: string } }
+
+    MessageResponse:
+      type: object
+      required: [success, message, data, errors, meta]
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        data: { type: ['null'] }
+        errors: { type: ['null', object] }
+        meta: { type: ['null', object] }
+
+    ChangePasswordResponse:
+      type: object
+      required: [success, message, data, errors, meta]
+      properties:
+        success: { type: boolean, const: true }
+        message: { type: string }
+        data:
+          type: object
+          required: [current_session_active, other_sessions_revoked, registered_devices_retained]
+          properties:
+            current_session_active: { type: boolean, const: true }
+            other_sessions_revoked: { type: boolean, const: true }
+            registered_devices_retained: { type: boolean, const: true }
+        errors: { type: ['null'] }
+        meta: { type: ['null'] }
+
+    TokenPairResponse:
+      type: object
+      required: [success, message, data, errors, meta]
+      properties:
+        success: { type: boolean, const: true }
+        message: { type: string }
+        data: { $ref: '#/components/schemas/TokenPair' }
+        errors: { type: ['null'] }
+        meta: { type: ['null'] }
+
+    LoginResponse:
+      type: object
+      required: [success, message, data, errors, meta]
+      properties:
+        success: { type: boolean, const: true }
+        message: { type: string }
+        data:
+          allOf:
+            - $ref: '#/components/schemas/TokenPair'
+            - type: object
+              required: [device_id, user, roles, permissions]
+              properties:
+                device_id: { type: string, format: uuid }
+                user: { $ref: '#/components/schemas/UserSummary' }
+                roles: { type: array, items: { type: string } }
+                permissions: { type: array, items: { type: string } }
+        errors: { type: ['null'] }
+        meta: { type: ['null'] }
+
+    ProfileResponse:
+      type: object
+      required: [success, message, data, errors, meta]
+      properties:
+        success: { type: boolean, const: true }
+        message: { type: string }
+        data: { $ref: '#/components/schemas/Profile' }
+        errors: { type: ['null'] }
+        meta: { type: ['null'] }
+
+    ErrorResponse:
+      type: object
+      required: [success, message, data, errors, meta]
+      properties:
+        success: { type: boolean, const: false }
+        message: { type: string }
+        data: { type: ['null'] }
+        errors: { type: ['null', object] }
+        meta: { type: ['null', object] }
+
+    PaginationMeta:
+      type: object
+      required: [total, per_page, current_page, last_page, from, to]
+      properties:
+        total: { type: integer, minimum: 0 }
+        per_page: { type: integer, minimum: 1, maximum: 100 }
+        current_page: { type: integer, minimum: 1 }
+        last_page: { type: integer, minimum: 1 }
+        from: { type: [integer, 'null'], minimum: 1 }
+        to: { type: [integer, 'null'], minimum: 1 }
+
+    LoginHistory:
+      x-decisions: [DD-AUTH-007, DD-AUTH-017, ADR-005]
+      type: object
+      required: [id, login_at, logout_at, ip_address, browser, operating_system, device_name, country, city, login_status, failure_reason]
+      properties:
+        id: { type: string, format: uuid }
+        login_at: { type: string, format: date-time }
+        logout_at: { type: [string, 'null'], format: date-time }
+        ip_address: { type: [string, 'null'] }
+        browser: { type: [string, 'null'] }
+        operating_system: { type: [string, 'null'] }
+        device_name: { type: [string, 'null'] }
+        country: { type: [string, 'null'] }
+        city: { type: [string, 'null'] }
+        login_status: { type: string, enum: [success, failed] }
+        failure_reason: { type: [string, 'null'] }
+
+    LoginHistoryListResponse:
+      type: object
+      required: [success, message, data, errors, meta]
+      properties:
+        success: { type: boolean, const: true }
+        message: { type: string }
+        data: { type: array, items: { $ref: '#/components/schemas/LoginHistory' } }
+        errors: { type: ['null'] }
+        meta:
+          type: object
+          required: [pagination]
+          properties:
+            pagination: { $ref: '#/components/schemas/PaginationMeta' }
+
+    Device:
+      x-decisions: [DD-AUTH-007, DD-AUTH-017, ADR-005]
+      type: object
+      required: [id, device_uuid, device_name, platform, browser, operating_system, last_login_at, last_activity_at, is_trusted, is_active]
+      properties:
+        id: { type: string, format: uuid }
+        device_uuid: { type: string }
+        device_name: { type: [string, 'null'] }
+        platform: { type: [string, 'null'] }
+        browser: { type: [string, 'null'] }
+        operating_system: { type: [string, 'null'] }
+        last_login_at: { type: [string, 'null'], format: date-time }
+        last_activity_at: { type: [string, 'null'], format: date-time }
+        is_trusted: { type: boolean }
+        is_active: { type: boolean, description: Derived from revoked_at being null. }
+
+    DeviceListResponse:
+      type: object
+      required: [success, message, data, errors, meta]
+      properties:
+        success: { type: boolean, const: true }
+        message: { type: string }
+        data: { type: array, items: { $ref: '#/components/schemas/Device' } }
+        errors: { type: ['null'] }
+        meta:
+          type: object
+          required: [pagination]
+          properties:
+            pagination: { $ref: '#/components/schemas/PaginationMeta' }
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1, default: 1 }
+    PerPage:
+      name: per_page
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1, maximum: 100, default: 15 }
+    DevicePerPage:
+      name: per_page
+      in: query
+      required: false
+      description: Device records per page. Results are ordered by last_activity_at DESC, id DESC.
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+    DeviceSort:
+      name: sort
+      in: query
+      required: false
+      description: Whitelisted Device sort field. Unknown values fail validation.
+      schema:
+        type: string
+        enum: [last_activity_at, created_at, device_name]
+        default: last_activity_at
+    SortDirection:
+      name: direction
+      in: query
+      required: false
+      description: Sort direction. The default Device ordering is last_activity_at DESC, id DESC.
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+    DevicePlatform:
+      name: platform
+      in: query
+      required: false
+      description: Exact Device platform filter.
+      schema: { type: string, maxLength: 50 }
+    DeviceTrusted:
+      name: trusted
+      in: query
+      required: false
+      description: Filters the persisted is_trusted Device state.
+      schema: { type: boolean }
+    DeviceActive:
+      name: active
+      in: query
+      required: false
+      description: Filters Devices where revoked_at is null when true.
+      schema: { type: boolean }
+    DeviceRevoked:
+      name: revoked
+      in: query
+      required: false
+      description: Filters Devices where revoked_at is not null when true. Cannot conflict with active.
+      schema: { type: boolean }
+
+  responses:
+    InvalidCredentials:
+      description: Invalid username/email or password.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example: { success: false, message: 'Invalid credentials.', data: null, errors: null, meta: null }
+    Unauthenticated:
+      description: Missing, invalid, expired, or revoked access token.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example: { success: false, message: 'Unauthenticated.', data: null, errors: null, meta: null }
+    Forbidden:
+      description: Authenticated but not allowed to perform the operation.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example: { success: false, message: 'This action is unauthorized.', data: null, errors: null, meta: null }
+    InactiveTenant:
+      description: User, Organization, Branch, or device is inactive, revoked, or mismatched.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example: { success: false, message: 'Authentication context is not active.', data: null, errors: null, meta: null }
+    InvalidRefreshToken:
+      description: Refresh token is invalid, expired, or revoked.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example: { success: false, message: 'Invalid refresh token.', data: null, errors: null, meta: null }
+    InvalidResetToken:
+      description: Password reset token is invalid, expired, or already used.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example: { success: false, message: 'Invalid or expired reset token.', data: null, errors: null, meta: null }
+    TokenReuseDetected:
+      description: A rotated refresh token was reused; its entire token family, owning Session, and descendant Access Token were revoked.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example: { success: false, message: 'Refresh token reuse detected.', data: null, errors: null, meta: null }
+    ValidationError:
+      description: Request validation failed.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example:
+            success: false
+            message: The given data was invalid.
+            data: null
+            errors:
+              email: ['Email must be valid.']
+            meta: null
+    AccountLocked:
+      description: Account is locked for 15 minutes after five failed attempts.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example:
+            success: false
+            message: Account is temporarily locked. Try again in 15 minutes.
+            data: null
+            errors: null
+            meta: { retry_after: 900 }
+    TooManyRequests:
+      description: Authentication operation was rate-limited.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example: { success: false, message: 'Too many requests.', data: null, errors: null, meta: { retry_after: 60 } }
+    ServerError:
+      description: Unexpected server failure.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example: { success: false, message: 'Internal server error.', data: null, errors: null, meta: null }
+    DeviceNotFound:
+      description: Device does not exist.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example: { success: false, message: 'Device not found.', data: null, errors: null, meta: null }
+    CurrentDeviceConflict:
+      description: The current device must be revoked through the logout flow.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+          example: { success: false, message: 'Use logout to revoke the current device.', data: null, errors: null, meta: null }
+
+  examples:
+    LoginSuccess:
+      value:
+        success: true
+        message: Login successful.
+        data:
+          token_type: Bearer
+          access_token: 1|access-token-placeholder-0000000000000001
+          access_token_expires_at: '2026-08-02T14:46:00Z'
+          refresh_token: refresh-token-placeholder-0000000000000001
+          refresh_token_expires_at: '2026-09-01T13:46:00Z'
+          device_id: 01927f3e-0000-7000-8000-000000000020
+          user:
+            id: 01927f3e-0000-7000-8000-000000000010
+            name: Dr. Budi Santoso
+            username: budi.santoso
+            email: doctor@example.com
+            organization_id: 01927f3e-0000-7000-8000-000000000001
+            branch_id: 01927f3e-0000-7000-8000-000000000002
+            status: active
+          roles: [doctor]
+          permissions: [patient.view, medical_record.create]
+        errors: null
+        meta: null
+    RefreshSuccess:
+      value:
+        success: true
+        message: Token refreshed successfully.
+        data:
+          token_type: Bearer
+          access_token: 2|new-access-token-placeholder-000000000000001
+          access_token_expires_at: '2026-08-02T15:46:00Z'
+          refresh_token: new-refresh-token-placeholder-000000000000001
+          refresh_token_expires_at: '2026-09-01T14:46:00Z'
+        errors: null
+        meta: null
+    ProfileSuccess:
+      value:
+        success: true
+        message: Profile retrieved successfully.
+        data:
+          id: 01927f3e-0000-7000-8000-000000000010
+          employee_code: EMP-0001
+          name: Dr. Budi Santoso
+          username: budi.santoso
+          email: doctor@example.com
+          phone: '+62-812-0000-0001'
+          photo: null
+          gender: male
+          birth_date: '1985-06-15'
+          organization_id: 01927f3e-0000-7000-8000-000000000001
+          branch_id: 01927f3e-0000-7000-8000-000000000002
+          status: active
+          organization: { id: 01927f3e-0000-7000-8000-000000000001, company_code: ORG-0001, company_name: My Dent Care }
+          branch: { id: 01927f3e-0000-7000-8000-000000000002, branch_code: BRC-0001, branch_name: Sudirman Clinic }
+          roles: [doctor]
+          permissions: [patient.view, medical_record.create]
+        errors: null
+        meta: null
+    ProfileUpdated:
+      value:
+        success: true
+        message: Profile updated successfully.
+        data:
+          id: 01927f3e-0000-7000-8000-000000000010
+          employee_code: EMP-0001
+          name: Dr. Budi Santoso, Sp.Ort
+          username: budi.santoso
+          email: doctor@example.com
+          phone: '+62-812-1111-2222'
+          photo: https://files.example.test/signed/profile-photo
+          organization_id: 01927f3e-0000-7000-8000-000000000001
+          branch_id: 01927f3e-0000-7000-8000-000000000002
+          status: active
+          organization: { id: 01927f3e-0000-7000-8000-000000000001, company_code: ORG-0001, company_name: My Dent Care }
+          branch: { id: 01927f3e-0000-7000-8000-000000000002, branch_code: BRC-0001, branch_name: Sudirman Clinic }
+          roles: [doctor]
+          permissions: [patient.view, medical_record.create]
+        errors: null
+        meta: null
+    LoginHistorySuccess:
+      value:
+        success: true
+        message: Login history retrieved successfully.
+        data:
+          - id: 01927f3e-0000-7000-8000-000000000030
+            login_at: '2026-08-02T13:46:00Z'
+            logout_at: null
+            ip_address: 203.0.113.10
+            browser: null
+            operating_system: null
+            device_name: Doctor iPhone
+            country: null
+            city: null
+            login_status: success
+            failure_reason: null
+        errors: null
+        meta:
+          pagination: { total: 24, per_page: 15, current_page: 1, last_page: 2, from: 1, to: 15 }
+    DeviceListSuccess:
+      value:
+        success: true
+        message: Devices retrieved successfully.
+        data:
+          - id: 01927f3e-0000-7000-8000-000000000020
+            device_uuid: mobile-6f12b92d
+            device_name: null
+            platform: null
+            browser: null
+            operating_system: null
+            last_login_at: '2026-08-02T13:46:00Z'
+            last_activity_at: null
+            is_trusted: false
+            is_active: true
+        errors: null
+        meta:
+          pagination: { total: 3, per_page: 20, current_page: 1, last_page: 1, from: 1, to: 3 }
