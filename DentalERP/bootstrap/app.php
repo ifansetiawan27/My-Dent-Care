@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         App\Domains\Doctor\Providers\DoctorServiceProvider::class,
         App\Domains\Patient\Providers\PatientServiceProvider::class,
         App\Domains\Appointment\Providers\AppointmentServiceProvider::class,
+        App\Domains\Subscription\Providers\SubscriptionServiceProvider::class,
     ])
     ->withExceptions()
     ->create();
