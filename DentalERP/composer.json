@@ -4,12 +4,13 @@
     "description": "Dental ERP — Enterprise Platform for Multi-Branch Dental Clinic Management",
     "require": {
         "php": "^8.4",
+        "ext-pdo_pgsql": "*",
+        "ext-redis": "*",
+        "ext-zip": "*",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
-        "spatie/laravel-permission": "^6.0",
-        "ext-pdo_pgsql": "*",
-        "ext-zip": "*",
-        "ext-redis": "*"
+        "midtrans/midtrans-php": "^2.6",
+        "spatie/laravel-permission": "^6.0"
     },
     "require-dev": {
         "larastan/larastan": "^3.0",
