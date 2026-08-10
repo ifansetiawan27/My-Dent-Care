@@ -9,6 +9,7 @@ return Application::configure(basePath: dirname(__DIR__))
         api: [
             base_path('app/Domains/Branch/Routes/api.php'),
             base_path('app/Domains/Authentication/Routes/api.php'),
+            base_path('app/Domains/Organization/Routes/settings.php'),
         ],
         health: '/up',
     )
