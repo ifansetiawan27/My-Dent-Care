@@ -23,6 +23,11 @@ return Application::configure(basePath: dirname(__DIR__))
         App\Domains\Subscription\Providers\SubscriptionServiceProvider::class,
     ])
     ->withExceptions()
+    ->withMiddleware(function (\Illuminate\Foundation\Configuration\Middleware $middleware): void {
+        $middleware->api(prepend: [
+            \Illuminate\Http\Middleware\HandleCors::class,
+        ]);
+    })
     ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule): void {
         $schedule->job(App\Domains\Subscription\Jobs\ProcessTrialExpiration::class)->everyFifteenMinutes();
         $schedule->job(App\Domains\Subscription\Jobs\ProcessSubscriptionRenewals::class)->everyFifteenMinutes();
