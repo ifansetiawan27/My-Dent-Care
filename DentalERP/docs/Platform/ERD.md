@@ -238,12 +238,12 @@ erDiagram
 **Indexes:**
 
 | Name | Columns | Type |
-|---|---|---|
-| `system_logs_level_created_idx` | `(level, created_at DESC)` | Composite |
-| `system_logs_org_created_idx` | `(organization_id, created_at DESC)` | Composite |
-| `system_logs_channel_created_idx` | `(channel, created_at DESC)` | Composite |
-| `system_logs_created_at_idx` | `(created_at DESC)` | Single |
-| `system_logs_level_org_idx` | `(level, organization_id)` | Composite |
+|---|---|---|---|
+| `system_logs_level_created_idx` | `(level, created_at)` | Composite | NOTE: ERD designed DESC; implementation uses ASC (Laravel default) |
+| `system_logs_org_created_idx` | `(organization_id, created_at)` | Composite | NOTE: ERD designed DESC; implementation uses ASC (Laravel default) |
+| `system_logs_channel_created_idx` | `(channel, created_at)` | Composite | NOTE: ERD designed DESC; implementation uses ASC (Laravel default) |
+| `system_logs_created_at_idx` | `(created_at)` | Single | NOTE: ERD designed DESC; implementation uses ASC (Laravel default) |
+| `system_logs_level_org_idx` | `(level, organization_id)` | Composite | |
 
 **Lifecycle:** Append-only; retention-based purging (90 days default). No `updated_at`, no soft delete.
 

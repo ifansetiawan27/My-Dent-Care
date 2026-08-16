@@ -318,6 +318,27 @@ All consumed exclusively through PHP interfaces via Laravel service container. N
 
 ---
 
+#### 9.7 Logging Implementation Stage Tracking
+
+| Stage | Task | Status | Gate |
+|---|---|---|---|
+| 06 | Migration: `2026_08_09_000012_create_system_logs_table` | ✅ PASS | 99ad776 |
+| 07 | Model: `SystemLog extends Model` (HasUuid, $guarded=[], timestamps=false) | ✅ PASS | 99ad776, STEP_28_63.1 |
+| 10 | Service Interface: `LoggerServiceInterface` | ✅ PASS | 99ad776 |
+| 11 | Service: `LoggerService` (dual file+DB, 8 severity methods) | ✅ PASS | 99ad776 |
+| N/A | Stages 04, 08–09, 12–16 (internal platform service) | N/A | ImplementationPreflight §E |
+| 17 | Feature Test: `LoggerServiceTest` — 14 PASS | ✅ PASS | STEP_28_63.1 |
+| 18 | Unit Test: `LogLevelTest` — 4 PASS | ✅ PASS | 99ad776 |
+| 19 | Documentation: synchronize design docs (this update) | ✅ PASS | STEP_28_63.2 |
+| 20 | Git Commit | PENDING | — |
+
+**Implementation drift documented:**
+- `SystemLog`: extends raw `Model` (not `BaseModel`); `$guarded = []` required for `LoggerService::log()` mass assignment
+- All `created_at` indexes: design DESC → implementation ASC (Laravel `$table->index()` default)
+- `Log::fake()` removed in Laravel 12; tests use `Log::spy()` + `shouldHaveReceived()`
+
+---
+
 ### 10. Blocking Issues
 
 **None.** All architecture checks pass. 0 CRITICAL findings. 0 HIGH findings.
@@ -336,6 +357,8 @@ All consumed exclusively through PHP interfaces via Laravel service container. N
 | 6 | **INFO** | Implementation | `files_org_folder_created_idx` uses ASC (Laravel default); ERD.md previously specified DESC | ERD.md §2.2, `2026_08_09_000011_create_files_table.php` |
 | 7 | **INFO** | Implementation | `AuditLog` model: `$guarded = []` added for `AuditLogJob::create()` mass assignment | DatabaseDesign.md §2.7, `app/Platform/Audit/Models/AuditLog.php` |
 | 8 | **INFO** | Implementation | All `audit_logs` `created_at` indexes use ASC (Laravel default); design docs previously specified DESC | DatabaseDesign.md §2.6, ERD.md §2.1, `2026_08_09_000010_create_audit_logs_table.php` |
+| 9 | **INFO** | Implementation | `SystemLog` model: `$guarded = []` added for `LoggerService::log()` mass assignment | DatabaseDesign.md §4.7, `app/Platform/Logging/Models/SystemLog.php` |
+| 10 | **INFO** | Implementation | All `system_logs` `created_at` indexes use ASC (Laravel default); design docs previously specified DESC | DatabaseDesign.md §4.6, ERD.md §2.3, `2026_08_09_000012_create_system_logs_table.php` |
 
 ---
 

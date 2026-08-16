@@ -15,6 +15,8 @@ class SystemLog extends Model
 
     protected $table = 'system_logs';
 
+    protected $guarded = [];
+
     protected function casts(): array
     {
         return [

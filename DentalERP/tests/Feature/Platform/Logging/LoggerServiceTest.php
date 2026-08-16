@@ -6,12 +6,14 @@ use App\Platform\Logging\Contracts\LoggerServiceInterface;
 use App\Platform\Logging\Enums\LogLevel;
 use App\Platform\Logging\Models\SystemLog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
-    Log::fake();
+    Log::spy();
 });
 
 it('log writes to file for all severity levels', function (): void {
@@ -20,8 +22,8 @@ it('log writes to file for all severity levels', function (): void {
     $service->info('[TestService::run] Info message.', ['key' => 'value']);
     $service->warning('[TestService::run] Warning message.');
 
-    Log::assertLogged('info');
-    Log::assertLogged('warning');
+    Log::shouldHaveReceived('info');
+    Log::shouldHaveReceived('warning');
 });
 
 it('log persists to database for warning and above', function (): void {
@@ -67,7 +69,7 @@ it('debug is suppressed in production environment', function (): void {
 
     $service->debug('[Test::run] Debug info.');
 
-    Log::assertNotLogged('debug');
+    Log::shouldNotHaveReceived('debug');
     expect(SystemLog::where('level', 'debug')->count())->toBe(0);
 });
 
@@ -77,7 +79,7 @@ it('debug writes to file in non-production', function (): void {
 
     $service->debug('[Test::run] Debug info.');
 
-    Log::assertLogged('debug');
+    Log::shouldHaveReceived('debug');
 });
 
 it('extracts channel from [Module::action] message format', function (): void {
@@ -100,17 +102,41 @@ it('falls back to system channel when message has no module prefix', function ()
 
 it('stores tenant context when provided', function (): void {
     $service = app(LoggerServiceInterface::class);
+    $orgId    = (string) Str::orderedUuid();
+    $branchId = (string) Str::orderedUuid();
+    $userId   = (string) Str::orderedUuid();
+    $now = now();
+
+    DB::table('organizations')->insert([
+        'id' => $orgId, 'company_code' => 'ORG-LOG-01', 'company_name' => 'Logging Test Org',
+        'email' => 'log@test.com', 'phone' => '081234567890', 'address' => 'Jl. Test',
+        'city' => 'Jakarta', 'province' => 'DKI Jakarta', 'postal_code' => '12345',
+        'created_at' => $now, 'updated_at' => $now,
+    ]);
+    DB::table('branches')->insert([
+        'id' => $branchId, 'organization_id' => $orgId, 'branch_code' => 'BRC-LOG-01',
+        'branch_name' => 'Logging Test Branch', 'branch_type' => 'clinic', 'phone' => '081234567891',
+        'address' => 'Jl. Test', 'city' => 'Jakarta', 'province' => 'DKI Jakarta',
+        'postal_code' => '12345', 'created_at' => $now, 'updated_at' => $now,
+    ]);
+    DB::table('users')->insert([
+        'id' => $userId, 'organization_id' => $orgId, 'branch_id' => $branchId,
+        'name' => 'Logging Test User', 'email' => 'log-user@test.com', 'username' => 'loguser',
+        'employee_code' => 'EMP-LOG-01',
+        'password' => 'hashed', 'phone' => '081234567892',
+        'created_at' => $now, 'updated_at' => $now,
+    ]);
 
     $service->warning('[AuthService::login] Login attempt.', [
-        'organization_id' => 'org-123',
-        'branch_id'       => 'branch-456',
-        'user_id'         => 'user-789',
+        'organization_id' => $orgId,
+        'branch_id'       => $branchId,
+        'user_id'         => $userId,
     ]);
 
     $record = SystemLog::first();
-    expect($record->organization_id)->toBe('org-123');
-    expect($record->branch_id)->toBe('branch-456');
-    expect($record->user_id)->toBe('user-789');
+    expect($record->organization_id)->toBe($orgId);
+    expect($record->branch_id)->toBe($branchId);
+    expect($record->user_id)->toBe($userId);
 });
 
 it('allows null tenant context for non-authenticated contexts', function (): void {

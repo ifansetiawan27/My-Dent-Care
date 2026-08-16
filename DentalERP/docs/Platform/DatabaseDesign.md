@@ -316,11 +316,13 @@ CHECK (level IN ('emergency','alert','critical','error','warning','notice','info
 
 | Name | Columns | Type | Rationale |
 |---|---|---|---|
-| `system_logs_level_created_idx` | `(level, created_at DESC)` | Composite | Severity + time queries |
-| `system_logs_org_created_idx` | `(organization_id, created_at DESC)` | Composite | Tenant-scoped inspection |
-| `system_logs_channel_created_idx` | `(channel, created_at DESC)` | Composite | Module-scoped inspection |
-| `system_logs_created_at_idx` | `(created_at DESC)` | Single | Retention purge queries |
+| `system_logs_level_created_idx` | `(level, created_at)` | Composite | Severity + time queries |
+| `system_logs_org_created_idx` | `(organization_id, created_at)` | Composite | Tenant-scoped inspection |
+| `system_logs_channel_created_idx` | `(channel, created_at)` | Composite | Module-scoped inspection |
+| `system_logs_created_at_idx` | `(created_at)` | Single | Retention purge queries |
 | `system_logs_level_org_idx` | `(level, organization_id)` | Composite | Error+ per tenant monitoring |
+
+NOTE: All `created_at` index directions are ASC (Laravel `$table->index()` default). Design docs originally specified DESC; migration uses default ASC.
 
 ### 4.7 Model Guidance
 
@@ -332,6 +334,7 @@ class SystemLog extends Model
 {
     use HasUuid;
     public $timestamps = false;
+    protected $guarded = []; // allows LoggerService mass assignment
     protected function casts(): array {
         return ['context' => 'array', 'line' => 'integer', 'created_at' => 'datetime'];
     }
