@@ -8,17 +8,13 @@ services:
     volumes:
       - ..:/var/www
     environment:
-      - APP_ENV=testing
-      - DB_CONNECTION=pgsql
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_DATABASE=dentalerp_test
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=postgres
+      - APP_ENV=staging
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - CACHE_DRIVER=redis
       - SESSION_DRIVER=redis
+    env_file:
+      - ../../.env
     depends_on:
       postgres:
         condition: service_healthy

@@ -28,7 +28,9 @@ return new class extends Migration
                 ->references('id')
                 ->on('user_sessions')
                 ->restrictOnDelete();
+        });
 
+        Schema::table('refresh_tokens', function (Blueprint $table): void {
             $table->foreign('replaced_by_id', 'refresh_tokens_replaced_by_id_foreign')
                 ->references('id')
                 ->on('refresh_tokens')

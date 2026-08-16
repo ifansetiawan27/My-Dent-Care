@@ -10,15 +10,52 @@ use App\Platform\FileStorage\Models\File;
 use App\Platform\FileStorage\Services\FileStorageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
+    Auth::shouldReceive('check')->andReturn(false);
     Storage::fake('local');
     $mockAudit = mock(AuditServiceInterface::class);
     $mockAudit->shouldReceive('log')->byDefault();
     app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
+
+    $this->organizationId = (string) Str::orderedUuid();
+    $this->branchId       = (string) Str::orderedUuid();
+    $now = now();
+
+    DB::table('organizations')->insert([
+        'id'           => $this->organizationId,
+        'company_code' => 'ORG-FS-01',
+        'company_name' => 'FileStorage Test Organization',
+        'email'        => 'fs-test@example.com',
+        'phone'        => '081234567890',
+        'address'      => 'Jl. Test 1',
+        'city'         => 'Jakarta',
+        'province'     => 'DKI Jakarta',
+        'postal_code'  => '12345',
+        'created_at'   => $now,
+        'updated_at'   => $now,
+    ]);
+
+    DB::table('branches')->insert([
+        'id'              => $this->branchId,
+        'organization_id' => $this->organizationId,
+        'branch_code'     => 'BRC-FS-01',
+        'branch_name'     => 'FileStorage Test Clinic',
+        'branch_type'     => 'clinic',
+        'phone'           => '081234567891',
+        'address'         => 'Jl. Test 2',
+        'city'            => 'Jakarta',
+        'province'        => 'DKI Jakarta',
+        'postal_code'     => '12345',
+        'created_at'      => $now,
+        'updated_at'      => $now,
+    ]);
 });
 
 it('persists file metadata after store', function (): void {
@@ -27,12 +64,12 @@ it('persists file metadata after store', function (): void {
     app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
 
     $file = UploadedFile::fake()->create('photo.jpg', 100, 'image/jpeg');
-    $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Patient, 'org-1', 'branch-1');
+    $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Patient, $this->organizationId, $this->branchId);
 
     $record = File::find($dto->id);
     expect($record)->not->toBeNull();
-    expect($record->organization_id)->toBe('org-1');
-    expect($record->branch_id)->toBe('branch-1');
+    expect($record->organization_id)->toBe($this->organizationId);
+    expect($record->branch_id)->toBe($this->branchId);
     expect($record->folder)->toBe('patient');
     expect($record->original_name)->toBe('photo.jpg');
     expect($record->stored_name)->toBe($dto->id);
@@ -41,7 +78,7 @@ it('persists file metadata after store', function (): void {
     expect($record->size)->toBeGreaterThan(0);
     expect($record->hash)->toHaveLength(64);
     expect($record->disk)->toBe('local');
-    expect($record->path)->toContain('patient/org-1/branch-1');
+    expect($record->path)->toContain("patient/{$this->organizationId}/{$this->branchId}");
 });
 
 it('file metadata matches DTO after store', function (): void {
@@ -50,7 +87,7 @@ it('file metadata matches DTO after store', function (): void {
     app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
 
     $file = UploadedFile::fake()->create('doc.pdf', 50, 'application/pdf');
-    $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Doctor, 'org-2', null);
+    $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Doctor, $this->organizationId, null);
 
     $record = File::find($dto->id);
 
@@ -73,7 +110,7 @@ it('soft-deletes file via BaseModel SoftDeletes trait', function (): void {
     app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
 
     $file = UploadedFile::fake()->create('doc.pdf', 50, 'application/pdf');
-    $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Patient, 'org-1');
+    $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Patient, $this->organizationId);
 
     app(FileStorageServiceInterface::class)->delete($dto->path);
 
@@ -90,7 +127,7 @@ it('audit records are created for upload and delete', function (): void {
     app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
 
     $file = UploadedFile::fake()->create('doc.pdf', 50, 'application/pdf');
-    $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Patient, 'org-1');
+    $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Patient, $this->organizationId);
     app(FileStorageServiceInterface::class)->delete($dto->path);
 
     $mockAudit->shouldHaveReceived('log')->twice();

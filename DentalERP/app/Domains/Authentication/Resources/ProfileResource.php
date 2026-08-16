@@ -29,7 +29,7 @@ class ProfileResource extends BaseResource
             'username'        => $user->username,
             'email'           => $user->email,
             'phone'           => $user->phone,
-            'photo'           => $user->photo,
+            'photo'           => $this->resource['photo_url'] ?? $user->photo,
             'gender'          => $user->gender?->value,
             'gender_label'    => $user->gender?->label(),
             'birth_date'      => $user->birth_date?->toDateString(),

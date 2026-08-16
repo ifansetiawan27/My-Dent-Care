@@ -23,4 +23,12 @@ final class PlatformServiceProvider extends ServiceProvider
         $this->app->bind(LoggerServiceInterface::class, LoggerService::class);
         $this->app->bind(NotificationServiceInterface::class, NotificationService::class);
     }
+
+    public function boot(): void
+    {
+        $this->loadMigrationsFrom(__DIR__ . '/../Audit/Migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../FileStorage/Migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../Logging/Migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../Notification/Migrations');
+    }
 }

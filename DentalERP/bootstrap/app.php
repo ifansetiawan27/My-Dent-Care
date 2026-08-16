@@ -15,12 +15,29 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withProviders([
         App\Platform\Providers\PlatformServiceProvider::class,
+        App\Domains\Organization\Providers\OrganizationServiceProvider::class,
+        App\Domains\Branch\Providers\BranchServiceProvider::class,
+        App\Domains\RolePermission\Providers\RolePermissionServiceProvider::class,
         App\Domains\MasterData\Providers\MasterDataServiceProvider::class,
         App\Domains\Employee\Providers\EmployeeServiceProvider::class,
         App\Domains\Doctor\Providers\DoctorServiceProvider::class,
         App\Domains\Patient\Providers\PatientServiceProvider::class,
         App\Domains\Appointment\Providers\AppointmentServiceProvider::class,
+        App\Domains\Odontogram\Providers\OdontogramServiceProvider::class,
+        App\Domains\Treatment\Providers\TreatmentServiceProvider::class,
+        App\Domains\EMR\Providers\EMRServiceProvider::class,
         App\Domains\Subscription\Providers\SubscriptionServiceProvider::class,
+        App\Domains\Billing\Providers\BillingServiceProvider::class,
+        App\Domains\Inventory\Providers\InventoryServiceProvider::class,
+        App\Domains\Pharmacy\Providers\PharmacyServiceProvider::class,
+        App\Domains\Laboratory\Providers\LaboratoryServiceProvider::class,
+        App\Domains\Procurement\Providers\ProcurementServiceProvider::class,
+        App\Domains\Asset\Providers\AssetServiceProvider::class,
+        App\Domains\HR\Providers\HRServiceProvider::class,
+        App\Domains\CRM\Providers\CRMServiceProvider::class,
+        App\Domains\Reporting\Providers\ReportingServiceProvider::class,
+        App\Domains\Dashboard\Providers\DashboardServiceProvider::class,
+        App\Domains\IntegrationHub\Providers\IntegrationHubServiceProvider::class,
     ])
     ->withExceptions()
     ->withMiddleware(function (\Illuminate\Foundation\Configuration\Middleware $middleware): void {

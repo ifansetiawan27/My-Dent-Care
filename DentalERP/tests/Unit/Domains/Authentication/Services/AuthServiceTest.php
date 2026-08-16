@@ -19,6 +19,7 @@ use App\Domains\Organization\Enums\OrganizationStatus;
 use App\Domains\Branch\Enums\BranchStatus;
 use App\Domains\User\Enums\UserStatus;
 use App\Domains\User\Models\User;
+use App\Platform\FileStorage\Contracts\FileStorageServiceInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -31,13 +32,15 @@ class AuthServiceTest extends TestCase
     private AuthService $service;
     private MockInterface $repository;
     private MockInterface $lockoutService;
+    private MockInterface $fileStorage;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->repository    = Mockery::mock(AuthRepositoryInterface::class);
         $this->lockoutService = Mockery::mock(LockoutServiceInterface::class);
-        $this->service       = new AuthService($this->repository, $this->lockoutService);
+        $this->fileStorage   = Mockery::mock(FileStorageServiceInterface::class);
+        $this->service       = new AuthService($this->repository, $this->lockoutService, $this->fileStorage);
     }
 
     protected function tearDown(): void

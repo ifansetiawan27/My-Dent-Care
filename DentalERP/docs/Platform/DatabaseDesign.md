@@ -171,8 +171,8 @@ class AuditLog extends Model
 | 1 | `id` | `uuid` | NOT NULL | — | Ordered UUID PK (also = `stored_name`) |
 | 2 | `organization_id` | `uuid` | NOT NULL | — | Tenant org (BR-FS-003) |
 | 3 | `branch_id` | `uuid` | NULL | — | Tenant branch (nullable) |
-| 4 | `fileable_type` | `varchar(255)` | NOT NULL | — | Polymorphic owner model class |
-| 5 | `fileable_id` | `uuid` | NOT NULL | — | Polymorphic owner record UUID |
+| 4 | `fileable_type` | `varchar(255)` | NULL | — | Polymorphic owner model class (nullable: files may exist without a polymorphic owner) |
+| 5 | `fileable_id` | `uuid` | NULL | — | Polymorphic owner record UUID (nullable: files may exist without a polymorphic owner) |
 | 6 | `folder` | `varchar(50)` | NOT NULL | — | `StorageFolder` enum value |
 | 7 | `disk` | `varchar(20)` | NOT NULL | — | `StorageDriver` enum value |
 | 8 | `path` | `varchar(500)` | NOT NULL | — | Full storage path per convention |
@@ -186,7 +186,7 @@ class AuditLog extends Model
 | 16 | `updated_by` | `uuid` | NULL | — | Last updating user (auto: `HasAudit`) |
 | 17 | `deleted_by` | `uuid` | NULL | — | Deleting user (auto: `HasAudit`) |
 | 18 | `created_at` | `timestamptz` | NOT NULL | — | Upload timestamp |
-| 19 | `updated_at` | `timestamptz` | NOT NULL | — | Last update timestamp |
+| 19 | `updated_at` | `timestamptz` | NULL | — | Last update timestamp |
 | 20 | `deleted_at` | `timestamptz` | NULL | — | Soft delete timestamp (BR-FS-006) |
 
 **20 columns.** `StoredFileDTO` 12 fields + polymorphic owner + audit columns + timestamps.
@@ -198,6 +198,9 @@ class AuditLog extends Model
 | `created_by` present in FileStorage.md | Preserved | — |
 | No `updated_by` in source doc | **Added** | Required by `HasAudit` / `BaseModel` for Business Records |
 | No `deleted_by` in source doc | **Added** | Required by `HasAudit` / `BaseModel` for Business Records |
+| `fileable_type` NOT NULL in original migration | **Made NULL** via `2026_08_15_000001_make_files_fileable_columns_nullable` | Files may be stored before a polymorphic owner is assigned |
+| `fileable_id` NOT NULL in original migration | **Made NULL** via `2026_08_15_000001_make_files_fileable_columns_nullable` | Files may be stored before a polymorphic owner is assigned |
+| `updated_at` `NOT NULL` in ERD/DatabaseDesign | **Actual migration uses `nullable()`** | Original migration (`2026_08_09_000011`) already correct; design doc corrected here |
 
 ### 3.4 CHECK Constraints
 

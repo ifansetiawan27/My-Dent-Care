@@ -175,8 +175,8 @@ erDiagram
 | 1 | `id` | `uuid` | NOT NULL | — | PK | — | — |
 | 2 | `organization_id` | `uuid` | NOT NULL | — | FK | `organizations(id)` | RESTRICT |
 | 3 | `branch_id` | `uuid` | NULL | — | FK | `branches(id)` | SET NULL |
-| 4 | `fileable_type` | `varchar(255)` | NOT NULL | — | — | — | — |
-| 5 | `fileable_id` | `uuid` | NOT NULL | — | — | — | — |
+| 4 | `fileable_type` | `varchar(255)` | NULL | — | — | — | — |
+| 5 | `fileable_id` | `uuid` | NULL | — | — | — | — |
 | 6 | `folder` | `varchar(50)` | NOT NULL | — | — | — | — |
 | 7 | `disk` | `varchar(20)` | NOT NULL | — | — | — | — |
 | 8 | `path` | `varchar(500)` | NOT NULL | — | — | — | — |
@@ -190,7 +190,7 @@ erDiagram
 | 16 | `updated_by` | `uuid` | NULL | — | — | — | — |
 | 17 | `deleted_by` | `uuid` | NULL | — | — | — | — |
 | 18 | `created_at` | `timestamptz` | NOT NULL | — | — | — | — |
-| 19 | `updated_at` | `timestamptz` | NOT NULL | — | — | — | — |
+| 19 | `updated_at` | `timestamptz` | NULL | — | — | — | — |
 | 20 | `deleted_at` | `timestamptz` | NULL | — | — | — | — |
 
 **Checks:**
@@ -206,7 +206,7 @@ erDiagram
 | `files_fileable_idx` | `(fileable_type, fileable_id)` | Composite |
 | `files_hash_idx` | `(hash)` | Single |
 | `files_folder_idx` | `(folder)` | Single |
-| `files_org_folder_created_idx` | `(organization_id, folder, created_at DESC)` | Composite |
+| `files_org_folder_created_idx` | `(organization_id, folder, created_at)` | Composite | NOTE: ERD designed DESC; implementation uses Laravel `$table->index()` default (ASC) |
 | `files_created_by_idx` | `(created_by)` | Single |
 
 **Lifecycle:** Soft-deletable Business Record. Polymorphic owner via `fileable_type`/`fileable_id`.

@@ -17,7 +17,10 @@ use App\Domains\Branch\Enums\BranchStatus;
 use App\Domains\Organization\Enums\OrganizationStatus;
 use App\Domains\User\Enums\UserStatus;
 use App\Domains\User\Models\User;
+use App\Platform\FileStorage\Contracts\FileStorageServiceInterface;
+use App\Platform\FileStorage\Enums\StorageFolder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -35,6 +38,7 @@ class AuthService implements AuthServiceInterface
     public function __construct(
         private readonly AuthRepositoryInterface $repository,
         private readonly LockoutServiceInterface $lockoutService,
+        private readonly FileStorageServiceInterface $fileStorage,
     ) {}
 
     public function login(LoginDTO $dto): array
@@ -262,6 +266,9 @@ class AuthService implements AuthServiceInterface
 
         return [
             'user'         => $user,
+            'photo_url'    => $user->photo !== null
+                ? $this->fileStorage->temporaryUrl($user->photo)
+                : null,
             'organization' => $user->organization,
             'branch'       => $user->branch,
             'roles'        => $user->getRoleNames()->toArray(),
@@ -288,9 +295,16 @@ class AuthService implements AuthServiceInterface
         }
 
         if (array_key_exists('photo', $data) && $data['photo'] !== null) {
-            $allowed['photo'] = $data['photo'] instanceof \Illuminate\Http\UploadedFile
-                ? $data['photo']->store('profile-photos', 'public')
-                : $data['photo'];
+            $photo = $data['photo'];
+
+            $allowed['photo'] = $photo instanceof UploadedFile
+                ? $this->fileStorage->store(
+                    file:          $photo,
+                    folder:        StorageFolder::Organization,
+                    organizationId: $user->organization_id,
+                    branchId:      $user->branch_id,
+                )->path
+                : $photo;
         }
 
         if (! empty($allowed)) {

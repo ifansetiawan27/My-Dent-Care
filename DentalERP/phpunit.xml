@@ -3,7 +3,7 @@
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          bootstrap="vendor/autoload.php"
          colors="true"
-         cacheDirectory=".phpunit.cache">
+         cacheDirectory="/tmp/.phpunit.cache">
     <testsuites>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
@@ -18,15 +18,31 @@
         </include>
     </source>
     <php>
-        <env name="APP_ENV" value="testing"/>
-        <env name="DB_CONNECTION" value="pgsql"/>
-        <env name="DB_HOST" value="postgres"/>
-        <env name="DB_PORT" value="5432"/>
-        <env name="DB_DATABASE" value="dentalerp_test"/>
-        <env name="DB_USERNAME" value="postgres"/>
-        <env name="DB_PASSWORD" value="postgres"/>
-        <env name="REDIS_HOST" value="redis"/>
-        <env name="REDIS_PORT" value="6379"/>
-        <env name="CACHE_DRIVER" value="redis"/>
+        <env name="APP_ENV" value="testing" force="true"/>
+        <env name="DB_CONNECTION" value="pgsql" force="true"/>
+        <env name="DB_HOST" value="postgres" force="true"/>
+        <env name="DB_PORT" value="5432" force="true"/>
+        <env name="DB_DATABASE" value="dentalerp_test" force="true"/>
+        <env name="DB_USERNAME" value="postgres" force="true"/>
+        <env name="DB_PASSWORD" value="postgres" force="true"/>
+        <env name="FILESYSTEM_DISK" value="local" force="true"/>
+        <env name="AWS_ENDPOINT" value="" force="true"/>
+        <env name="AWS_BUCKET" value="test-bucket" force="true"/>
+        <env name="REDIS_HOST" value="redis" force="true"/>
+        <env name="REDIS_PORT" value="6379" force="true"/>
+        <env name="CACHE_DRIVER" value="redis" force="true"/>
+        <server name="APP_ENV" value="testing"/>
+        <server name="DB_CONNECTION" value="pgsql"/>
+        <server name="DB_HOST" value="postgres"/>
+        <server name="DB_PORT" value="5432"/>
+        <server name="DB_DATABASE" value="dentalerp_test"/>
+        <server name="DB_USERNAME" value="postgres"/>
+        <server name="DB_PASSWORD" value="postgres"/>
+        <server name="FILESYSTEM_DISK" value="local"/>
+        <server name="AWS_ENDPOINT" value=""/>
+        <server name="AWS_BUCKET" value="test-bucket"/>
+        <server name="REDIS_HOST" value="redis"/>
+        <server name="REDIS_PORT" value="6379"/>
+        <server name="CACHE_DRIVER" value="redis"/>
     </php>
 </phpunit>

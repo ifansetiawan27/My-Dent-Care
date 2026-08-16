@@ -275,6 +275,29 @@ All consumed exclusively through PHP interfaces via Laravel service container. N
 
 ---
 
+#### 9.5 FileStorage Implementation Stage Tracking
+
+| Stage | Task | Status | Gate |
+|---|---|---|---|
+| 06 | Migration: `2026_08_09_000011_create_files_table` | ✅ PASS | STEP_28_61.4 |
+| 06b | Corrective migration: `2026_08_15_000001_make_files_fileable_columns_nullable` | ✅ PASS | STEP_28_61.6B.2 |
+| 07 | Model: `File extends BaseModel` (HasUuid, HasAudit, SoftDeletes) | ✅ PASS | STEP_28_61.4 |
+| 10 | Service Interface: `FileStorageServiceInterface` | ✅ PASS | STEP_28_61.4 |
+| 11 | Service: `FileStorageService` (local + S3 driver-agnostic) | ✅ PASS | STEP_28_61.4–61.6 |
+| N/A | Stages 04, 08–09, 12–16 (internal platform service) | N/A | ImplementationPreflight §E |
+| 17 | Feature Test: `FileStoragePersistenceTest` — 5 PASS | ✅ PASS | STEP_28_61.6C |
+| 18 | Unit Test: `FileStorageServiceTest` — 18 PASS | ✅ PASS | STEP_28_61.6C |
+| 19 | Documentation: synchronize design docs (this update) | ✅ PASS | STEP_28_61.7 |
+| 20 | Git Commit | PENDING | — |
+
+**Implementation drift documented (corrective migration):**
+- `fileable_type`: design NOT NULL → implementation NULL (corrective migration `2026_08_15_000001`)
+- `fileable_id`: design NOT NULL → implementation NULL (corrective migration `2026_08_15_000001`)
+- `updated_at`: design NOT NULL → original migration already nullable
+- `files_org_folder_created_idx`: design DESC → implementation ASC (Laravel `$table->index()` default)
+
+---
+
 ### 10. Blocking Issues
 
 **None.** All architecture checks pass. 0 CRITICAL findings. 0 HIGH findings.
@@ -288,6 +311,9 @@ All consumed exclusively through PHP interfaces via Laravel service container. N
 | 1 | **LOW** | Documentation | API.md §9 summary counts: declared "10 Logging" (actual: 9), total "18" (component sum: 23; actual methods: 22) | `docs/Platform/API.md` §9 |
 | 2 | **INFO** | Design Evolution | Original design docs (AuditPlatform.md, FileStorage.md, etc.) have minor column differences from final DatabaseDesign.md (audit columns, locale). Reconciled in DatabaseDesign.md §3.3, §5.3 | Design docs |
 | 3 | **INFO** | Process | ArchitectureChecklist.md created as part of this review — no prior Platform architecture checklist existed | `docs/Platform/ArchitectureChecklist.md` (this file) |
+| 4 | **INFO** | Implementation | `fileable_type`/`fileable_id` made nullable via corrective migration `2026_08_15_000001` — files stored without polymorphic owner | DatabaseDesign.md §3.3, ERD.md §2.2 |
+| 5 | **INFO** | Implementation | `updated_at` nullable in migration (corrected design doc to match implementation) | DatabaseDesign.md §3.2, ERD.md §2.2 |
+| 6 | **INFO** | Implementation | `files_org_folder_created_idx` uses ASC (Laravel default); ERD.md previously specified DESC | ERD.md §2.2, `2026_08_09_000011_create_files_table.php` |
 
 ---
 
@@ -344,3 +370,47 @@ All 4 Platform Services (Audit, FileStorage, Logging, Notification) have passed 
 | Design Freeze: NOT DECLARED | ✅ |
 
 STEP_07_15_PLATFORM_SERVICES_ARCHITECTURE_REVIEW_PASS
+
+---
+
+## 14. FileStorage Implementation Completion Record
+
+**Date:** 2026-08-16
+**Gates:** STEP_28_61.4 → STEP_28_61.6C (PASS)
+**Documentation synchronization:** STEP_28_61.7 (this update)
+
+### 14.1 Implementation Deliverables
+
+| Deliverable | File | Status |
+|---|---|---|
+| Migration | `app/Platform/FileStorage/Migrations/2026_08_09_000011_create_files_table.php` | ✅ Applied |
+| Corrective migration | `app/Platform/FileStorage/Migrations/2026_08_15_000001_make_files_fileable_columns_nullable.php` | ✅ Applied to `dentalerp_test` |
+| Model | `app/Platform/FileStorage/Models/File.php` | ✅ Complete |
+| Contract | `app/Platform/FileStorage/Contracts/FileStorageServiceInterface.php` | ✅ Complete |
+| Service | `app/Platform/FileStorage/Services/FileStorageService.php` | ✅ Complete |
+| DTO | `app/Platform/FileStorage/DTO/StoredFileDTO.php` | ✅ Complete |
+| Enum: StorageFolder | `app/Platform/FileStorage/Enums/StorageFolder.php` | ✅ Complete |
+| Enum: StorageDriver | `app/Platform/FileStorage/Enums/StorageDriver.php` | ✅ Complete |
+| Unit Test | `tests/Unit/Platform/FileStorage/FileStorageServiceTest.php` | ✅ 18 PASS |
+| Feature Test | `tests/Feature/Platform/FileStorage/FileStoragePersistenceTest.php` | ✅ 5 PASS |
+
+### 14.2 Schema Verification (Post-Implementation)
+
+| Check | Result |
+|---|---|
+| 20 columns | ✅ |
+| 7 indexes (+ 1 PK) | ✅ |
+| 2 CHECK constraints | ✅ `files_folder_check`, `files_disk_check` |
+| 3 foreign keys | ✅ `org_id`, `branch_id`, `created_by` |
+| `fileable_type` nullable | ✅ (corrective migration) |
+| `fileable_id` nullable | ✅ (corrective migration) |
+| `updated_at` nullable | ✅ (original migration) |
+
+### 14.3 Implementation Drift (Documented)
+
+| # | Drift | Resolution |
+|---|---|---|
+| 1 | `fileable_type` designed NOT NULL → implemented NULL | Corrective migration `2026_08_15_000001` |
+| 2 | `fileable_id` designed NOT NULL → implemented NULL | Corrective migration `2026_08_15_000001` |
+| 3 | `updated_at` designed NOT NULL → migration already NULL | Design doc corrected to match migration |
+| 4 | `files_org_folder_created_idx` designed DESC → implementation ASC | Documented; migration unchanged |

@@ -94,7 +94,13 @@ final class FileStorageService implements FileStorageServiceInterface
 
     public function temporaryUrl(string $path, int $expiresIn = 900): string
     {
-        return Storage::disk($this->activeDisk())->temporaryUrl($path, now()->addSeconds($expiresIn));
+        $disk = Storage::disk($this->activeDisk());
+
+        if (! $disk->providesTemporaryUrls()) {
+            return $disk->url($path);
+        }
+
+        return $disk->temporaryUrl($path, now()->addSeconds($expiresIn));
     }
 
     public function get(string $path): ?string
