@@ -1,9 +1,58 @@
-<?php declare(strict_types=1); namespace App\Domains\Odontogram\Services;
-use App\Core\Exceptions\NotFoundException; use App\Domains\Odontogram\Models\Odontogram; use Illuminate\Support\Facades\DB;
-final class OdontogramService {
-    public function paginate(array $f) { return Odontogram::where('organization_id',$f['organization_id'])->when(!empty($f['patient_id']),fn($q)=>$q->where('patient_id',$f['patient_id']))->orderBy('tooth_number')->paginate(min((int)($f['per_page']??20),100)); }
-    public function findById(string $id, string $orgId): Odontogram { $o = Odontogram::where('id',$id)->where('organization_id',$orgId)->first(); if(!$o) throw new NotFoundException("Not found."); return $o; }
-    public function create(array $d): Odontogram { return DB::transaction(fn()=>Odontogram::create($d)); }
-    public function update(string $id, array $d, string $orgId): Odontogram { $o=$this->findById($id,$orgId); DB::transaction(fn()=>$o->update($d)); return $o->refresh(); }
-    public function delete(string $id, string $orgId): bool { return (bool)$this->findById($id,$orgId)->delete(); }
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domains\Odontogram\Services;
+
+use App\Core\Exceptions\NotFoundException;
+use App\Domains\Odontogram\DTO\CreateOdontogramDTO;
+use App\Domains\Odontogram\DTO\UpdateOdontogramDTO;
+use App\Domains\Odontogram\Interfaces\OdontogramRepositoryInterface;
+use App\Domains\Odontogram\Interfaces\OdontogramServiceInterface;
+use App\Domains\Odontogram\Models\Odontogram;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+
+final class OdontogramService implements OdontogramServiceInterface
+{
+    public function __construct(
+        private readonly OdontogramRepositoryInterface $repository,
+    ) {}
+
+    public function paginate(array $filters): LengthAwarePaginator
+    {
+        return $this->repository->paginate($filters);
+    }
+
+    public function findById(string $id, string $organizationId): Odontogram
+    {
+        $odontogram = $this->repository->findById($id, $organizationId);
+        if (! $odontogram) {
+            throw new NotFoundException('Odontogram not found.');
+        }
+        return $odontogram;
+    }
+
+    public function create(CreateOdontogramDTO $dto): Odontogram
+    {
+        return DB::transaction(fn (): Odontogram => $this->repository->create($dto->toArray()));
+    }
+
+    public function update(string $id, UpdateOdontogramDTO $dto, string $organizationId): Odontogram
+    {
+        $odontogram = $this->findById($id, $organizationId);
+        return DB::transaction(fn (): Odontogram => $this->repository->update($odontogram, $dto->toArray()));
+    }
+
+    public function delete(string $id, string $organizationId): bool
+    {
+        return $this->repository->delete($this->findById($id, $organizationId));
+    }
+
+    public function toggleActive(string $id, string $organizationId): Odontogram
+    {
+        $odontogram = $this->findById($id, $organizationId);
+        $newCondition = $odontogram->condition === 'healthy' ? 'caries' : 'healthy';
+        return $this->repository->update($odontogram, ['condition' => $newCondition]);
+    }
 }
