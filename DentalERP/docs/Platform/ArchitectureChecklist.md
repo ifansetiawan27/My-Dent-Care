@@ -339,6 +339,27 @@ All consumed exclusively through PHP interfaces via Laravel service container. N
 
 ---
 
+#### 9.8 Notification Implementation Stage Tracking
+
+| Stage | Task | Status | Gate |
+|---|---|---|---|
+| 06 | Migration: `2026_08_09_000013_create_notifications_table` | ✅ PASS | 99ad776 |
+| 07 | Model: `Notification extends BaseModel` (HasUuid, HasAudit, SoftDeletes) | ✅ PASS | 99ad776 |
+| 10 | Service Interface: `NotificationServiceInterface` | ✅ PASS | 99ad776 |
+| 11 | Service: `NotificationService` (5 channel drivers, queue dispatch) | ✅ PASS | 99ad776 |
+| N/A | Stages 04, 08–09, 12–16 (internal platform service) | N/A | ImplementationPreflight §E |
+| 17 | Feature Test: `NotificationServiceTest` — 9 PASS | ✅ PASS | STEP_28_64.2 |
+| 18 | Unit Test: `NotificationChannelTest` — 10 PASS | ✅ PASS | 99ad776 |
+| 19 | Documentation: synchronize design docs (this update) | ✅ PASS | STEP_28_64.2 |
+| 20 | Git Commit | PENDING | — |
+
+**Implementation drift documented:**
+- `Notification`: extends `BaseModel` (the only Platform model using `BaseModel`); `$guarded = []` inherited
+- `updated_at`: documented NOT NULL → actual migration nullable (same as FileStorage)
+- `notifications_org_created_idx`: design DESC → implementation ASC (Laravel `$table->index()` default)
+
+---
+
 ### 10. Blocking Issues
 
 **None.** All architecture checks pass. 0 CRITICAL findings. 0 HIGH findings.
@@ -359,6 +380,8 @@ All consumed exclusively through PHP interfaces via Laravel service container. N
 | 8 | **INFO** | Implementation | All `audit_logs` `created_at` indexes use ASC (Laravel default); design docs previously specified DESC | DatabaseDesign.md §2.6, ERD.md §2.1, `2026_08_09_000010_create_audit_logs_table.php` |
 | 9 | **INFO** | Implementation | `SystemLog` model: `$guarded = []` added for `LoggerService::log()` mass assignment | DatabaseDesign.md §4.7, `app/Platform/Logging/Models/SystemLog.php` |
 | 10 | **INFO** | Implementation | All `system_logs` `created_at` indexes use ASC (Laravel default); design docs previously specified DESC | DatabaseDesign.md §4.6, ERD.md §2.3, `2026_08_09_000012_create_system_logs_table.php` |
+| 11 | **INFO** | Implementation | `Notification` extends `BaseModel` (the only Platform model using `BaseModel`); inherits `$guarded = []`, `HasAudit`, `SoftDeletes` | DatabaseDesign.md §5, `app/Platform/Notification/Models/Notification.php` |
+| 12 | **INFO** | Implementation | `updated_at` nullable in migration (corrected design doc); `notifications_org_created_idx` uses ASC (Laravel default) | DatabaseDesign.md §5.2, ERD.md §2.4, `2026_08_09_000013_create_notifications_table.php` |
 
 ---
 

@@ -381,7 +381,7 @@ class SystemLog extends Model
 | 17 | `updated_by` | `uuid` | NULL | — | Last updating user (auto: `HasAudit`) |
 | 18 | `deleted_by` | `uuid` | NULL | — | Deleting user (auto: `HasAudit`) |
 | 19 | `created_at` | `timestamptz` | NOT NULL | — | Created timestamp |
-| 20 | `updated_at` | `timestamptz` | NOT NULL | — | Last update timestamp |
+| 20 | `updated_at` | `timestamptz` | NULL | — | Last update timestamp |
 | 21 | `deleted_at` | `timestamptz` | NULL | — | Soft delete timestamp |
 
 **21 columns.** NotificationPlatform.md 16 base fields + `locale` (DTO) + 3 audit columns + `deleted_at`.
@@ -393,6 +393,7 @@ class SystemLog extends Model
 | No `locale` in NotificationPlatform.md | **Added** | Present in `NotificationMessageDTO` (`?string $locale = 'id'`) |
 | No audit columns | **Added** (`created_by`, `updated_by`, `deleted_by`) | Required by `HasAudit`/`BaseModel` — Business Record per ADR-005 |
 | No soft delete | **Added** (`deleted_at`) | Required by `SoftDeletes`/`BaseModel` — Business Record per ADR-005 |
+| `updated_at` `NOT NULL` in ERD/DatabaseDesign | **Actual migration uses `nullable()`** | Original migration (`2026_08_09_000013`) already correct; design doc corrected here |
 
 ### 5.4 DTO `channels` (array) vs DB `channel` (single)
 
@@ -434,7 +435,9 @@ CHECK (status IN ('pending','sent','failed','read'));
 | `notifications_notifiable_idx` | `(notifiable_type, notifiable_id)` | Composite | Recipient-scoped queries |
 | `notifications_status_channel_idx` | `(status, channel)` | Composite | Monitoring: pending/failed per channel |
 | `notifications_type_idx` | `(type)` | Single | Notification type queries |
-| `notifications_org_created_idx` | `(organization_id, created_at DESC)` | Composite | Time-ordered listing |
+| `notifications_org_created_idx` | `(organization_id, created_at)` | Composite | Time-ordered listing |
+
+NOTE: `created_at` index direction is ASC (Laravel `$table->index()` default). Design docs originally specified DESC; migration uses default ASC.
 | `notifications_org_status_channel_idx` | `(organization_id, status, channel)` | Composite | Tenant failed/sent monitoring |
 
 ### 5.9 Model Guidance

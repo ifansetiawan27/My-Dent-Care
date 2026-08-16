@@ -272,7 +272,7 @@ erDiagram
 | 17 | `updated_by` | `uuid` | NULL | — | — | — | — |
 | 18 | `deleted_by` | `uuid` | NULL | — | — | — | — |
 | 19 | `created_at` | `timestamptz` | NOT NULL | — | — | — | — |
-| 20 | `updated_at` | `timestamptz` | NOT NULL | — | — | — | — |
+| 20 | `updated_at` | `timestamptz` | NULL | — | — | — | — |
 | 21 | `deleted_at` | `timestamptz` | NULL | — | — | — | — |
 
 **Checks:**
@@ -288,7 +288,7 @@ erDiagram
 | `notifications_notifiable_idx` | `(notifiable_type, notifiable_id)` | Composite |
 | `notifications_status_channel_idx` | `(status, channel)` | Composite |
 | `notifications_type_idx` | `(type)` | Single |
-| `notifications_org_created_idx` | `(organization_id, created_at DESC)` | Composite |
+| `notifications_org_created_idx` | `(organization_id, created_at)` | Composite | NOTE: ERD designed DESC; implementation uses ASC (Laravel default) |
 | `notifications_org_status_channel_idx` | `(organization_id, status, channel)` | Composite |
 
 **Lifecycle:** Soft-deletable Business Record. Status lifecycle: `pending` → `sent`/`failed`; `sent` → `read` (in-app only).
