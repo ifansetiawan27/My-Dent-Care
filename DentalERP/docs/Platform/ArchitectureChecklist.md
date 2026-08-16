@@ -298,6 +298,26 @@ All consumed exclusively through PHP interfaces via Laravel service container. N
 
 ---
 
+#### 9.6 Audit Implementation Stage Tracking
+
+| Stage | Task | Status | Gate |
+|---|---|---|---|
+| 06 | Migration: `2026_08_09_000010_create_audit_logs_table` | ✅ PASS | 99ad776 |
+| 07 | Model: `AuditLog extends Model` (HasUuid, $guarded=[], timestamps=false) | ✅ PASS | 99ad776, STEP_28_62.1 |
+| 10 | Service Interface: `AuditServiceInterface` | ✅ PASS | 99ad776 |
+| 11 | Service: `AuditService` (Auth-based actor resolution, queue dispatch) | ✅ PASS | 99ad776 |
+| N/A | Stages 04, 08–09, 12–16 (internal platform service) | N/A | ImplementationPreflight §E |
+| 17 | Feature Test: `AuditLogJobTest` — 4 PASS | ✅ PASS | STEP_28_62.1 |
+| 18 | Unit Test: `AuditServiceTest` — 11 PASS | ✅ PASS | STEP_28_62.1 |
+| 19 | Documentation: synchronize design docs (this update) | ✅ PASS | STEP_28_62.2 |
+| 20 | Git Commit | PENDING | — |
+
+**Implementation drift documented:**
+- `AuditLog`: extends raw `Model` (not `BaseModel`); `$guarded = []` required for `AuditLogJob::create()`
+- All `created_at` indexes: design DESC → implementation ASC (Laravel `$table->index()` default)
+
+---
+
 ### 10. Blocking Issues
 
 **None.** All architecture checks pass. 0 CRITICAL findings. 0 HIGH findings.
@@ -314,6 +334,8 @@ All consumed exclusively through PHP interfaces via Laravel service container. N
 | 4 | **INFO** | Implementation | `fileable_type`/`fileable_id` made nullable via corrective migration `2026_08_15_000001` — files stored without polymorphic owner | DatabaseDesign.md §3.3, ERD.md §2.2 |
 | 5 | **INFO** | Implementation | `updated_at` nullable in migration (corrected design doc to match implementation) | DatabaseDesign.md §3.2, ERD.md §2.2 |
 | 6 | **INFO** | Implementation | `files_org_folder_created_idx` uses ASC (Laravel default); ERD.md previously specified DESC | ERD.md §2.2, `2026_08_09_000011_create_files_table.php` |
+| 7 | **INFO** | Implementation | `AuditLog` model: `$guarded = []` added for `AuditLogJob::create()` mass assignment | DatabaseDesign.md §2.7, `app/Platform/Audit/Models/AuditLog.php` |
+| 8 | **INFO** | Implementation | All `audit_logs` `created_at` indexes use ASC (Laravel default); design docs previously specified DESC | DatabaseDesign.md §2.6, ERD.md §2.1, `2026_08_09_000010_create_audit_logs_table.php` |
 
 ---
 

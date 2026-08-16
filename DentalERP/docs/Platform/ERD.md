@@ -158,11 +158,11 @@ erDiagram
 
 | Name | Columns | Type |
 |---|---|---|
-| `audit_logs_org_created_idx` | `(organization_id, created_at DESC)` | Composite |
-| `audit_logs_auditable_idx` | `(auditable_type, auditable_id)` | Composite |
-| `audit_logs_user_created_idx` | `(user_id, created_at DESC)` | Composite |
-| `audit_logs_module_action_idx` | `(module, action, created_at DESC)` | Composite |
-| `audit_logs_branch_created_idx` | `(branch_id, created_at DESC)` | Composite |
+| `audit_logs_org_created_idx` | `(organization_id, created_at)` | Composite | NOTE: ERD designed DESC; implementation uses ASC (Laravel default) |
+| `audit_logs_auditable_idx` | `(auditable_type, auditable_id)` | Composite | |
+| `audit_logs_user_created_idx` | `(user_id, created_at)` | Composite | NOTE: ERD designed DESC; implementation uses ASC (Laravel default) |
+| `audit_logs_module_action_idx` | `(module, action, created_at)` | Composite | NOTE: ERD designed DESC; implementation uses ASC (Laravel default) |
+| `audit_logs_branch_created_idx` | `(branch_id, created_at)` | Composite | NOTE: ERD designed DESC; implementation uses ASC (Laravel default) |
 
 **Lifecycle:** Immutable — no `updated_at`, no `deleted_at`.
 

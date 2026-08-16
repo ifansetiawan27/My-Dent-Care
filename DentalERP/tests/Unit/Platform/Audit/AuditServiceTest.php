@@ -7,10 +7,14 @@ use App\Platform\Audit\DTO\AuditEntryDTO;
 use App\Platform\Audit\Enums\AuditAction;
 use App\Platform\Audit\Jobs\AuditLogJob;
 use App\Platform\Audit\Models\AuditLog;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
 
 beforeEach(function (): void {
     Queue::fake();
+    Auth::shouldReceive('check')->andReturn(false);
+    Auth::shouldReceive('id')->andReturn(null);
+    Auth::shouldReceive('user')->andReturn(null);
 });
 
 it('record dispatches AuditLogJob to queue', function (): void {

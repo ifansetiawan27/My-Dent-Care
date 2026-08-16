@@ -125,11 +125,13 @@ CHECK (device IS NULL OR device IN ('desktop','mobile','tablet','api'));
 
 | Name | Columns | Type | Rationale |
 |---|---|---|---|
-| `audit_logs_org_created_idx` | `(organization_id, created_at DESC)` | Composite | Primary access: tenant + time |
+| `audit_logs_org_created_idx` | `(organization_id, created_at)` | Composite | Primary access: tenant + time |
 | `audit_logs_auditable_idx` | `(auditable_type, auditable_id)` | Composite | Entity-scoped audit lookup |
-| `audit_logs_user_created_idx` | `(user_id, created_at DESC)` | Composite | User activity timeline |
-| `audit_logs_module_action_idx` | `(module, action, created_at DESC)` | Composite | Module + action filter |
-| `audit_logs_branch_created_idx` | `(branch_id, created_at DESC)` | Composite | Branch-scoped audit |
+| `audit_logs_user_created_idx` | `(user_id, created_at)` | Composite | User activity timeline |
+| `audit_logs_module_action_idx` | `(module, action, created_at)` | Composite | Module + action filter |
+| `audit_logs_branch_created_idx` | `(branch_id, created_at)` | Composite | Branch-scoped audit |
+
+NOTE: All `created_at` index directions are ASC (Laravel `$table->index()` default). Design docs originally specified DESC; migration uses default ASC.
 
 ### 2.7 Model Guidance
 
@@ -141,6 +143,7 @@ class AuditLog extends Model
 {
     use HasUuid;
     public $timestamps = false; // only created_at
+    protected $guarded = []; // allows AuditLogJob::create() mass assignment
     protected function casts(): array {
         return ['old_value' => 'array', 'new_value' => 'array', 'created_at' => 'datetime'];
     }
