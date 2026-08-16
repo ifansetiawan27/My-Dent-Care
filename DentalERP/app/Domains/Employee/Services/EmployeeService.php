@@ -1,44 +1,81 @@
 <?php
+
 declare(strict_types=1);
+
 namespace App\Domains\Employee\Services;
+
 use App\Core\Exceptions\BusinessException;
 use App\Core\Exceptions\NotFoundException;
+use App\Domains\Branch\Models\Branch;
+use App\Domains\Employee\DTO\CreateEmployeeDTO;
+use App\Domains\Employee\DTO\UpdateEmployeeDTO;
+use App\Domains\Employee\Interfaces\EmployeeRepositoryInterface;
+use App\Domains\Employee\Interfaces\EmployeeServiceInterface;
 use App\Domains\Employee\Models\Employee;
-use App\Domains\Employee\Enums\EmploymentStatus;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
-final class EmployeeService {
-    public function paginate(array $filters): LengthAwarePaginator {
-        $query = Employee::query()->where('organization_id', $filters['organization_id']);
-        if (!empty($filters['branch_id'])) $query->where('branch_id', $filters['branch_id']);
-        if (!empty($filters['search'])) $query->where(function($q) use ($filters) { $q->where('full_name','ILIKE',"%{$filters['search']}%")->orWhere('employee_code','ILIKE',"%{$filters['search']}%"); });
-        if (isset($filters['is_active'])) $query->where('is_active', $filters['is_active']);
-        $sortBy = in_array($filters['sort_by']??'', ['full_name','employee_code','hire_date']) ? $filters['sort_by'] : 'full_name';
-        return $query->orderBy($sortBy, $filters['sort_dir']??'asc')->paginate(min((int)($filters['per_page']??20), 100));
+final class EmployeeService implements EmployeeServiceInterface
+{
+    public function __construct(
+        private readonly EmployeeRepositoryInterface $repository,
+    ) {}
+
+    public function paginate(array $filters): LengthAwarePaginator
+    {
+        return $this->repository->paginate($filters);
     }
-    public function findById(string $id, string $organizationId): Employee {
-        $e = Employee::where('id',$id)->where('organization_id',$organizationId)->first();
-        if (!$e) throw new NotFoundException("Employee not found.");
-        return $e;
+
+    public function findById(string $id, string $organizationId): Employee
+    {
+        $employee = $this->repository->findById($id, $organizationId);
+
+        if (! $employee) {
+            throw new NotFoundException('Employee not found.');
+        }
+
+        return $employee;
     }
-    public function create(array $data): Employee {
-        if (Employee::where('employee_code',$data['employee_code'])->exists()) throw new BusinessException("Employee code already taken.");
-        return DB::transaction(fn() => Employee::create($data));
+
+    public function create(CreateEmployeeDTO $dto): Employee
+    {
+        if ($this->repository->existsByEmployeeCode($dto->employeeCode)) {
+            throw new BusinessException('Employee code already taken.');
+        }
+
+        return DB::transaction(fn (): Employee => $this->repository->create($dto->toArray()));
     }
-    public function update(string $id, array $data, string $organizationId): Employee {
-        $e = $this->findById($id, $organizationId);
-        if (isset($data['employee_code']) && Employee::where('employee_code',$data['employee_code'])->where('id','!=',$id)->exists()) throw new BusinessException("Employee code already taken.");
-        if (isset($data['branch_id']) && $data['branch_id']) { $branch = \App\Domains\Branch\Models\Branch::find($data['branch_id']); if (!$branch || $branch->organization_id !== $e->organization_id) throw new BusinessException("Branch must belong to the same organization."); }
-        DB::transaction(fn() => $e->update($data));
-        return $e->refresh();
+
+    public function update(string $id, UpdateEmployeeDTO $dto, string $organizationId): Employee
+    {
+        $employee = $this->findById($id, $organizationId);
+
+        $data = $dto->toArray();
+
+        if (isset($data['employee_code']) && $this->repository->existsByEmployeeCode($data['employee_code'], $id)) {
+            throw new BusinessException('Employee code already taken.');
+        }
+
+        if (isset($data['branch_id']) && $data['branch_id']) {
+            $branch = Branch::find($data['branch_id']);
+
+            if (! $branch || $branch->organization_id !== $employee->organization_id) {
+                throw new BusinessException('Branch must belong to the same organization.');
+            }
+        }
+
+        return DB::transaction(fn (): Employee => $this->repository->update($employee, $data));
     }
-    public function delete(string $id, string $organizationId): bool {
-        return (bool) $this->findById($id, $organizationId)->delete();
+
+    public function delete(string $id, string $organizationId): bool
+    {
+        return $this->repository->delete($this->findById($id, $organizationId));
     }
-    public function toggleActive(string $id, string $organizationId): Employee {
-        $e = $this->findById($id, $organizationId);
-        $e->update(['is_active' => !$e->is_active]);
-        return $e->refresh();
+
+    public function toggleActive(string $id, string $organizationId): Employee
+    {
+        $employee = $this->findById($id, $organizationId);
+
+        return $this->repository->update($employee, ['is_active' => ! $employee->is_active]);
     }
 }

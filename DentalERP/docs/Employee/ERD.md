@@ -102,7 +102,7 @@ erDiagram
 | 21 | `updated_by` | `uuid` | NULL | — | — | — |
 | 22 | `deleted_by` | `uuid` | NULL | — | — | — |
 | 23 | `created_at` | `timestamptz` | NOT NULL | — | — | — |
-| 24 | `updated_at` | `timestamptz` | NOT NULL | — | — | — |
+| 24 | `updated_at` | `timestamptz` | NULL | — | — | — |
 | 25 | `deleted_at` | `timestamptz` | NULL | — | — | — |
 
 ---

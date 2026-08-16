@@ -68,7 +68,7 @@
 | 21 | `updated_by` | `uuid` | NULL | — | Audit — auto via HasAudit | EMP-REQ-021, EMP-BR-022 |
 | 22 | `deleted_by` | `uuid` | NULL | — | Audit — auto via HasAudit | EMP-REQ-021, EMP-BR-022 |
 | 23 | `created_at` | `timestamptz` | NOT NULL | — | Creation timestamp | Convention |
-| 24 | `updated_at` | `timestamptz` | NOT NULL | — | Last update | Convention |
+| 24 | `updated_at` | `timestamptz` | NULL | — | Last update | Convention |
 | 25 | `deleted_at` | `timestamptz` | NULL | — | Soft delete | EMP-REQ-020, EMP-BR-020 |
 
 **25 columns.**
