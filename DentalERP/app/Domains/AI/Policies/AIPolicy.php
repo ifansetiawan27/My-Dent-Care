@@ -1,0 +1,2 @@
+<?php declare(strict_types=1); namespace App\Domains\AI\Policies; use App\Domains\User\Models\User; use App\Domains\AI\Models\AI;
+final class AIPolicy { public function viewAny(User $u): bool { return true; } public function view(User $u, AI $a): bool { return $u->organization_id === $a->organization_id; } public function create(User $u): bool { return true; } public function retry(User $u, AI $a): bool { return $u->organization_id === $a->organization_id; } public function cancel(User $u, AI $a): bool { return $u->organization_id === $a->organization_id; } }
