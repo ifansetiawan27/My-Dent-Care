@@ -10,6 +10,7 @@ return Application::configure(basePath: dirname(__DIR__))
             base_path('app/Domains/Branch/Routes/api.php'),
             base_path('app/Domains/Authentication/Routes/api.php'),
             base_path('app/Domains/Organization/Routes/settings.php'),
+            base_path('app/Domains/AI/Routes/api.php'),
         ],
         health: '/up',
     )
@@ -38,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
         App\Domains\Reporting\Providers\ReportingServiceProvider::class,
         App\Domains\Dashboard\Providers\DashboardServiceProvider::class,
         App\Domains\IntegrationHub\Providers\IntegrationHubServiceProvider::class,
+        App\Domains\AI\Providers\AIServiceProvider::class,
     ])
     ->withExceptions()
     ->withMiddleware(function (\Illuminate\Foundation\Configuration\Middleware $middleware): void {

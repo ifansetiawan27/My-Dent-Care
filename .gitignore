@@ -1,0 +1,14 @@
+# Environment secrets — never commit
+.env
+.env.*
+!.env.example
+!.env.testing.example
+
+# Supabase local temporary artifacts
+supabase/.temp/
+supabase/.branches/
+
+# Debug scripts — never commit
+dbtest*.php
+test_db.php
+_iso_check.php
