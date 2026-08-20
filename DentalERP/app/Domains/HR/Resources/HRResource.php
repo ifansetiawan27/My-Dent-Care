@@ -11,6 +11,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /** @mixin \App\Domains\HR\Models\HR */
 final class HRResource extends JsonResource
 {
+    /**
+     * The payload exposes a business field named `data`, which makes Laravel
+     * treat the resource as already wrapped and skip the `data` envelope.
+     * Forcing wrapping keeps the response aligned with docs/HR/API.md.
+     */
+    public static bool $forceWrapping = true;
+
     public function toArray(Request $r): array
     {
         return [
