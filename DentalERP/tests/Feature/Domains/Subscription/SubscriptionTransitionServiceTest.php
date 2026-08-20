@@ -3,6 +3,7 @@ declare(strict_types=1);
 use App\Domains\Subscription\Enums\SubscriptionStatus;
 use App\Domains\Subscription\Enums\SubscriptionTrigger;
 use App\Domains\Subscription\Exceptions\InvalidTransitionException;
+use App\Domains\Organization\Models\Organization;
 use App\Domains\Subscription\Models\Subscription;
 use App\Domains\Subscription\Models\SubscriptionTransition;
 use App\Domains\Subscription\Services\SubscriptionTransitionService;
@@ -11,9 +12,11 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->service = new SubscriptionTransitionService();
+    $org = Organization::factory()->create();
+    $this->actorId = Subscription::newUuid();
     $this->subscription = Subscription::create([
         'id'              => Subscription::newUuid(),
-        'organization_id' => '01927abc-def0-7000-8000-000000000010',
+        'organization_id' => $org->id,
         'plan_code'       => 'starter',
         'status'          => SubscriptionStatus::Trial,
         'trial_starts_at' => now(),
@@ -23,7 +26,7 @@ beforeEach(function () {
 
 // --- Valid Transitions ---
 it('allows TRIAL → ACTIVE', function () {
-    $this->service->transition($this->subscription, SubscriptionStatus::Active, SubscriptionTrigger::PaymentActivated, 'user', 'user-1');
+    $this->service->transition($this->subscription, SubscriptionStatus::Active, SubscriptionTrigger::PaymentActivated, 'user', $this->actorId);
     expect($this->subscription->fresh()->status)->toBe(SubscriptionStatus::Active);
     expect(SubscriptionTransition::count())->toBe(1);
 });
@@ -41,7 +44,7 @@ it('allows ACTIVE → PAST_DUE', function () {
 
 it('allows ACTIVE → CANCELLED', function () {
     $this->subscription->update(['status' => SubscriptionStatus::Active]);
-    $this->service->transition($this->subscription->fresh(), SubscriptionStatus::Cancelled, SubscriptionTrigger::SubscriptionCancelled, 'user', 'user-1');
+    $this->service->transition($this->subscription->fresh(), SubscriptionStatus::Cancelled, SubscriptionTrigger::SubscriptionCancelled, 'user', $this->actorId);
     expect($this->subscription->fresh()->status)->toBe(SubscriptionStatus::Cancelled);
 });
 
@@ -71,13 +74,13 @@ it('allows GRACE → EXPIRED', function () {
 
 it('allows EXPIRED → ACTIVE', function () {
     $this->subscription->update(['status' => SubscriptionStatus::Expired]);
-    $this->service->transition($this->subscription->fresh(), SubscriptionStatus::Active, SubscriptionTrigger::ReactivationSucceeded, 'user', 'user-1');
+    $this->service->transition($this->subscription->fresh(), SubscriptionStatus::Active, SubscriptionTrigger::ReactivationSucceeded, 'user', $this->actorId);
     expect($this->subscription->fresh()->status)->toBe(SubscriptionStatus::Active);
 });
 
 it('allows CANCELLED → ACTIVE', function () {
     $this->subscription->update(['status' => SubscriptionStatus::Cancelled]);
-    $this->service->transition($this->subscription->fresh(), SubscriptionStatus::Active, SubscriptionTrigger::ReactivationSucceeded, 'user', 'user-1');
+    $this->service->transition($this->subscription->fresh(), SubscriptionStatus::Active, SubscriptionTrigger::ReactivationSucceeded, 'user', $this->actorId);
     expect($this->subscription->fresh()->status)->toBe(SubscriptionStatus::Active);
 });
 
@@ -119,20 +122,20 @@ it('rolls back subscription status if transition insert fails', function () {
 // --- Idempotency ---
 it('skips duplicate transition via idempotency key', function () {
     $key = 'idem-test-001';
-    $first = $this->service->transition($this->subscription, SubscriptionStatus::Active, SubscriptionTrigger::PaymentActivated, 'user', 'u1', [], $key);
-    $second = $this->service->transition($this->subscription->fresh(), SubscriptionStatus::Active, SubscriptionTrigger::PaymentActivated, 'user', 'u1', [], $key);
+    $first = $this->service->transition($this->subscription, SubscriptionStatus::Active, SubscriptionTrigger::PaymentActivated, 'user', $this->actorId, [], $key);
+    $second = $this->service->transition($this->subscription->fresh(), SubscriptionStatus::Active, SubscriptionTrigger::PaymentActivated, 'user', $this->actorId, [], $key);
     expect($first->id)->toBe($second->id);
     expect(SubscriptionTransition::count())->toBe(1);
 });
 
 // --- Transition history ---
 it('records correct transition history', function () {
-    $t = $this->service->transition($this->subscription, SubscriptionStatus::Active, SubscriptionTrigger::PaymentActivated, 'user', 'user-1', ['amount' => 299000]);
+    $t = $this->service->transition($this->subscription, SubscriptionStatus::Active, SubscriptionTrigger::PaymentActivated, 'user', $this->actorId, ['amount' => 299000]);
     expect($t->previous_state)->toBe('trial');
     expect($t->new_state)->toBe('active');
     expect($t->trigger)->toBe('payment_activated');
     expect($t->actor_type)->toBe('user');
-    expect($t->actor_id)->toBe('user-1');
+    expect($t->actor_id)->toBe($this->actorId);
     expect($t->metadata)->toBe(['amount' => 299000]);
     expect($t->organization_id)->toBe($this->subscription->organization_id);
 });

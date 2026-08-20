@@ -21,7 +21,7 @@ final class SubscriptionEntitlementService
 
     /** Features always allowed regardless of subscription state. */
     public function isAlwaysAllowed(string $routeOrFeature): bool {
-        $allowed = ['subscription','billing','payment','plan','organization.settings','clinic.settings','account','profile','logout','webhooks','health','up'];
+        $allowed = ['subscription','billing','payment','plan','organization/settings','clinic/settings','account','profile','logout','webhooks','health','up'];
         foreach ($allowed as $prefix) {
             if (str_starts_with($routeOrFeature, $prefix)) return true;
         }
