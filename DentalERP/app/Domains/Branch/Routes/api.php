@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Route;
  *       ->group(base_path('app/Domains/Branch/Routes/api.php'));
  */
 
-Route::prefix('api/v1/branches')
+Route::prefix('v1/branches')
     ->name('branches.')
     ->middleware(['auth:sanctum'])
     ->group(function (): void {

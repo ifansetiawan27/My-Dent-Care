@@ -195,4 +195,19 @@ interface BranchRepositoryInterface extends RepositoryInterface
      * @return bool
      */
     public function hasFinanceTransactions(string $branchId): bool;
+
+    // -------------------------------------------------------------------------
+    // Uniqueness
+    // -------------------------------------------------------------------------
+
+    /**
+     * Check whether a branch_code already exists within an organization.
+     * Optionally exclude a branch id for update uniqueness checks.
+     *
+     * @param  string      $organizationId
+     * @param  string      $branchCode
+     * @param  string|null $excludeId
+     * @return bool
+     */
+    public function existsByCode(string $organizationId, string $branchCode, ?string $excludeId = null): bool;
 }

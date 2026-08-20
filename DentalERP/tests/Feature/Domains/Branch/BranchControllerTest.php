@@ -9,12 +9,15 @@ use App\Core\Exceptions\NotFoundException;
 use App\Domains\Branch\Interfaces\BranchServiceInterface;
 use App\Domains\Branch\Models\Branch;
 use App\Domains\Branch\Enums\BranchStatus;
+use App\Domains\User\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Mockery;
 use Mockery\MockInterface;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 /**
@@ -30,12 +33,56 @@ class BranchControllerTest extends TestCase
 
     private MockInterface $service;
 
+    private User $user;
+
+    private string $orgId = '';
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->service = Mockery::mock(BranchServiceInterface::class);
         $this->app->instance(BranchServiceInterface::class, $this->service);
+
+        // Reset Spatie's permission cache so findOrCreate persists into the
+        // current (RefreshDatabase) transaction instead of trusting stale cache.
+        $this->app->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+
+        // Register the Branch permissions used by the route middleware.
+        foreach (['branch.view', 'branch.create', 'branch.update', 'branch.delete', 'branch.restore'] as $permission) {
+            Permission::findOrCreate($permission);
+        }
+
+        // Seed a tenant user and authenticate it with the required permissions.
+        $now      = now();
+        $orgId    = (string) Str::orderedUuid();
+        $branchId = (string) Str::orderedUuid();
+        $userId   = (string) Str::orderedUuid();
+
+        DB::table('organizations')->insert([
+            'id' => $orgId, 'company_code' => 'ORG-BRCTRL-01', 'company_name' => 'Branch Ctrl Org',
+            'email' => 'branchctrl@test.com', 'phone' => '081234500000', 'address' => 'Jl. Test',
+            'city' => 'Jakarta', 'province' => 'DKI Jakarta', 'postal_code' => '12345',
+            'created_at' => $now, 'updated_at' => $now,
+        ]);
+        DB::table('branches')->insert([
+            'id' => $branchId, 'organization_id' => $orgId, 'branch_code' => 'BRC-CTRL-01',
+            'branch_name' => 'Ctrl Branch', 'branch_type' => 'clinic', 'phone' => '081234500001',
+            'address' => 'Jl. Test', 'city' => 'Jakarta', 'province' => 'DKI Jakarta',
+            'postal_code' => '12345', 'created_at' => $now, 'updated_at' => $now,
+        ]);
+        DB::table('users')->insert([
+            'id' => $userId, 'organization_id' => $orgId, 'branch_id' => $branchId,
+            'name' => 'Branch Tester', 'email' => 'branch-tester@test.com', 'username' => 'branchtester',
+            'employee_code' => 'EMP-BRCTRL-01', 'password' => 'hashed', 'phone' => '081234500002',
+            'created_at' => $now, 'updated_at' => $now,
+        ]);
+
+        $this->user = User::find($userId);
+        $this->user->givePermissionTo('branch.view', 'branch.create', 'branch.update', 'branch.delete', 'branch.restore');
+        $this->orgId = $orgId;
+
+        $this->actingAs($this->user);
     }
 
     protected function tearDown(): void
@@ -85,7 +132,7 @@ class BranchControllerTest extends TestCase
     private function validPayload(array $override = []): array
     {
         return array_merge([
-            'organization_id' => (string) Str::orderedUuid(),
+            'organization_id' => $this->orgId,
             'branch_code'     => 'BRC-0001',
             'branch_name'     => 'Test Clinic',
             'branch_type'     => 'clinic',
@@ -132,6 +179,8 @@ class BranchControllerTest extends TestCase
 
     public function test_index_returns_401_when_unauthenticated(): void
     {
+        $this->app['auth']->forgetGuards();
+
         $response = $this->getJson('/api/v1/branches');
 
         $response->assertStatus(401);
@@ -365,6 +414,8 @@ class BranchControllerTest extends TestCase
 
     public function test_unauthenticated_request_returns_401(): void
     {
+        $this->app['auth']->forgetGuards();
+
         $response = $this->getJson('/api/v1/branches');
         $response->assertStatus(401);
 

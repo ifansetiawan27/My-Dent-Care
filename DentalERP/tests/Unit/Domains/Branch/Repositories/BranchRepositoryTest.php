@@ -7,6 +7,7 @@ namespace Tests\Unit\Domains\Branch\Repositories;
 use App\Core\Exceptions\NotFoundException;
 use App\Domains\Branch\Models\Branch;
 use App\Domains\Branch\Repositories\BranchRepository;
+use App\Domains\Organization\Models\Organization;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -111,7 +112,7 @@ class BranchRepositoryTest extends TestCase
 
     public function test_create_persists_branch_to_database(): void
     {
-        $orgId = (string) Str::orderedUuid();
+        $orgId = Organization::factory()->create()->id;
 
         $data = [
             'organization_id' => $orgId,

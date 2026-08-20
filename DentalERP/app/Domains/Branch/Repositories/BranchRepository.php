@@ -297,6 +297,24 @@ class BranchRepository extends BaseRepository implements BranchRepositoryInterfa
     }
 
     // -------------------------------------------------------------------------
+    // Uniqueness
+    // -------------------------------------------------------------------------
+
+    /**
+     * Check whether a branch_code already exists within an organization.
+     * Optionally exclude a specific branch id (used for update uniqueness checks).
+     * Always scoped to organization_id for multi-tenant safety.
+     */
+    public function existsByCode(string $organizationId, string $branchCode, ?string $excludeId = null): bool
+    {
+        return $this->model
+            ->where('organization_id', $organizationId)
+            ->where('branch_code', $branchCode)
+            ->when($excludeId !== null, fn (Builder $query): Builder => $query->where('id', '!=', $excludeId))
+            ->exists();
+    }
+
+    // -------------------------------------------------------------------------
     // Private Helpers
     // -------------------------------------------------------------------------
 
