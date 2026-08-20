@@ -4,19 +4,10 @@ declare(strict_types=1);
 
 namespace App\Core\Base;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 abstract class BaseResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     * Override in child resources to define the response shape.
-     *
-     * @return array<string, mixed>
-     */
-    abstract public function toArray(Request $request): array;
-
     /**
      * Standard audit fields appended to every resource.
      * Call array_merge($this->fields(), $this->auditFields()) in child resources.
