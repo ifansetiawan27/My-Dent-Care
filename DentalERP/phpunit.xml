@@ -19,6 +19,7 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing" force="true"/>
+        <env name="APP_KEY" value="base64:0AUqeIwG3ZIkXiD+g4+wAGt1m6dS6C4D7xeP9nWcOpE=" force="true"/>
         <env name="DB_CONNECTION" value="pgsql" force="true"/>
         <env name="DB_HOST" value="postgres" force="true"/>
         <env name="DB_PORT" value="5432" force="true"/>
@@ -30,8 +31,9 @@
         <env name="AWS_BUCKET" value="test-bucket" force="true"/>
         <env name="REDIS_HOST" value="redis" force="true"/>
         <env name="REDIS_PORT" value="6379" force="true"/>
-        <env name="CACHE_DRIVER" value="redis" force="true"/>
+        <env name="CACHE_DRIVER" value="array" force="true"/>
         <server name="APP_ENV" value="testing"/>
+        <server name="APP_KEY" value="base64:0AUqeIwG3ZIkXiD+g4+wAGt1m6dS6C4D7xeP9nWcOpE="/>
         <server name="DB_CONNECTION" value="pgsql"/>
         <server name="DB_HOST" value="postgres"/>
         <server name="DB_PORT" value="5432"/>
@@ -43,6 +45,6 @@
         <server name="AWS_BUCKET" value="test-bucket"/>
         <server name="REDIS_HOST" value="redis"/>
         <server name="REDIS_PORT" value="6379"/>
-        <server name="CACHE_DRIVER" value="redis"/>
+        <server name="CACHE_DRIVER" value="array"/>
     </php>
 </phpunit>

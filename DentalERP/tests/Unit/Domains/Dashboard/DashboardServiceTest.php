@@ -122,7 +122,7 @@ it('updates dashboard from DTO', function (): void {
 
     expect($updated->name)->toBe('Updated Dashboard');
     expect($updated->config)->toBe(['theme' => 'dark']);
-    expect($updated->widgets)->toBe([['type' => 'chart', 'id' => 'widget-1']]);
+    expect($updated->widgets)->toEqual([['type' => 'chart', 'id' => 'widget-1']]);
     expect($updated->is_default)->toBeTrue();
 });
 
