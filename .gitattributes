@@ -1,0 +1,17 @@
+# Normalise line endings so files checked out on Windows still run on Linux.
+* text=auto eol=lf
+
+# Shell scripts and Docker entrypoints break on CRLF: the shebang is parsed
+# with a trailing carriage return and the interpreter is not found.
+*.sh text eol=lf
+Dockerfile* text eol=lf
+
+# Binary assets must never be normalised.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary

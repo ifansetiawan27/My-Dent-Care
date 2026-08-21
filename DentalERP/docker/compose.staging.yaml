@@ -1,0 +1,108 @@
+# Staging topology for DentalERP.
+#
+# Usage:
+#   docker compose -f docker/compose.staging.yaml --env-file .env.staging up -d
+#
+# Differences from docker/compose.yaml (test):
+#   - the application image is built, not bind-mounted, so the running code is
+#     immutable and matches the deployed artifact
+#   - the app is served over HTTP and a queue worker plus scheduler run as
+#     separate services, mirroring production process separation
+#   - all credentials come from .env.staging; none are defaulted here
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.staging
+    image: dentalerp:staging
+    container_name: dentalerp_staging_app
+    command: php -S 0.0.0.0:8000 -t public
+    working_dir: /var/www
+    env_file:
+      - ../.env.staging
+    ports:
+      - "${APP_PORT:-8080}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "php -r \"exit(@file_get_contents('http://127.0.0.1:8000/up') === false ? 1 : 0);\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - dentalerp_staging
+
+  queue:
+    image: dentalerp:staging
+    container_name: dentalerp_staging_queue
+    command: php artisan queue:work --tries=3 --max-time=3600 --sleep=1
+    working_dir: /var/www
+    env_file:
+      - ../.env.staging
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - dentalerp_staging
+
+  scheduler:
+    image: dentalerp:staging
+    container_name: dentalerp_staging_scheduler
+    command: php artisan schedule:work
+    working_dir: /var/www
+    env_file:
+      - ../.env.staging
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - dentalerp_staging
+
+  postgres:
+    image: postgres:17
+    container_name: dentalerp_staging_db
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    volumes:
+      - staging_db:/var/lib/postgresql/data
+      - ./backup:/backup
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - dentalerp_staging
+
+  redis:
+    image: redis:7-alpine
+    container_name: dentalerp_staging_redis
+    command: redis-server --appendonly yes
+    volumes:
+      - staging_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - dentalerp_staging
+
+networks:
+  dentalerp_staging:
+    driver: bridge
+
+volumes:
+  staging_db:
+  staging_redis:
