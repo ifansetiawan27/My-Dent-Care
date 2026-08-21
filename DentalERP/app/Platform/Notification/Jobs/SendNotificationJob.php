@@ -84,7 +84,7 @@ class SendNotificationJob implements ShouldQueue
         match ($this->channel) {
             NotificationChannel::InApp => $this->sendInApp($notification),
             NotificationChannel::Email => $this->sendEmail($notification),
-            NotificationChannel::Whatsapp => $this->sendWhatsapp($notification),
+            NotificationChannel::WhatsApp => $this->sendWhatsapp($notification),
             NotificationChannel::Sms => $this->sendSms($notification),
             NotificationChannel::Push => $this->sendPush($notification),
         };

@@ -91,7 +91,7 @@ final class LoggerService implements LoggerServiceInterface
             exceptionClass: $exception ? get_class($exception) : null,
             exceptionMessage: $exception?->getMessage(),
             exceptionTrace: $exception?->getTraceAsString(),
-            requestId: $request->header('X-Request-ID') ?? $request->id(),
+            requestId: $request->header('X-Request-ID') ?? \Illuminate\Support\Str::uuid()->toString(),
             ipAddress: $request->ip(),
             userAgent: $request->userAgent(),
             method: $request->method(),
