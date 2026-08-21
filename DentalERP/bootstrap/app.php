@@ -41,8 +41,24 @@ return Application::configure(basePath: dirname(__DIR__))
         App\Domains\IntegrationHub\Providers\IntegrationHubServiceProvider::class,
         App\Domains\AI\Providers\AIServiceProvider::class,
     ])
-    ->withExceptions()
+    ->withExceptions(function (\Illuminate\Foundation\Configuration\Exceptions $exceptions): void {
+        // This application only serves an API, so every error must be rendered
+        // as JSON regardless of the client's Accept header.
+        $exceptions->shouldRenderJsonWhen(
+            static fn (): bool => true,
+        );
+    })
     ->withMiddleware(function (\Illuminate\Foundation\Configuration\Middleware $middleware): void {
+        // Laravel defaults to redirecting guests to route('login'), which this
+        // API does not define. Without this, an unauthenticated request that
+        // omits `Accept: application/json` fails with a 500
+        // "Route [login] not defined" instead of a 401.
+        $middleware->redirectGuestsTo(static fn (): ?string => null);
+
+        // Applied globally rather than to the api group so that non-grouped
+        // routes, such as the /up health endpoint, are hardened too.
+        $middleware->prepend(\App\Platform\Http\Middleware\SecurityHeaders::class);
+
         $middleware->api(prepend: [
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
