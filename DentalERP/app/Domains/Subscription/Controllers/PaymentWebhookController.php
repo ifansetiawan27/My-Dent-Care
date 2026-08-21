@@ -32,7 +32,7 @@ final class PaymentWebhookController extends Controller
             return response()->json(['status' => 'ok']);
         }
 
-        $result = $this->driver->handleCallback($payload, 'midtrans');
+        $result = $this->driver->handleCallback($payload);
 
         Log::info('[PaymentWebhook] Processed.', [
             'order_id' => $orderId, 'status' => $result->status->value,

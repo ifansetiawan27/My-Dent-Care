@@ -33,12 +33,15 @@ final class MidtransDriver implements PaymentProviderInterface
         return new PaymentResultDTO(success: true, status: PaymentTransactionStatus::Pending, referenceId: $referenceId);
     }
 
-    public function refund(string $referenceId, int $amount): PaymentResultDTO {
+    public function refund(string $referenceId, ?int $amount = null): PaymentResultDTO {
         Log::info('[MidtransDriver::refund] Refund requested.', ['ref' => $referenceId, 'amount' => $amount]);
         return new PaymentResultDTO(success: true, status: PaymentTransactionStatus::Pending, referenceId: $referenceId);
     }
 
-    public function handleCallback(array $payload, string $provider): PaymentResultDTO {
+    /**
+     * @param  array<string, mixed> $payload
+     */
+    public function handleCallback(array $payload): PaymentResultDTO {
         $orderId = $payload['order_id'] ?? null;
         $txStatus = $payload['transaction_status'] ?? 'pending';
         $status = $this->normalizeStatus($txStatus);

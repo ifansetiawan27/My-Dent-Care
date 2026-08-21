@@ -1,0 +1,2329 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Cannot access property \$deleted_by on class\-string\|object\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Core/Base/BaseModel.php
+
+		-
+			message: '#^Cannot call method isFillable\(\) on class\-string\|object\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Core/Base/BaseModel.php
+
+		-
+			message: '#^Cannot call method saveQuietly\(\) on class\-string\|object\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Core/Base/BaseModel.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:withTrashed\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Core/Base/BaseRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Core\\Base\\BaseResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Core/Base/BaseResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Core\\Base\\BaseResource\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Core/Base/BaseResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Core\\Base\\BaseResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Core/Base/BaseResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Core\\Base\\BaseResource\:\:\$updated_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Core/Base/BaseResource.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 4
+			path: app/Core/Exceptions/ApiException.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\AI\\Models\\AI\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Domains/AI/Policies/AIPolicy.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\AI\\Resources\\AIResource\:\:\$error_message\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/AI/Resources/AIResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\AI\\Resources\\AIResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/AI/Resources/AIResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\AI\\Resources\\AIResource\:\:\$model\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/AI/Resources/AIResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\AI\\Resources\\AIResource\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/AI/Resources/AIResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\AI\\Resources\\AIResource\:\:\$prompt\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/AI/Resources/AIResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\AI\\Resources\\AIResource\:\:\$query_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/AI/Resources/AIResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\AI\\Resources\\AIResource\:\:\$response\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/AI/Resources/AIResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\AI\\Resources\\AIResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Domains/AI/Resources/AIResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\AI\\Resources\\AIResource\:\:\$tokens_used\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/AI/Resources/AIResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\AI\\Resources\\AIResource\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/AI/Resources/AIResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\AI\\Models\\AI\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Domains/AI/Services/AIService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Appointment\\Models\\Appointment\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Domains/Appointment/Policies/AppointmentPolicy.php
+
+		-
+			message: '#^Relation ''doctor'' is not found in App\\Domains\\Appointment\\Models\\Appointment model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Domains/Appointment/Repositories/AppointmentRepository.php
+
+		-
+			message: '#^Relation ''patient'' is not found in App\\Domains\\Appointment\\Models\\Appointment model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Domains/Appointment/Repositories/AppointmentRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Appointment\\Models\\Appointment\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Appointment/Services/AppointmentService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Models\\Asset\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Policies/AssetPolicy.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$asset_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$branch_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$category_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$deleted_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$deleted_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$notes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$purchase_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$purchase_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$updated_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Resources\\AssetResource\:\:\$warranty_expiry\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Resources/AssetResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Models\\Asset\:\:\$asset_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Services/AssetService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Asset\\Models\\Asset\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Asset/Services/AssetService.php
+
+		-
+			message: '#^Unknown parameter \$status in call to static method App\\Core\\Support\\ApiResponse\:\:error\(\)\.$#'
+			identifier: argument.unknown
+			count: 11
+			path: app/Domains/Authentication/Controllers/AuthController.php
+
+		-
+			message: '#^Unknown parameter \$status in call to static method App\\Core\\Support\\ApiResponse\:\:success\(\)\.$#'
+			identifier: argument.unknown
+			count: 10
+			path: app/Domains/Authentication/Controllers/AuthController.php
+
+		-
+			message: '#^Deprecated in PHP 8\.0\: Required parameter \$accessToken follows optional parameter \$tokenType\.$#'
+			identifier: parameter.requiredAfterOptional
+			count: 1
+			path: app/Domains/Authentication/DTO/TokenPairDTO.php
+
+		-
+			message: '#^Deprecated in PHP 8\.0\: Required parameter \$accessTokenExpiresAt follows optional parameter \$tokenType\.$#'
+			identifier: parameter.requiredAfterOptional
+			count: 1
+			path: app/Domains/Authentication/DTO/TokenPairDTO.php
+
+		-
+			message: '#^Deprecated in PHP 8\.0\: Required parameter \$refreshToken follows optional parameter \$tokenType\.$#'
+			identifier: parameter.requiredAfterOptional
+			count: 1
+			path: app/Domains/Authentication/DTO/TokenPairDTO.php
+
+		-
+			message: '#^Deprecated in PHP 8\.0\: Required parameter \$refreshTokenExpiresAt follows optional parameter \$tokenType\.$#'
+			identifier: parameter.requiredAfterOptional
+			count: 1
+			path: app/Domains/Authentication/DTO/TokenPairDTO.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\DeviceResource\:\:\$browser\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/DeviceResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\DeviceResource\:\:\$device_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/DeviceResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\DeviceResource\:\:\$device_uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/DeviceResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\DeviceResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/DeviceResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\DeviceResource\:\:\$is_trusted\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/DeviceResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\DeviceResource\:\:\$last_activity_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/DeviceResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\DeviceResource\:\:\$last_login_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/DeviceResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\DeviceResource\:\:\$operating_system\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/DeviceResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\DeviceResource\:\:\$platform\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/DeviceResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\DeviceResource\:\:\$revoked_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/DeviceResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\LoginHistoryResource\:\:\$browser\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/LoginHistoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\LoginHistoryResource\:\:\$city\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/LoginHistoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\LoginHistoryResource\:\:\$country\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/LoginHistoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\LoginHistoryResource\:\:\$device_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/LoginHistoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\LoginHistoryResource\:\:\$failure_reason\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/LoginHistoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\LoginHistoryResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/LoginHistoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\LoginHistoryResource\:\:\$ip_address\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/LoginHistoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\LoginHistoryResource\:\:\$login_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/LoginHistoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\LoginHistoryResource\:\:\$login_status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/LoginHistoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\LoginHistoryResource\:\:\$logout_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/LoginHistoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Authentication\\Resources\\LoginHistoryResource\:\:\$operating_system\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Resources/LoginHistoryResource.php
+
+		-
+			message: '#^Access to an undefined property Laravel\\Sanctum\\PersonalAccessToken\:\:\$session_id\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Domains/Authentication/Services/AuthService.php
+
+		-
+			message: '#^Missing parameter \$tokenType \(string\) in call to App\\Domains\\Authentication\\DTO\\TokenPairDTO constructor\.$#'
+			identifier: argument.missing
+			count: 1
+			path: app/Domains/Authentication/Services/AuthService.php
+
+		-
+			message: '#^Undefined variable\: \$user$#'
+			identifier: variable.undefined
+			count: 1
+			path: app/Domains/Authentication/Services/AuthService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Authentication/Services/TokenService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:createToken\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Domains/Authentication/Services/TokenService.php
+
+		-
+			message: '#^Missing parameter \$tokenType \(string\) in call to App\\Domains\\Authentication\\DTO\\TokenPairDTO constructor\.$#'
+			identifier: argument.missing
+			count: 1
+			path: app/Domains/Authentication/Services/TokenService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Models\\Billing\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Policies/BillingPolicy.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Resources\\BillingResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Resources/BillingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Resources\\BillingResource\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Resources/BillingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Resources\\BillingResource\:\:\$deleted_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Resources/BillingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Resources\\BillingResource\:\:\$deleted_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Resources/BillingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Resources\\BillingResource\:\:\$due_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Resources/BillingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Resources\\BillingResource\:\:\$invoice_number\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Resources/BillingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Resources\\BillingResource\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Resources/BillingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Resources\\BillingResource\:\:\$notes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Resources/BillingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Resources\\BillingResource\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Resources/BillingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Resources\\BillingResource\:\:\$paid_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Resources/BillingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Resources\\BillingResource\:\:\$patient_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Resources/BillingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Resources\\BillingResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Resources/BillingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Resources\\BillingResource\:\:\$total_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Resources/BillingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Resources\\BillingResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Resources/BillingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Resources\\BillingResource\:\:\$updated_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Resources/BillingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Models\\Billing\:\:\$invoice_number\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Services/BillingService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Models\\Billing\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Domains/Billing/Services/BillingService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Billing\\Models\\Billing\:\:\$total_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Billing/Services/BillingService.php
+
+		-
+			message: '#^Class App\\Domains\\Authentication\\Models\\User not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Domains/Branch/Models/Branch.php
+
+		-
+			message: '#^Class App\\Domains\\Finance\\Models\\FinanceTransaction not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Domains/Branch/Models/Branch.php
+
+		-
+			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Domains\\Appointment\\Models\\Appointment\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
+			identifier: generics.lessTypes
+			count: 1
+			path: app/Domains/Branch/Models/Branch.php
+
+		-
+			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Domains\\Authentication\\Models\\User\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
+			identifier: generics.lessTypes
+			count: 1
+			path: app/Domains/Branch/Models/Branch.php
+
+		-
+			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Domains\\Finance\\Models\\FinanceTransaction\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
+			identifier: generics.lessTypes
+			count: 1
+			path: app/Domains/Branch/Models/Branch.php
+
+		-
+			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Domains\\Inventory\\Models\\Inventory\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
+			identifier: generics.lessTypes
+			count: 1
+			path: app/Domains/Branch/Models/Branch.php
+
+		-
+			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Domains\\Patient\\Models\\Patient\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
+			identifier: generics.lessTypes
+			count: 1
+			path: app/Domains/Branch/Models/Branch.php
+
+		-
+			message: '#^Method App\\Domains\\Branch\\Models\\Branch\:\:financeTransactions\(\) has invalid return type App\\Domains\\Finance\\Models\\FinanceTransaction\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Domains/Branch/Models/Branch.php
+
+		-
+			message: '#^Method App\\Domains\\Branch\\Models\\Branch\:\:users\(\) has invalid return type App\\Domains\\Authentication\\Models\\User\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Domains/Branch/Models/Branch.php
+
+		-
+			message: '#^Type App\\Domains\\Authentication\\Models\\User in generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Domains\\Authentication\\Models\\User\> in PHPDoc tag @return is not subtype of template type TRelatedModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Domains/Branch/Models/Branch.php
+
+		-
+			message: '#^Type App\\Domains\\Finance\\Models\\FinanceTransaction in generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Domains\\Finance\\Models\\FinanceTransaction\> in PHPDoc tag @return is not subtype of template type TRelatedModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: app/Domains/Branch/Models/Branch.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:withTrashed\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Domains/Branch/Repositories/BranchRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Models\\CRM\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/CRM/Policies/CRMPolicy.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Resources\\CRMResource\:\:\$channel\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/CRM/Resources/CRMResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Resources\\CRMResource\:\:\$contact_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/CRM/Resources/CRMResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Resources\\CRMResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/CRM/Resources/CRMResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Resources\\CRMResource\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/CRM/Resources/CRMResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Resources\\CRMResource\:\:\$deleted_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/CRM/Resources/CRMResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Resources\\CRMResource\:\:\$deleted_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/CRM/Resources/CRMResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Resources\\CRMResource\:\:\$follow_up_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/CRM/Resources/CRMResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Resources\\CRMResource\:\:\$message\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/CRM/Resources/CRMResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Resources\\CRMResource\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/CRM/Resources/CRMResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Resources\\CRMResource\:\:\$patient_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/CRM/Resources/CRMResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Resources\\CRMResource\:\:\$resolution\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/CRM/Resources/CRMResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Resources\\CRMResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Domains/CRM/Resources/CRMResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Resources\\CRMResource\:\:\$subject\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/CRM/Resources/CRMResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Resources\\CRMResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/CRM/Resources/CRMResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Resources\\CRMResource\:\:\$updated_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/CRM/Resources/CRMResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\CRM\\Models\\CRM\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/CRM/Services/CRMService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Dashboard\\Models\\Dashboard\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Dashboard/Policies/DashboardPolicy.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Dashboard\\Resources\\DashboardResource\:\:\$config\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Dashboard/Resources/DashboardResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Dashboard\\Resources\\DashboardResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Dashboard/Resources/DashboardResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Dashboard\\Resources\\DashboardResource\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Dashboard/Resources/DashboardResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Dashboard\\Resources\\DashboardResource\:\:\$deleted_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Dashboard/Resources/DashboardResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Dashboard\\Resources\\DashboardResource\:\:\$deleted_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Dashboard/Resources/DashboardResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Dashboard\\Resources\\DashboardResource\:\:\$is_default\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Dashboard/Resources/DashboardResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Dashboard\\Resources\\DashboardResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Dashboard/Resources/DashboardResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Dashboard\\Resources\\DashboardResource\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Dashboard/Resources/DashboardResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Dashboard\\Resources\\DashboardResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Dashboard/Resources/DashboardResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Dashboard\\Resources\\DashboardResource\:\:\$updated_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Dashboard/Resources/DashboardResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Dashboard\\Resources\\DashboardResource\:\:\$user_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Dashboard/Resources/DashboardResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Dashboard\\Resources\\DashboardResource\:\:\$widgets\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Dashboard/Resources/DashboardResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Models\\Doctor\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Domains/Doctor/Policies/DoctorPolicy.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$address\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$branch_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$consultation_fee\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$district_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$doctor_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$full_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$gender\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$hire_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$license_number\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$marital_status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$nationality_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$phone\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$religion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$resignation_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$specialty\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$specialty_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Resources\\DoctorResource\:\:\$village_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Resources/DoctorResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Doctor\\Models\\Doctor\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Doctor/Services/DoctorService.php
+
+		-
+			message: '#^Relation ''doctor'' is not found in App\\Domains\\EMR\\Models\\EMR model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Domains/EMR/Repositories/EMRRepository.php
+
+		-
+			message: '#^Relation ''patient'' is not found in App\\Domains\\EMR\\Models\\EMR model\.$#'
+			identifier: larastan.relationExistence
+			count: 2
+			path: app/Domains/EMR/Repositories/EMRRepository.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\EMR\\Models\\EMR\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/EMR/Services/EMRService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Models\\Employee\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Domains/Employee/Policies/EmployeePolicy.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$address\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$branch\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$branch_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$district_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$employee_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$employment_status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$full_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$gender\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$hire_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$marital_status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$nationality_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$organization\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$phone\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$position\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$religion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$resignation_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Resources\\EmployeeResource\:\:\$village_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Resources/EmployeeResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Models\\Employee\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Services/EmployeeService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Employee\\Models\\Employee\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Employee/Services/EmployeeService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\HR\\Models\\HR\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/HR/Policies/HRPolicy.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\HR\\Resources\\HRResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/HR/Resources/HRResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\HR\\Resources\\HRResource\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/HR/Resources/HRResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\HR\\Resources\\HRResource\:\:\$data\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/HR/Resources/HRResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\HR\\Resources\\HRResource\:\:\$deleted_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/HR/Resources/HRResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\HR\\Resources\\HRResource\:\:\$deleted_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/HR/Resources/HRResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\HR\\Resources\\HRResource\:\:\$effective_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/HR/Resources/HRResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\HR\\Resources\\HRResource\:\:\$employee_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/HR/Resources/HRResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\HR\\Resources\\HRResource\:\:\$end_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/HR/Resources/HRResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\HR\\Resources\\HRResource\:\:\$notes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/HR/Resources/HRResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\HR\\Resources\\HRResource\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/HR/Resources/HRResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\HR\\Resources\\HRResource\:\:\$record_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/HR/Resources/HRResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\HR\\Resources\\HRResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Domains/HR/Resources/HRResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\HR\\Resources\\HRResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/HR/Resources/HRResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\HR\\Resources\\HRResource\:\:\$updated_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/HR/Resources/HRResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\HR\\Models\\HR\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/HR/Services/HRService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Models\\Inventory\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Policies/InventoryPolicy.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$branch_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$category_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$deleted_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$deleted_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$item_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$min_quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$unit_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Resources\\InventoryResource\:\:\$updated_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Resources/InventoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Models\\Inventory\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Services/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Inventory\\Models\\Inventory\:\:\$item_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Inventory/Services/InventoryService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Models\\Laboratory\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Policies/LaboratoryPolicy.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$category_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$completed_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$deleted_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$deleted_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$doctor_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$notes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$order_number\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$ordered_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$patient_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$results\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Resources\\LaboratoryResource\:\:\$updated_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Resources/LaboratoryResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Laboratory\\Models\\Laboratory\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Laboratory/Services/LaboratoryService.php
+
+		-
+			message: '#^Call to an undefined static method App\\Domains\\MasterData\\DTO\\MasterDataFilterDTO\:\:fromRequest\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: app/Domains/MasterData/Controllers/MasterDataController.php
+
+		-
+			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Domains\\MasterData\\Models\\District\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
+			identifier: generics.lessTypes
+			count: 1
+			path: app/Domains/MasterData/Models/City.php
+
+		-
+			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Domains\\MasterData\\Models\\Province\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
+			identifier: generics.lessTypes
+			count: 1
+			path: app/Domains/MasterData/Models/Country.php
+
+		-
+			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Domains\\MasterData\\Models\\Village\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
+			identifier: generics.lessTypes
+			count: 1
+			path: app/Domains/MasterData/Models/District.php
+
+		-
+			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Domains\\MasterData\\Models\\City\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
+			identifier: generics.lessTypes
+			count: 1
+			path: app/Domains/MasterData/Models/Province.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Odontogram\\Models\\Odontogram\:\:\$condition\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Odontogram/Services/OdontogramService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Organization\\Models\\Organization\:\:\$billing_address\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Organization/Http/Controllers/ClinicSettingsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Organization\\Models\\Organization\:\:\$billing_email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Organization/Http/Controllers/ClinicSettingsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Organization\\Models\\Organization\:\:\$billing_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Organization/Http/Controllers/ClinicSettingsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Organization\\Models\\Organization\:\:\$billing_phone\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Organization/Http/Controllers/ClinicSettingsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Organization\\Models\\Organization\:\:\$invoice_footer\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Organization/Http/Controllers/ClinicSettingsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Organization\\Models\\Organization\:\:\$invoice_prefix\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Organization/Http/Controllers/ClinicSettingsController.php
+
+		-
+			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Domains\\Branch\\Models\\Branch\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
+			identifier: generics.lessTypes
+			count: 1
+			path: app/Domains/Organization/Models/Organization.php
+
+		-
+			message: '#^Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Domains\\User\\Models\\User\> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany\: TRelatedModel, TDeclaringModel$#'
+			identifier: generics.lessTypes
+			count: 1
+			path: app/Domains/Organization/Models/Organization.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Organization\\Resources\\OrganizationResource\:\:\$code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Organization/Resources/OrganizationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Organization\\Resources\\OrganizationResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Organization/Resources/OrganizationResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Models\\Patient\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Domains/Patient/Policies/PatientPolicy.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$address\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$birth_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$blood_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$branch_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$district_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$full_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$gender\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$marital_status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$nationality_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$patientType\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$patient_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$patient_type_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$phone\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$religion\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Resources\\PatientResource\:\:\$village_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Resources/PatientResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Patient\\Models\\Patient\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Patient/Services/PatientService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Models\\Pharmacy\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Policies/PharmacyPolicy.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$batch_number\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$branch_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$category\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$deleted_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$deleted_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$drug_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$expiry_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$unit_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Resources\\PharmacyResource\:\:\$updated_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Resources/PharmacyResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Models\\Pharmacy\:\:\$drug_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Services/PharmacyService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Pharmacy\\Models\\Pharmacy\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Pharmacy/Services/PharmacyService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Models\\Procurement\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Policies/ProcurementPolicy.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Resources\\ProcurementResource\:\:\$branch_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Resources/ProcurementResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Resources\\ProcurementResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Resources/ProcurementResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Resources\\ProcurementResource\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Resources/ProcurementResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Resources\\ProcurementResource\:\:\$deleted_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Resources/ProcurementResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Resources\\ProcurementResource\:\:\$deleted_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Resources/ProcurementResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Resources\\ProcurementResource\:\:\$expected_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Resources/ProcurementResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Resources\\ProcurementResource\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Resources/ProcurementResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Resources\\ProcurementResource\:\:\$notes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Resources/ProcurementResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Resources\\ProcurementResource\:\:\$order_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Resources/ProcurementResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Resources\\ProcurementResource\:\:\$order_number\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Resources/ProcurementResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Resources\\ProcurementResource\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Resources/ProcurementResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Resources\\ProcurementResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Domains/Procurement/Resources/ProcurementResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Resources\\ProcurementResource\:\:\$supplier_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Resources/ProcurementResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Resources\\ProcurementResource\:\:\$total_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Resources/ProcurementResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Resources\\ProcurementResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Resources/ProcurementResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Resources\\ProcurementResource\:\:\$updated_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Resources/ProcurementResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Models\\Procurement\:\:\$order_number\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Services/ProcurementService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Procurement\\Models\\Procurement\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Procurement/Services/ProcurementService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Reporting\\Models\\Reporting\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Reporting/Policies/ReportingPolicy.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Reporting\\Resources\\ReportingResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Reporting/Resources/ReportingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Reporting\\Resources\\ReportingResource\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Reporting/Resources/ReportingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Reporting\\Resources\\ReportingResource\:\:\$data\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Reporting/Resources/ReportingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Reporting\\Resources\\ReportingResource\:\:\$deleted_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Reporting/Resources/ReportingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Reporting\\Resources\\ReportingResource\:\:\$deleted_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Reporting/Resources/ReportingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Reporting\\Resources\\ReportingResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Reporting/Resources/ReportingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Reporting\\Resources\\ReportingResource\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Reporting/Resources/ReportingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Reporting\\Resources\\ReportingResource\:\:\$parameters\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Reporting/Resources/ReportingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Reporting\\Resources\\ReportingResource\:\:\$report_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Reporting/Resources/ReportingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Reporting\\Resources\\ReportingResource\:\:\$report_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Reporting/Resources/ReportingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Reporting\\Resources\\ReportingResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Domains/Reporting/Resources/ReportingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Reporting\\Resources\\ReportingResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Reporting/Resources/ReportingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Reporting\\Resources\\ReportingResource\:\:\$updated_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Reporting/Resources/ReportingResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Subscription\\Http\\Resources\\SubscriptionResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Subscription/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Subscription\\Http\\Resources\\SubscriptionResource\:\:\$current_period_ends_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Subscription/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Subscription\\Http\\Resources\\SubscriptionResource\:\:\$current_period_starts_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Subscription/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Subscription\\Http\\Resources\\SubscriptionResource\:\:\$grace_ends_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Subscription/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Subscription\\Http\\Resources\\SubscriptionResource\:\:\$next_billing_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Subscription/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Subscription\\Http\\Resources\\SubscriptionResource\:\:\$plan_code\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Subscription/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Subscription\\Http\\Resources\\SubscriptionResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Domains/Subscription/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Subscription\\Http\\Resources\\SubscriptionResource\:\:\$trial_ends_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Subscription/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Subscription\\Http\\Resources\\SubscriptionResource\:\:\$trial_starts_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Subscription/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Subscription\\Http\\Resources\\SubscriptionResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Subscription/Http/Resources/SubscriptionResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Subscription\\Models\\Subscription\:\:\$grace_ends_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Subscription/Jobs/ProcessGraceExpiration.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Subscription\\Models\\Subscription\:\:\$next_billing_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Subscription/Jobs/ProcessSubscriptionRenewals.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Subscription\\Models\\Subscription\:\:\$trial_ends_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Subscription/Jobs/ProcessTrialExpiration.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Subscription\\Models\\Subscription\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Subscription/Models/Subscription.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Subscription\\Models\\Subscription\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Subscription/Services/SubscriptionTransitionService.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Models\\Treatment\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Policies/TreatmentPolicy.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Resources\\TreatmentResource\:\:\$appointment_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Resources/TreatmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Resources\\TreatmentResource\:\:\$cost\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Resources/TreatmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Resources\\TreatmentResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Resources/TreatmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Resources\\TreatmentResource\:\:\$created_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Resources/TreatmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Resources\\TreatmentResource\:\:\$deleted_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Resources/TreatmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Resources\\TreatmentResource\:\:\$deleted_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Resources/TreatmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Resources\\TreatmentResource\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Resources/TreatmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Resources\\TreatmentResource\:\:\$doctor_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Resources/TreatmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Resources\\TreatmentResource\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Resources/TreatmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Resources\\TreatmentResource\:\:\$patient_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Resources/TreatmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Resources\\TreatmentResource\:\:\$procedure_data\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Resources/TreatmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Resources\\TreatmentResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Resources/TreatmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Resources\\TreatmentResource\:\:\$treatment_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Resources/TreatmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Resources\\TreatmentResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Resources/TreatmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Resources\\TreatmentResource\:\:\$updated_by\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Resources/TreatmentResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Domains\\Treatment\\Models\\Treatment\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Domains/Treatment/Services/TreatmentService.php
+
+		-
+			message: '#^Call to static method new\(\) on an unknown class App\\Domains\\User\\Factories\\UserFactory\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Domains/User/Models/User.php
+
+		-
+			message: '#^Method App\\Domains\\User\\Models\\User\:\:newFactory\(\) has invalid return type App\\Domains\\User\\Factories\\UserFactory\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Domains/User/Models/User.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:withTrashed\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Domains/User/Repositories/UserRepository.php
+
+		-
+			message: '#^Cannot call method toString\(\) on int\|string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Platform/Audit/Services/AuditService.php
+
+		-
+			message: '#^Access to an undefined property App\\Platform\\FileStorage\\Models\\File\:\:\$branch_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Platform/FileStorage/Services/FileStorageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Platform\\FileStorage\\Models\\File\:\:\$disk\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Platform/FileStorage/Services/FileStorageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Platform\\FileStorage\\Models\\File\:\:\$extension\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Platform/FileStorage/Services/FileStorageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Platform\\FileStorage\\Models\\File\:\:\$hash\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Platform/FileStorage/Services/FileStorageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Platform\\FileStorage\\Models\\File\:\:\$mime_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Platform/FileStorage/Services/FileStorageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Platform\\FileStorage\\Models\\File\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Platform/FileStorage/Services/FileStorageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Platform\\FileStorage\\Models\\File\:\:\$original_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Platform/FileStorage/Services/FileStorageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Platform\\FileStorage\\Models\\File\:\:\$path\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Platform/FileStorage/Services/FileStorageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Platform\\FileStorage\\Models\\File\:\:\$size\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Platform/FileStorage/Services/FileStorageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Platform\\FileStorage\\Models\\File\:\:\$stored_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Platform/FileStorage/Services/FileStorageService.php
+
+		-
+			message: '#^Access to an undefined property App\\Platform\\Notification\\Models\\Notification\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Platform/Notification/Jobs/SendNotificationJob.php
+
+		-
+			message: '#^Access to an undefined property App\\Platform\\Notification\\Models\\Notification\:\:\$channel\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Platform/Notification/Services/NotificationService.php
+
+		-
+			message: '#^Access to an undefined property App\\Platform\\Notification\\Models\\Notification\:\:\$organization_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Platform/Notification/Services/NotificationService.php
+
+		-
+			message: '#^Access to an undefined property App\\Platform\\Notification\\Models\\Notification\:\:\$read_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Platform/Notification/Services/NotificationService.php
