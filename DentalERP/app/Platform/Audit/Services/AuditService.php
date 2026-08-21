@@ -9,21 +9,18 @@ use App\Platform\Audit\DTO\AuditEntryDTO;
 use App\Platform\Audit\Enums\AuditAction;
 use App\Platform\Audit\Jobs\AuditLogJob;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
+/**
+ * AuditService
+ *
+ * Concrete implementation of AuditServiceInterface.
+ * Records audit entries asynchronously via Queue to avoid blocking domain operations.
+ */
 final class AuditService implements AuditServiceInterface
 {
     public function record(AuditEntryDTO $entry): void
     {
-        try {
-            AuditLogJob::dispatch($entry);
-        } catch (\Throwable $e) {
-            Log::error('[AuditService::record] Queue dispatch failed.', [
-                'exception' => $e::class,
-                'module'    => $entry->module,
-                'action'    => $entry->action->value,
-            ]);
-        }
+        dispatch(new AuditLogJob($entry));
     }
 
     public function log(
@@ -34,48 +31,40 @@ final class AuditService implements AuditServiceInterface
         array       $oldValue = [],
         array       $newValue = [],
     ): void {
+        $user = Auth::user();
+        $request = request();
+
         $entry = new AuditEntryDTO(
-            action:        $action,
-            module:        $module,
-            userId:        Auth::id()?->toString() ?? null,
-            organizationId: $this->resolveOrganizationId(),
-            branchId:       $this->resolveBranchId(),
+            action: $action,
+            module: $module,
+            userId: $user?->id,
+            organizationId: $user?->organization_id ?? $request->input('organization_id'),
+            branchId: $user?->branch_id ?? $request->input('branch_id'),
             auditableType: $auditableType,
-            auditableId:   $auditableId,
-            oldValue:      $oldValue,
-            newValue:      $newValue,
+            auditableId: $auditableId,
+            oldValue: $oldValue,
+            newValue: $newValue,
+            ipAddress: $request->ip(),
+            userAgent: $request->userAgent(),
+            device: $this->detectDevice($request->userAgent()),
         );
 
         $this->record($entry);
     }
 
-    private function resolveOrganizationId(): ?string
+    private function detectDevice(?string $userAgent): string
     {
-        $user = Auth::user();
-
-        if (! $user) {
-            return null;
+        if (empty($userAgent)) {
+            return 'api';
         }
 
-        if (method_exists($user, 'getOrganizationId')) {
-            return $user->getOrganizationId();
+        if (preg_match('/mobile|android|iphone|ipad|tablet/i', $userAgent)) {
+            if (preg_match('/tablet|ipad/i', $userAgent)) {
+                return 'tablet';
+            }
+            return 'mobile';
         }
 
-        return $user->organization_id ?? null;
-    }
-
-    private function resolveBranchId(): ?string
-    {
-        $user = Auth::user();
-
-        if (! $user) {
-            return null;
-        }
-
-        if (method_exists($user, 'getBranchId')) {
-            return $user->getBranchId();
-        }
-
-        return $user->branch_id ?? null;
+        return 'desktop';
     }
 }

@@ -6,32 +6,27 @@ namespace App\Platform\Logging\Services;
 
 use App\Platform\Logging\Contracts\LoggerServiceInterface;
 use App\Platform\Logging\Enums\LogLevel;
-use App\Platform\Logging\Models\SystemLog;
+use App\Platform\Logging\Jobs\LogJob;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * LoggerService
+ *
+ * Concrete implementation of LoggerServiceInterface.
+ * Routes logs by level: file (always), database (>= warning), external (>= error).
+ * Database persistence is non-blocking via Queue.
+ */
 final class LoggerService implements LoggerServiceInterface
 {
     public function log(LogLevel $level, string $message, array $context = []): void
     {
-        $this->writeToFile($level, $message, $context);
+        // Always log to file (Laravel's default channel)
+        $this->logToFile($level, $message, $context);
 
-        if ($level->shouldPersist()) {
-            SystemLog::create([
-                'id'              => SystemLog::newUuid(),
-                'level'           => $level->value,
-                'message'         => $message,
-                'context'         => $context,
-                'channel'         => $this->extractChannel($message),
-                'organization_id' => $context['organization_id'] ?? null,
-                'branch_id'       => $context['branch_id'] ?? null,
-                'user_id'         => $context['user_id'] ?? null,
-                'exception_class' => $context['exception'] ?? null,
-                'file'            => $context['file'] ?? null,
-                'line'            => $context['line'] ?? null,
-                'trace'           => $context['trace'] ?? null,
-                'ip_address'      => $context['ip_address'] ?? null,
-                'created_at'      => now(),
-            ]);
+        // Log to database for warning and above
+        if ($this->shouldLogToDatabase($level)) {
+            $this->logToDatabase($level, $message, $context);
         }
     }
 
@@ -72,35 +67,48 @@ final class LoggerService implements LoggerServiceInterface
 
     public function debug(string $message, array $context = []): void
     {
-        if (config('app.env') === 'production') {
-            return;
-        }
-
         $this->log(LogLevel::Debug, $message, $context);
     }
 
-    private function writeToFile(LogLevel $level, string $message, array $context): void
+    private function logToFile(LogLevel $level, string $message, array $context): void
     {
-        $channel = $this->extractChannel($message);
-
-        match ($level) {
-            LogLevel::Emergency => Log::emergency($message, ['channel' => $channel, ...$context]),
-            LogLevel::Alert     => Log::alert($message, ['channel' => $channel, ...$context]),
-            LogLevel::Critical  => Log::critical($message, ['channel' => $channel, ...$context]),
-            LogLevel::Error     => Log::error($message, ['channel' => $channel, ...$context]),
-            LogLevel::Warning   => Log::warning($message, ['channel' => $channel, ...$context]),
-            LogLevel::Notice    => Log::notice($message, ['channel' => $channel, ...$context]),
-            LogLevel::Info      => Log::info($message, ['channel' => $channel, ...$context]),
-            LogLevel::Debug     => Log::debug($message, ['channel' => $channel, ...$context]),
-        };
+        Log::{$level->value}($message, $context);
     }
 
-    private function extractChannel(string $message): string
+    private function logToDatabase(LogLevel $level, string $message, array $context): void
     {
-        if (preg_match('/^\[(\w+)::/', $message, $matches)) {
-            return $matches[1];
-        }
+        $user = Auth::user();
+        $request = request();
+        
+        $exception = $context['exception'] ?? null;
 
-        return 'system';
+        dispatch(new LogJob(
+            level: $level,
+            message: $message,
+            context: $context,
+            organizationId: $user?->organization_id ?? $request->input('organization_id'),
+            userId: $user?->id,
+            exceptionClass: $exception ? get_class($exception) : null,
+            exceptionMessage: $exception?->getMessage(),
+            exceptionTrace: $exception?->getTraceAsString(),
+            requestId: $request->header('X-Request-ID') ?? $request->id(),
+            ipAddress: $request->ip(),
+            userAgent: $request->userAgent(),
+            method: $request->method(),
+            url: $request->fullUrl(),
+        ));
+    }
+
+    private function shouldLogToDatabase(LogLevel $level): bool
+    {
+        $databaseLevels = [
+            LogLevel::Emergency,
+            LogLevel::Alert,
+            LogLevel::Critical,
+            LogLevel::Error,
+            LogLevel::Warning,
+        ];
+
+        return in_array($level, $databaseLevels, true);
     }
 }

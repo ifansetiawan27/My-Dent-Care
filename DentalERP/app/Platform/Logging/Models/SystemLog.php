@@ -20,9 +20,9 @@ class SystemLog extends Model
     protected function casts(): array
     {
         return [
-            'context'    => 'array',
-            'line'       => 'integer',
-            'created_at' => 'datetime',
+            'context'           => 'array',
+            'extra'             => 'array',
+            'created_at'        => 'datetime',
         ];
     }
 }

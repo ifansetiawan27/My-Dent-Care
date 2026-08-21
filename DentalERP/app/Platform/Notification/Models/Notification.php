@@ -14,9 +14,11 @@ class Notification extends BaseModel
     {
         return [
             ...parent::casts(),
-            'data'    => 'array',
-            'sent_at' => 'datetime',
-            'read_at' => 'datetime',
+            'data'        => 'array',
+            'retry_count' => 'integer',
+            'sent_at'     => 'datetime',
+            'failed_at'   => 'datetime',
+            'read_at'     => 'datetime',
         ];
     }
 }
