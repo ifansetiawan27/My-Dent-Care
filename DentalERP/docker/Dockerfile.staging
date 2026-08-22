@@ -58,6 +58,7 @@ COPY --from=vendor /var/www/vendor ./vendor
 COPY . .
 
 RUN composer dump-autoload --optimize --no-dev --no-interaction \
+    && mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache
 
 USER www-data
