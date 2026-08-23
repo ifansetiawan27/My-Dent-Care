@@ -21,7 +21,7 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch('http://108.136.48.83:8080/api/login', {
+      const response = await fetch('http://108.136.48.83:8080/api/v1/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
