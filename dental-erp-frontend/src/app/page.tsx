@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Sphere, MeshDistortMaterial } from '@react-three/drei';
-import LoginForm from '@/components/LoginForm';
+import Link from 'next/link';
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -63,12 +63,12 @@ export default function LandingPage() {
               >
                 Pricing
               </a>
-              <a
-                href="#login"
+              <Link
+                href="/login"
                 className="px-6 py-2 bg-gradient-medical text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-primary/30 transition-all duration-300"
               >
                 Login to Dashboard
-              </a>
+              </Link>
             </div>
 
             {/* Mobile Menu Button */}
@@ -103,13 +103,13 @@ export default function LandingPage() {
               >
                 Pricing
               </a>
-              <a
-                href="#login"
+              <Link
+                href="/login"
                 onClick={() => setMobileMenuOpen(false)}
                 className="block w-full text-center px-6 py-2 bg-gradient-medical text-white rounded-lg font-semibold"
               >
                 Login to Dashboard
-              </a>
+              </Link>
             </div>
           </motion.div>
         )}
@@ -392,40 +392,18 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              <a
-                href="#login"
+              <Link
+                href="/login"
                 className="block w-full text-center px-8 py-4 bg-gradient-medical text-white rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
               >
                 Start 30-Day Free Trial
-              </a>
+              </Link>
 
               <p className="text-center text-sm text-slate-500 mt-4">
                 No credit card required • Cancel anytime
               </p>
             </div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* Login Section */}
-      <section id="login" className="py-24 relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-sky-200/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl" />
-        </div>
-
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-slate-900 mb-4">
-              Access Your Dashboard
-            </h2>
-            <p className="text-xl text-slate-600">
-              Sign in to manage your dental clinics
-            </p>
-          </div>
-
-          <LoginForm />
         </div>
       </section>
 
@@ -449,7 +427,7 @@ export default function LandingPage() {
               <ul className="space-y-2 text-slate-400 text-sm">
                 <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
                 <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
-                <li><a href="#login" className="hover:text-white transition-colors">Login</a></li>
+                <li><Link href="/login" className="hover:text-white transition-colors">Login</Link></li>
               </ul>
             </div>
             <div>
