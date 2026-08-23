@@ -14,8 +14,14 @@ Domain `mydentcare.com` telah ditambahkan ke Vercel project `dental-erp-frontend
 ```
 Type: A
 Name: @ (atau mydentcare.com)
-Value: 76.76.21.21
+Value: 76.76.21.98
 TTL: 3600 (atau default)
+```
+
+**Atau gunakan 2 A records (Recommended):**
+```
+Type: A, Name: @, Value: 216.198.79.1, TTL: 3600
+Type: A, Name: @, Value: 64.29.17.1, TTL: 3600
 ```
 
 **Untuk subdomain www:**
