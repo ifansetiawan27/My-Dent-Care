@@ -1,3 +1,997 @@
 {
   "$schema": "https://app.kilo.ai/config.json"
 }
+{
+    "$schema": "https://opencode.ai/config.json",
+    "provider": {
+        "openagentic": {
+            "npm": "@ai-sdk/openai-compatible",
+            "name": "OpenAgentic",
+            "options": {
+                "baseURL": "https://openagentic.id/api/v1",
+                "apiKey": "sk-b1195c2dc289de1f6cb589fc61842e2f4961c260841c2e50473e5c34460fcd40"
+            },
+            "models": {
+                "ox-alpha-free": {
+                    "name": "0x Alpha Free",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "claude-sonnet-4.5-thinking": {
+                    "name": "Assistant Sonnet 4.5 (Thinking)",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 200000,
+                        "output": 64000
+                    }
+                },
+                "claude-opus-4.6": {
+                    "name": "Claude Opus 4.6",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "claude-opus-4.8": {
+                    "name": "Claude Opus 4.8",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "claude-opus-4.8-thinking": {
+                    "name": "Claude Opus 4.8 Thinking",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "claude-opus-5": {
+                    "name": "Claude Opus 5",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "claude-sonnet-4.5": {
+                    "name": "Claude Sonnet 4.5",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 200000,
+                        "output": 64000
+                    }
+                },
+                "claude-sonnet-4.6": {
+                    "name": "Claude Sonnet 4.6",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "deepseek-v4-flash": {
+                    "name": "DeepSeek V4 Flash",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "deepseek-v4-flash-0731": {
+                    "name": "Deepseek V4 Flash 0731",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "deepseek-v4-flash-free": {
+                    "name": "DeepSeek V4 Flash Free",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "DeepSeek-V4-Pro": {
+                    "name": "DeepSeek V4 Pro",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "deepseek-v4-pro-0813": {
+                    "name": "DeepSeek V4 Pro 0813",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "flux-2-klein-4b": {
+                    "name": "FLUX.2 Klein 4B (Image Generation)",
+                    "attachment": false,
+                    "reasoning": false,
+                    "tool_call": false,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image"
+                        ],
+                        "output": [
+                            "image"
+                        ]
+                    },
+                    "limit": {
+                        "context": 32768,
+                        "output": 32768
+                    }
+                },
+                "gemini-3.1-pro": {
+                    "name": "Gemini 3.1 Pro",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "gemini-3.5-flash": {
+                    "name": "Gemini 3.5 Flash",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "gemini-3.6-flash": {
+                    "name": "Gemini 3.6 Flash",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "glm-5": {
+                    "name": "GLM 5",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 131072,
+                        "output": 64000
+                    }
+                },
+                "glm-5.1": {
+                    "name": "GLM 5.1",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 200000,
+                        "output": 64000
+                    }
+                },
+                "glm-5.3": {
+                    "name": "GLM 5.3",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "glm-5.2": {
+                    "name": "GLM-5.2",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "gpt-5.6-luna": {
+                    "name": "GPT 5.6 Luna",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "gpt-5.6-sol": {
+                    "name": "GPT 5.6 Sol",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "gpt-5.6-terra": {
+                    "name": "GPT 5.6 Terra",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "grok-4.5": {
+                    "name": "Grok 4.5",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 500000,
+                        "output": 64000
+                    }
+                },
+                "hy3-free": {
+                    "name": "Hy3 Free",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 256000,
+                        "output": 64000
+                    }
+                },
+                "kimi-k2.7-code": {
+                    "name": "Kimi K2.7 Code",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 128000,
+                        "output": 64000
+                    }
+                },
+                "kimi-k3": {
+                    "name": "Kimi K3",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "kimi-k3-high": {
+                    "name": "Kimi K3 High",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "kimi-k3-low": {
+                    "name": "Kimi K3 Low",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "mimo-v2.5": {
+                    "name": "MIMO V2.5",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1050000,
+                        "output": 64000
+                    }
+                },
+                "mimo-v2.5-pro": {
+                    "name": "MIMO V2.5 Pro",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1050000,
+                        "output": 64000
+                    }
+                },
+                "minimax-m2.5": {
+                    "name": "MiniMax M2.5",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 200000,
+                        "output": 64000
+                    }
+                },
+                "muse-spark-1.2": {
+                    "name": "Muse Spark 1.2",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1048576,
+                        "output": 64000
+                    }
+                },
+                "nemotron-3-ultra-free": {
+                    "name": "Nemotron 3 Ultra Free",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "oa-claude-sonnet-4.6": {
+                    "name": "OA Claude Sonnet 4.6",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "open-agentic": {
+                    "name": "Open Agentic",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 200000,
+                        "output": 64000
+                    }
+                },
+                "qwen3.7-max": {
+                    "name": "Qwen 3.7 Max",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 200000,
+                        "output": 64000
+                    }
+                },
+                "ali-qwen-image-2.0": {
+                    "name": "Qwen Image 2.0 (Berbayar)",
+                    "attachment": false,
+                    "reasoning": false,
+                    "tool_call": false,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image"
+                        ],
+                        "output": [
+                            "image"
+                        ]
+                    },
+                    "limit": {
+                        "context": 4096,
+                        "output": 4096
+                    }
+                },
+                "ali-qwen-image-2.0-pro": {
+                    "name": "Qwen Image 2.0 Pro (Berbayar)",
+                    "attachment": false,
+                    "reasoning": false,
+                    "tool_call": false,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image"
+                        ],
+                        "output": [
+                            "image"
+                        ]
+                    },
+                    "limit": {
+                        "context": 4096,
+                        "output": 4096
+                    }
+                },
+                "ali-qwen-image-max": {
+                    "name": "Qwen Image Max (Berbayar)",
+                    "attachment": false,
+                    "reasoning": false,
+                    "tool_call": false,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image"
+                        ],
+                        "output": [
+                            "image"
+                        ]
+                    },
+                    "limit": {
+                        "context": 4096,
+                        "output": 4096
+                    }
+                },
+                "ali-qwen-image-plus": {
+                    "name": "Qwen Image Plus (Berbayar)",
+                    "attachment": false,
+                    "reasoning": false,
+                    "tool_call": false,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image"
+                        ],
+                        "output": [
+                            "image"
+                        ]
+                    },
+                    "limit": {
+                        "context": 4096,
+                        "output": 4096
+                    }
+                },
+                "qwen3.6-plus": {
+                    "name": "Qwen3.6 Plus",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 200000,
+                        "output": 64000
+                    }
+                },
+                "qwen3.8-max": {
+                    "name": "Qwen3.8 Max",
+                    "attachment": true,
+                    "reasoning": true,
+                    "tool_call": true,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image",
+                            "pdf"
+                        ],
+                        "output": [
+                            "text"
+                        ]
+                    },
+                    "limit": {
+                        "context": 1000000,
+                        "output": 64000
+                    }
+                },
+                "ali-wan2.7-image": {
+                    "name": "Wan2.7 Image (Berbayar)",
+                    "attachment": false,
+                    "reasoning": false,
+                    "tool_call": false,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image"
+                        ],
+                        "output": [
+                            "image"
+                        ]
+                    },
+                    "limit": {
+                        "context": 4096,
+                        "output": 4096
+                    }
+                },
+                "ali-wan2.7-image-pro": {
+                    "name": "Wan2.7 Image Pro (Berbayar)",
+                    "attachment": false,
+                    "reasoning": false,
+                    "tool_call": false,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image"
+                        ],
+                        "output": [
+                            "image"
+                        ]
+                    },
+                    "limit": {
+                        "context": 4000,
+                        "output": 4000
+                    }
+                },
+                "ali-z-image-turbo": {
+                    "name": "Z Image Turbo (Free)",
+                    "attachment": false,
+                    "reasoning": false,
+                    "tool_call": false,
+                    "temperature": true,
+                    "modalities": {
+                        "input": [
+                            "text",
+                            "image"
+                        ],
+                        "output": [
+                            "image"
+                        ]
+                    },
+                    "limit": {
+                        "context": 4096,
+                        "output": 4096
+                    }
+                }
+            }
+        }
+    }
+}

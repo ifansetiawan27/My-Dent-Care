@@ -51,17 +51,6 @@ abstract class BaseModel extends Model
     ];
 
     /**
-     * The attributes that should be treated as dates.
-     *
-     * @var array<string>
-     */
-    protected $dates = [
-        'created_at',
-        'updated_at',
-        'deleted_at',
-    ];
-
-    /**
      * Default audit columns appended to every model.
      * Child models should merge with their own appends if needed.
      *
