@@ -24,6 +24,7 @@ use App\Domains\Authentication\Resources\LoginResource;
 use App\Domains\Authentication\Resources\ProfileResource;
 use App\Domains\Authentication\Resources\TokenPairResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Throwable;
 
 class AuthController extends BaseController
@@ -32,6 +33,36 @@ class AuthController extends BaseController
         private readonly AuthServiceInterface $service,
         private readonly TokenServiceInterface $tokenService,
     ) {}
+
+    public function lookup(Request $request): JsonResponse
+    {
+        $identifier = $request->input('identifier');
+        if (empty($identifier)) {
+            return ApiResponse::error(message: 'Identifier is required.', code: 422);
+        }
+
+        $user = \App\Domains\User\Models\User::where('email', $identifier)
+            ->orWhere('username', $identifier)
+            ->first();
+
+        if (! $user) {
+            return ApiResponse::error(message: 'User not found.', code: 404);
+        }
+
+        $org    = $user->organization;
+        $branch = $user->branch;
+
+        if (! $org || ! $branch) {
+            return ApiResponse::error(message: 'Organization or branch not found.', code: 404);
+        }
+
+        return ApiResponse::success(data: [
+            'organization_id' => $org->id,
+            'branch_id'       => $branch->id,
+            'organization'    => $org->company_name,
+            'branch'          => $branch->branch_name,
+        ], message: 'Lookup successful.');
+    }
 
     public function login(LoginRequest $request): JsonResponse
     {
@@ -49,7 +80,7 @@ class AuthController extends BaseController
 
             $result = $this->service->login($dto);
 
-            return ApiResponse::success(data: new LoginResource((object) $result), message: 'Login successful.', status: 200);
+            return ApiResponse::success(data: new LoginResource((object) $result), message: 'Login successful.');
         } catch (BusinessException $e) {
             $message = $e->getMessage();
             $status  = match (true) {
@@ -61,7 +92,7 @@ class AuthController extends BaseController
                 default => 401,
             };
 
-            return ApiResponse::error(message: $message, status: $status);
+            return ApiResponse::error(message: $message, code: $status);
         } catch (Throwable $e) {
             return ApiResponse::serverError($e->getMessage());
         }
@@ -72,9 +103,9 @@ class AuthController extends BaseController
         try {
             $this->service->logout();
 
-            return ApiResponse::success(data: null, message: 'Logout successful.', status: 200);
+            return ApiResponse::success(data: null, message: 'Logout successful.');
         } catch (BusinessException $e) {
-            return ApiResponse::error(message: $e->getMessage(), status: 401);
+            return ApiResponse::error(message: $e->getMessage(), code: 401);
         } catch (Throwable $e) {
             return ApiResponse::serverError($e->getMessage());
         }
@@ -85,9 +116,9 @@ class AuthController extends BaseController
         try {
             $this->service->logoutAll();
 
-            return ApiResponse::success(data: null, message: 'All sessions revoked successfully.', status: 200);
+            return ApiResponse::success(data: null, message: 'All sessions revoked successfully.');
         } catch (BusinessException $e) {
-            return ApiResponse::error(message: $e->getMessage(), status: 401);
+            return ApiResponse::error(message: $e->getMessage(), code: 401);
         } catch (Throwable $e) {
             return ApiResponse::serverError($e->getMessage());
         }
@@ -98,12 +129,12 @@ class AuthController extends BaseController
         try {
             $tokenPair = $this->tokenService->refresh($request->validated('refresh_token'));
 
-            return ApiResponse::success(data: new TokenPairResource($tokenPair), message: 'Token refreshed successfully.', status: 200);
+            return ApiResponse::success(data: new TokenPairResource($tokenPair), message: 'Token refreshed successfully.');
         } catch (BusinessException $e) {
             $message = $e->getMessage();
             $status  = str_contains($message, 'reuse') ? 409 : 401;
 
-            return ApiResponse::error(message: $message, status: $status);
+            return ApiResponse::error(message: $message, code: $status);
         } catch (Throwable $e) {
             return ApiResponse::serverError($e->getMessage());
         }
@@ -114,7 +145,7 @@ class AuthController extends BaseController
         try {
             $this->service->forgotPassword($request->validated('email'));
 
-            return ApiResponse::success(data: null, message: 'If the email is registered, password reset instructions will be sent.', status: 202);
+            return ApiResponse::success(data: null, message: 'If the email is registered, password reset instructions will be sent.');
         } catch (Throwable $e) {
             return ApiResponse::serverError($e->getMessage());
         }
@@ -125,9 +156,9 @@ class AuthController extends BaseController
         try {
             $this->service->resetPassword($request->validated('email'), $request->validated('token'), $request->validated('password'));
 
-            return ApiResponse::success(data: null, message: 'Password reset successfully. Please log in again.', status: 200);
+            return ApiResponse::success(data: null, message: 'Password reset successfully. Please log in again.');
         } catch (BusinessException $e) {
-            return ApiResponse::error(message: $e->getMessage(), status: 400);
+            return ApiResponse::error(message: $e->getMessage(), code: 400);
         } catch (Throwable $e) {
             return ApiResponse::serverError($e->getMessage());
         }
@@ -144,7 +175,7 @@ class AuthController extends BaseController
                 'registered_devices_retained' => true,
             ], message: 'Password changed successfully.', status: 200);
         } catch (BusinessException $e) {
-            return ApiResponse::error(message: $e->getMessage(), status: 401);
+            return ApiResponse::error(message: $e->getMessage(), code: 401);
         } catch (Throwable $e) {
             return ApiResponse::serverError($e->getMessage());
         }
@@ -157,7 +188,7 @@ class AuthController extends BaseController
 
             return ApiResponse::success(data: new ProfileResource($result), message: 'Profile retrieved successfully.', status: 200);
         } catch (BusinessException $e) {
-            return ApiResponse::error(message: $e->getMessage(), status: 401);
+            return ApiResponse::error(message: $e->getMessage(), code: 401);
         } catch (Throwable $e) {
             return ApiResponse::serverError($e->getMessage());
         }
@@ -189,7 +220,7 @@ class AuthController extends BaseController
                 message:   'Login history retrieved successfully.',
             );
         } catch (BusinessException $e) {
-            return ApiResponse::error(message: $e->getMessage(), status: 401);
+            return ApiResponse::error(message: $e->getMessage(), code: 401);
         } catch (Throwable $e) {
             return ApiResponse::serverError($e->getMessage());
         }
@@ -206,7 +237,7 @@ class AuthController extends BaseController
                 message:   'Devices retrieved successfully.',
             );
         } catch (BusinessException $e) {
-            return ApiResponse::error(message: $e->getMessage(), status: 401);
+            return ApiResponse::error(message: $e->getMessage(), code: 401);
         } catch (Throwable $e) {
             return ApiResponse::serverError($e->getMessage());
         }
@@ -226,7 +257,7 @@ class AuthController extends BaseController
                 default => 403,
             };
 
-            return ApiResponse::error(message: $message, status: $status);
+            return ApiResponse::error(message: $message, code: $status);
         } catch (Throwable $e) {
             return ApiResponse::serverError($e->getMessage());
         }

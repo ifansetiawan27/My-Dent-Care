@@ -9,15 +9,24 @@ const error = ref<string | null>(null)
 export function useAuth() {
   const isAuthenticated = () => !!localStorage.getItem('auth_token')
 
-  async function login(email: string, password: string): Promise<void> {
+  async function login(identifier: string, password: string): Promise<void> {
     loading.value = true
     error.value = null
     try {
-      const data = await authApi.login(email, password)
+      // Step 1: lookup org_id & branch_id
+      const lookup = await authApi.lookup(identifier)
+
+      // Step 2: login dengan org & branch id yang benar
+      const data = await authApi.login(
+        identifier,
+        password,
+        lookup.organization_id,
+        lookup.branch_id,
+      )
       localStorage.setItem('auth_token', data.token)
       user.value = data.user
-    } catch (e) {
-      error.value = 'Login failed. Please check your credentials.'
+    } catch (e: any) {
+      error.value = e?.message ?? 'Login gagal. Periksa email dan password Anda.'
       throw e
     } finally {
       loading.value = false

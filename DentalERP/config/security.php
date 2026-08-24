@@ -33,8 +33,8 @@ return [
             "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
         ),
 
-        'cross_origin_opener_policy'   => env('SECURITY_CROSS_ORIGIN_OPENER_POLICY', 'same-origin'),
-        'cross_origin_resource_policy' => env('SECURITY_CROSS_ORIGIN_RESOURCE_POLICY', 'same-site'),
+        'cross_origin_opener_policy'   => env('SECURITY_CROSS_ORIGIN_OPENER_POLICY', null),
+        'cross_origin_resource_policy' => env('SECURITY_CROSS_ORIGIN_RESOURCE_POLICY', null),
     ],
 
     /*

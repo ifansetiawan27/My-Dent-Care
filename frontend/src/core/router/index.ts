@@ -5,6 +5,12 @@ const router = createRouter({
   routes: [
     {
       path: '/',
+      name: 'landing',
+      component: () => import('@/modules/landing/LandingPage.vue'),
+      meta: { guestOnly: false },
+    },
+    {
+      path: '/dashboard',
       name: 'dashboard',
       component: () => import('@/modules/dashboard/DashboardPage.vue'),
       meta: { requiresAuth: true },
@@ -13,6 +19,7 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/modules/auth/LoginPage.vue'),
+      meta: { guestOnly: true },
     },
     {
       path: '/subscription',
@@ -35,11 +42,20 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
   const token = localStorage.getItem('auth_token')
+
+  // Redirect authenticated users away from guest-only pages (e.g. /login)
+  if (to.meta.guestOnly && token) {
+    next({ name: 'dashboard' })
+    return
+  }
+
+  // Redirect unauthenticated users away from protected pages
   if (to.meta.requiresAuth && !token) {
     next({ name: 'login' })
-  } else {
-    next()
+    return
   }
+
+  next()
 })
 
 export default router

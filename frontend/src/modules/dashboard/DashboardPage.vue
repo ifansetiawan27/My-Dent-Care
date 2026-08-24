@@ -23,51 +23,76 @@ const bannerInfo = computed(() => {
 </script>
 
 <template>
-  <div class="p-6 max-w-4xl mx-auto">
-    <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+  <div class="p-6 max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gradient-medical mb-2">Dashboard</h1>
+      <p class="text-gray-600">Welcome back to your dental practice management system</p>
+    </div>
 
     <!-- Subscription Banner -->
     <div v-if="bannerInfo" :class="{
-      'bg-blue-50 border-blue-400 text-blue-800': bannerInfo?.type === 'info',
-      'bg-yellow-50 border-yellow-400 text-yellow-800': bannerInfo?.type === 'warning',
-      'bg-red-50 border-red-400 text-red-800': bannerInfo?.type === 'error',
-    }" class="border-l-4 p-4 rounded mb-6 flex justify-between items-center">
+      'alert-info': bannerInfo?.type === 'info',
+      'alert-warning': bannerInfo?.type === 'warning',
+      'alert-error': bannerInfo?.type === 'error',
+    }" class="alert flex justify-between items-center">
       <span>{{ bannerInfo?.text }}</span>
-      <button v-if="sub?.status !== 'active' && sub?.status !== 'trial'" @click="router.push('/subscription')" class="text-sm font-medium underline">View Subscription</button>
+      <button v-if="sub?.status !== 'active' && sub?.status !== 'trial'" @click="router.push('/subscription')" class="btn-secondary text-sm py-1 px-4">View Subscription</button>
     </div>
 
     <!-- Loading -->
-    <div v-if="loading" class="text-center py-12 text-gray-500">Loading...</div>
-    <div v-else-if="error" class="bg-red-50 p-4 rounded text-red-600">{{ error }}</div>
+    <div v-if="loading" class="text-center py-12">
+      <div class="spinner mx-auto mb-4"></div>
+      <p class="text-gray-500">Loading...</p>
+    </div>
+    <div v-else-if="error" class="alert alert-error">{{ error }}</div>
 
     <!-- Subscription Card -->
-    <div v-else-if="sub" class="bg-white rounded-lg shadow p-6">
-      <div class="flex justify-between items-start mb-4">
+    <div v-else-if="sub" class="card-medical hover-lift">
+      <div class="flex justify-between items-start mb-6">
         <div>
-          <h2 class="text-lg font-semibold">{{ sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1) }} Plan</h2>
-          <p class="text-gray-500">Rp {{ sub.price.toLocaleString('id-ID') }}/month</p>
+          <h2 class="text-2xl font-bold text-primary mb-1">{{ sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1) }} Plan</h2>
+          <p class="text-xl font-semibold text-gray-700">Rp {{ sub.price.toLocaleString('id-ID') }}<span class="text-sm font-normal text-gray-500">/bulan</span></p>
         </div>
-        <span :class="{
-          'bg-green-100 text-green-800': sub.status === 'active',
-          'bg-blue-100 text-blue-800': sub.status === 'trial',
-          'bg-yellow-100 text-yellow-800': sub.status === 'past_due' || sub.status === 'grace',
-          'bg-red-100 text-red-800': sub.status === 'expired' || sub.status === 'cancelled',
-        }" class="px-3 py-1 rounded-full text-sm font-medium">{{ sub.status_label }}</span>
+        <span class="badge" :class="{
+          'badge-primary': sub.status === 'trial',
+          'badge-success': sub.status === 'active',
+          'badge-warning': sub.status === 'past_due' || sub.status === 'grace',
+          'badge-error': sub.status === 'expired' || sub.status === 'cancelled',
+        }">{{ sub.status_label }}</span>
       </div>
 
-      <div class="grid grid-cols-2 gap-4 text-sm">
-        <div v-if="sub.is_trial && sub.trial"><span class="text-gray-500">Trial ends</span><br><strong>{{ new Date(sub.trial.end_date).toLocaleDateString('id-ID') }}</strong></div>
-        <div v-if="sub.billing.next_billing_at"><span class="text-gray-500">Next billing</span><br><strong>{{ new Date(sub.billing.next_billing_at).toLocaleDateString('id-ID') }}</strong></div>
-        <div><span class="text-gray-500">Storage</span><br><strong>{{ sub.storage.used_gb }} / {{ sub.storage.limit_gb }} GB</strong></div>
-        <div><span class="text-gray-500">Users</span><br><strong>Unlimited</strong></div>
-        <div><span class="text-gray-500">Clinical Records</span><br><strong>Unlimited</strong></div>
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-6 pt-6 border-t-2 border-gray-100">
+        <div v-if="sub.is_trial && sub.trial" class="text-center">
+          <div class="text-3xl font-bold text-primary mb-1">{{ sub.trial.days_remaining }}</div>
+          <div class="text-xs text-gray-500 uppercase tracking-wide">Hari Trial</div>
+        </div>
+        <div v-if="sub.billing.next_billing_at" class="text-center">
+          <div class="text-sm font-bold text-gray-800 mb-1">{{ new Date(sub.billing.next_billing_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) }}</div>
+          <div class="text-xs text-gray-500 uppercase tracking-wide">Next Billing</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-secondary mb-1">{{ sub.storage.used_gb }}/{{ sub.storage.limit_gb }} GB</div>
+          <div class="text-xs text-gray-500 uppercase tracking-wide">Storage</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-accent mb-1">∞</div>
+          <div class="text-xs text-gray-500 uppercase tracking-wide">Users</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-accent mb-1">∞</div>
+          <div class="text-xs text-gray-500 uppercase tracking-wide">Records</div>
+        </div>
       </div>
     </div>
 
     <!-- No subscription -->
-    <div v-else class="bg-yellow-50 p-6 rounded text-center">
-      <p class="text-lg">No active subscription</p>
-      <router-link to="/subscription" class="text-blue-600 font-medium underline mt-2 inline-block">View Plans</router-link>
+    <div v-else class="alert alert-warning text-center">
+      <div>
+        <p class="text-lg font-semibold mb-2">No active subscription</p>
+        <router-link to="/subscription" class="btn-primary inline-block">View Plans</router-link>
+      </div>
     </div>
   </div>
 </template>

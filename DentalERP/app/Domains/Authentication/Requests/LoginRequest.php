@@ -10,6 +10,11 @@ use Illuminate\Validation\Rule;
 
 class LoginRequest extends BaseRequest
 {
+    public function authorize(): bool
+    {
+        return true; // Login is a public endpoint — no auth required
+    }
+
     public function rules(): array
     {
         return [

@@ -96,6 +96,7 @@ class AuthService implements AuthServiceInterface
                 ]);
 
                 $tokenPair = new TokenPairDTO(
+                    tokenType:             'Bearer',
                     accessToken:           $token->plainTextToken,
                     accessTokenExpiresAt:  now()->addMinutes(self::ACCESS_TOKEN_TTL_MINUTES)->toIso8601String(),
                     refreshToken:          $refreshPlaintext,
@@ -522,16 +523,25 @@ class AuthService implements AuthServiceInterface
 
     private function issueAccessToken(User $user, string $sessionId): object
     {
-        $abilities = ['*'];
+        $abilities  = ['*'];
+        $plaintext  = Str::random(40);
+        $expiresAt  = now()->addMinutes(self::ACCESS_TOKEN_TTL_MINUTES);
 
-        $token = $user->createToken('auth-session', $abilities, now()->addMinutes(self::ACCESS_TOKEN_TTL_MINUTES));
+        $accessToken = PersonalAccessToken::create([
+            'tokenable_type' => get_class($user),
+            'tokenable_id'   => $user->getKey(),
+            'name'           => 'auth-session',
+            'token'          => hash('sha256', $plaintext),
+            'abilities'      => $abilities,
+            'expires_at'     => $expiresAt,
+            'session_id'     => $sessionId,
+        ]);
 
-        PersonalAccessToken::where('id', $token->accessToken->id)
-            ->update(['session_id' => $sessionId]);
-
-        $token->accessToken->session_id = $sessionId;
-
-        return $token;
+        // Return a NewAccessToken-compatible object so callers stay unchanged
+        return new \Laravel\Sanctum\NewAccessToken(
+            $accessToken,
+            $accessToken->getKey() . '|' . $plaintext,
+        );
     }
 
     private function recordLoginHistory(User $user, object $device, bool $success): void

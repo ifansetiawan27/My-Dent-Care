@@ -14,7 +14,8 @@ class LoginResource extends BaseResource
      */
     public function toArray(Request $request): array
     {
-        $tokenPair = $this->resource['token_pair'] ?? null;
+        $res       = is_array($this->resource) ? $this->resource : (array) $this->resource;
+        $tokenPair = $res['token_pair'] ?? null;
 
         return [
             'token_type'               => $tokenPair->tokenType ?? 'Bearer',
@@ -22,13 +23,13 @@ class LoginResource extends BaseResource
             'access_token_expires_at'  => $tokenPair->accessTokenExpiresAt ?? '',
             'refresh_token'            => $tokenPair->refreshToken ?? '',
             'refresh_token_expires_at' => $tokenPair->refreshTokenExpiresAt ?? '',
-            'device_id'                => $this->resource['device_id'] ?? '',
+            'device_id'                => $res['device_id'] ?? '',
             'user'                     => $this->when(
-                isset($this->resource['user']),
-                fn () => new UserSummaryResource($this->resource['user']),
+                isset($res['user']),
+                fn () => new UserSummaryResource($res['user']),
             ),
-            'roles'       => $this->resource['roles'] ?? [],
-            'permissions' => $this->resource['permissions'] ?? [],
+            'roles'       => $res['roles'] ?? [],
+            'permissions' => $res['permissions'] ?? [],
         ];
     }
 }

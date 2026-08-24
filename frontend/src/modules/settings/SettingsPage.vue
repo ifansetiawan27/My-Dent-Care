@@ -37,13 +37,21 @@ async function save(): Promise<void> {
 </script>
 
 <template>
-  <div class="p-6 max-w-3xl mx-auto">
-    <h1 class="text-2xl font-bold mb-6">Settings</h1>
-    <div v-if="loading" class="text-gray-500">Loading...</div>
+  <div class="p-6 max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gradient-medical mb-2">Settings</h1>
+      <p class="text-gray-600">Manage your clinic profile and preferences</p>
+    </div>
+    
+    <div v-if="loading" class="text-center py-12">
+      <div class="spinner mx-auto mb-4"></div>
+      <p class="text-gray-500">Loading...</p>
+    </div>
     <form v-else @submit.prevent="save" class="space-y-6">
       <!-- Clinic Profile -->
-      <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-lg font-semibold mb-4">Clinic Profile</h2>
+      <div class="card-medical">
+        <h2 class="text-xl font-bold text-primary mb-6">Clinic Profile</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div><label class="block text-sm font-medium text-gray-700">Clinic Name</label><input v-model="form.company_name" class="w-full px-3 py-2 border rounded mt-1" /></div>
           <div><label class="block text-sm font-medium text-gray-700">Legal Name</label><input v-model="form.legal_name" class="w-full px-3 py-2 border rounded mt-1" /></div>
@@ -57,16 +65,16 @@ async function save(): Promise<void> {
         </div>
       </div>
       <!-- Invoice Settings -->
-      <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-lg font-semibold mb-4">Invoice Settings</h2>
+      <div class="card-medical">
+        <h2 class="text-xl font-bold text-primary mb-6">Invoice Settings</h2>
         <div class="grid grid-cols-1 gap-4">
           <div><label class="block text-sm font-medium text-gray-700">Invoice Prefix</label><input v-model="form.invoice_prefix" class="w-full px-3 py-2 border rounded mt-1" /></div>
           <div><label class="block text-sm font-medium text-gray-700">Invoice Footer</label><textarea v-model="form.invoice_footer" class="w-full px-3 py-2 border rounded mt-1" rows="2"></textarea></div>
         </div>
       </div>
       <!-- Billing Info -->
-      <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-lg font-semibold mb-4">Billing Information</h2>
+      <div class="card-medical">
+        <h2 class="text-xl font-bold text-primary mb-6">Billing Information</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div><label class="block text-sm font-medium text-gray-700">Billing Name</label><input v-model="form.billing_name" class="w-full px-3 py-2 border rounded mt-1" /></div>
           <div><label class="block text-sm font-medium text-gray-700">Billing Email</label><input v-model="form.billing_email" type="email" class="w-full px-3 py-2 border rounded mt-1" /></div>
@@ -75,8 +83,8 @@ async function save(): Promise<void> {
         </div>
       </div>
 
-      <div v-if="message" :class="message.includes('failed') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'" class="p-3 rounded">{{ message }}</div>
-      <button type="submit" :disabled="saving" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50">{{ saving ? 'Saving...' : 'Save Settings' }}</button>
+      <div v-if="message" :class="message.includes('failed') ? 'alert alert-error' : 'alert alert-success'">{{ message }}</div>
+      <button type="submit" :disabled="saving" class="btn-primary">{{ saving ? 'Saving...' : 'Save Settings' }}</button>
     </form>
   </div>
 </template>

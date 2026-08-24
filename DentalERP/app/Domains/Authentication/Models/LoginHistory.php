@@ -44,6 +44,9 @@ class LoginHistory extends Model
     use HasUuid;
 
     public const UPDATED_AT = null;
+    public const CREATED_AT = null;
+
+    public $timestamps = false;
 
     protected $table = 'login_histories';
 
