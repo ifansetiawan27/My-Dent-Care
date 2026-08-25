@@ -78,7 +78,25 @@ jobs:
       - name: Create .env for test bootstrap
         run: |
           if [ ! -f .env ]; then
-            cp .env.testing .env
+            cat > .env << 'EOF'
+          APP_NAME=DentalERP
+          APP_ENV=testing
+          APP_KEY=base64:0AUqeIwG3ZIkXiD+g4+wAGt1m6dS6C4D7xeP9nWcOpE=
+          APP_DEBUG=true
+          APP_URL=http://localhost
+          DB_CONNECTION=pgsql
+          DB_HOST=postgres
+          DB_PORT=5432
+          DB_DATABASE=dentalerp_test
+          DB_USERNAME=postgres
+          DB_PASSWORD=postgres
+          CACHE_STORE=array
+          SESSION_DRIVER=array
+          QUEUE_CONNECTION=sync
+          REDIS_HOST=redis
+          REDIS_PORT=6379
+          FILESYSTEM_DISK=local
+          EOF
           fi
 
       - name: Run test suite
@@ -111,12 +129,25 @@ jobs:
       - name: Create .env for Larastan bootstrap
         run: |
           if [ ! -f .env ]; then
-            cp .env.example .env
-            php -r "echo trim(base64_encode(random_bytes(32)));" > /tmp/app_key_value.txt
-            sed -i "s|^APP_KEY=$|APP_KEY=base64:$(cat /tmp/app_key_value.txt)|" .env
-            sed -i 's/^CACHE_STORE=redis/CACHE_STORE=array/' .env
-            sed -i 's/^SESSION_DRIVER=redis/SESSION_DRIVER=array/' .env
-            sed -i 's/^QUEUE_CONNECTION=redis/QUEUE_CONNECTION=sync/' .env
+            cat > .env << 'EOF'
+          APP_NAME=DentalERP
+          APP_ENV=local
+          APP_KEY=base64:0AUqeIwG3ZIkXiD+g4+wAGt1m6dS6C4D7xeP9nWcOpE=
+          APP_DEBUG=true
+          APP_URL=http://localhost
+          CACHE_STORE=array
+          SESSION_DRIVER=array
+          QUEUE_CONNECTION=sync
+          DB_CONNECTION=pgsql
+          DB_HOST=127.0.0.1
+          DB_PORT=5432
+          DB_DATABASE=dentalerp_test
+          DB_USERNAME=postgres
+          DB_PASSWORD=postgres
+          REDIS_HOST=127.0.0.1
+          REDIS_PORT=6379
+          FILESYSTEM_DISK=local
+          EOF
           fi
 
       - name: Run PHPStan
