@@ -154,7 +154,14 @@ jobs:
 
       - name: Run PHPStan
         run: |
+          echo "=== PHPStan location ==="
+          which phpstan || echo "phpstan not found in PATH"
+          ls -la vendor/bin/phpstan
+          echo "=== PHP version ==="
+          php -v
+          echo "=== Running PHPStan ==="
           ./vendor/bin/phpstan analyse --memory-limit=2G --no-progress --error-format=raw 2>&1 | tee phpstan.log
+          echo "=== PHPStan exit code: $? ==="
           exit ${PIPESTATUS[0]}
 
       - name: Upload PHPStan log
