@@ -75,6 +75,12 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
+      - name: Create .env for test bootstrap
+        run: |
+          if [ ! -f .env ]; then
+            cp .env.testing .env
+          fi
+
       - name: Run test suite
         run: php artisan test
 
