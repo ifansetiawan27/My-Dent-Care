@@ -15,7 +15,11 @@ final class SubscriptionController extends Controller
 
     public function show(): JsonResponse
     {
-        $sub = Subscription::where('organization_id', auth()->user()->organization_id)->first();
+        $user = auth()->user();
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated.'], 401);
+        }
+        $sub = Subscription::where('organization_id', $user->organization_id)->first();
         if (!$sub) {
             return response()->json(['success' => false, 'message' => 'No subscription found.'], 404);
         }
@@ -24,7 +28,11 @@ final class SubscriptionController extends Controller
 
     public function cancel(): JsonResponse
     {
-        $sub = Subscription::where('organization_id', auth()->user()->organization_id)->firstOrFail();
+        $user = auth()->user();
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated.'], 401);
+        }
+        $sub = Subscription::where('organization_id', $user->organization_id)->firstOrFail();
         $this->ts->transition($sub, SubscriptionStatus::Cancelled, SubscriptionTrigger::SubscriptionCancelled, 'user', auth()->id());
         return (new SubscriptionResource($sub->fresh()))->response();
     }
