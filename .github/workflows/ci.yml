@@ -114,6 +114,13 @@ jobs:
           name: phpstan-log
           path: DentalERP/phpstan.log
 
+      - name: Show PHPStan log in annotations
+        if: failure()
+        run: |
+          while IFS= read -r line; do
+            echo "::error::PHPSTAN $line"
+          done < phpstan.log
+
   security:
     name: Dependency audit
     runs-on: ubuntu-latest
