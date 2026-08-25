@@ -129,26 +129,28 @@ jobs:
       - name: Create .env for Larastan bootstrap
         run: |
           if [ ! -f .env ]; then
-            cat > .env << 'EOF'
-          APP_NAME=DentalERP
-          APP_ENV=local
-          APP_KEY=base64:0AUqeIwG3ZIkXiD+g4+wAGt1m6dS6C4D7xeP9nWcOpE=
-          APP_DEBUG=true
-          APP_URL=http://localhost
-          CACHE_STORE=array
-          SESSION_DRIVER=array
-          QUEUE_CONNECTION=sync
-          DB_CONNECTION=pgsql
-          DB_HOST=127.0.0.1
-          DB_PORT=5432
-          DB_DATABASE=dentalerp_test
-          DB_USERNAME=postgres
-          DB_PASSWORD=postgres
-          REDIS_HOST=127.0.0.1
-          REDIS_PORT=6379
-          FILESYSTEM_DISK=local
-          EOF
+            echo "APP_NAME=DentalERP" > .env
+            echo "APP_ENV=local" >> .env
+            echo "APP_KEY=base64:0AUqeIwG3ZIkXiD+g4+wAGt1m6dS6C4D7xeP9nWcOpE=" >> .env
+            echo "APP_DEBUG=true" >> .env
+            echo "APP_URL=http://localhost" >> .env
+            echo "CACHE_STORE=array" >> .env
+            echo "SESSION_DRIVER=array" >> .env
+            echo "QUEUE_CONNECTION=sync" >> .env
+            echo "DB_CONNECTION=pgsql" >> .env
+            echo "DB_HOST=127.0.0.1" >> .env
+            echo "DB_PORT=5432" >> .env
+            echo "DB_DATABASE=dentalerp_test" >> .env
+            echo "DB_USERNAME=postgres" >> .env
+            echo "DB_PASSWORD=postgres" >> .env
+            echo "REDIS_HOST=127.0.0.1" >> .env
+            echo "REDIS_PORT=6379" >> .env
+            echo "FILESYSTEM_DISK=local" >> .env
           fi
+          echo "=== .env exists ==="
+          ls -la .env
+          echo "=== .env contents ==="
+          cat .env
 
       - name: Run PHPStan
         run: |
