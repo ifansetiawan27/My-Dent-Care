@@ -103,7 +103,7 @@ jobs:
         run: composer install --no-interaction --prefer-dist --no-progress
 
       - name: Run PHPStan
-        run: ./vendor/bin/phpstan analyse --memory-limit=2G --no-progress
+        run: ./vendor/bin/phpstan analyse --memory-limit=2G --no-progress --error-format=github
 
   security:
     name: Dependency audit
