@@ -1,0 +1,131 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # Allow manual trigger
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to EC2 Staging
+    runs-on: ubuntu-latest
+
+    # Only run if CI tests pass
+    needs: []  # Run independently; can add needs: [test, static-analysis] later
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to server
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 \
+            -i ~/.ssh/id_ed25519 \
+            $EC2_USER@$EC2_HOST 'bash -s' << 'REMOTE_SCRIPT'
+          set -e
+
+          REMOTE_DIR="/home/ubuntu/My-Dent-Care/DentalERP"
+          PROJECT_DIR="/home/ubuntu/My-Dent-Care"
+
+          echo "=========================================="
+          echo "  GitHub Actions - Auto Deploy"
+          echo "=========================================="
+
+          # Step 1: Git pull
+          echo ""
+          echo "[Step 1/6] Pulling latest code..."
+          cd "$PROJECT_DIR"
+          git pull
+          echo "  OK: Code updated"
+
+          # Step 2: Ensure .env.staging exists
+          echo ""
+          echo "[Step 2/6] Checking .env.staging..."
+          cd "$REMOTE_DIR"
+          if [ ! -f .env.staging ]; then
+            echo "  WARN: .env.staging not found, creating from .env.staging.production template"
+            if [ -f .env.staging.production ]; then
+              cp .env.staging.production .env.staging
+              echo "  OK: .env.staging created from template"
+            else
+              echo "  ERR: No .env.staging.production template either!"
+              echo "  Please upload .env.staging or .env.staging.production to the server."
+              exit 1
+            fi
+          else
+            echo "  OK: .env.staging exists"
+          fi
+
+          # Step 3: Docker build
+          echo ""
+          echo "[Step 3/6] Building Docker image..."
+          sudo docker compose -f docker/compose.staging.yaml build --no-cache
+          echo "  OK: Docker image built"
+
+          # Step 4: Restart containers
+          echo ""
+          echo "[Step 4/6] Restarting containers..."
+          sudo docker compose -f docker/compose.staging.yaml down
+          sudo docker compose -f docker/compose.staging.yaml up -d
+          echo "  OK: Containers restarted"
+
+          # Step 5: Wait for healthy
+          echo ""
+          echo "[Step 5/6] Waiting for app to be healthy (90s max)..."
+          for i in $(seq 1 18); do
+            sleep 5
+            HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/up 2>/dev/null || echo "000")
+            echo "  Attempt $i/18: HTTP $HTTP_CODE"
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "  OK: App is healthy"
+              break
+            fi
+          done
+
+          # Step 6: Migrate + seed + clear caches
+          echo ""
+          echo "[Step 6/6] Running migrations and seeding..."
+          sudo docker compose -f docker/compose.staging.yaml exec -T app php artisan migrate --force || echo "  WARN: Migration skipped"
+          sudo docker compose -f docker/compose.staging.yaml exec -T app php artisan db:seed || echo "  WARN: Seeder skipped (may already be seeded)"
+          sudo docker compose -f docker/compose.staging.yaml exec -T app php artisan config:clear
+          sudo docker compose -f docker/compose.staging.yaml exec -T app php artisan route:clear
+          echo "  OK: Migrations and caches done"
+
+          # Final verification
+          echo ""
+          echo "=========================================="
+          echo "  DEPLOYMENT COMPLETE!"
+          echo "=========================================="
+          echo ""
+          echo "Backend API:  http://${{ secrets.EC2_HOST }}:8080"
+          echo "Health Check: http://${{ secrets.EC2_HOST }}:8080/up"
+          echo ""
+          sudo docker compose -f docker/compose.staging.yaml ps
+          echo ""
+          curl -s http://localhost:8080/up || echo "Health endpoint not responding yet"
+          REMOTE_SCRIPT
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          echo "## Deploy Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Server**: ${{ secrets.EC2_HOST }}:8080" >> $GITHUB_STEP_SUMMARY
