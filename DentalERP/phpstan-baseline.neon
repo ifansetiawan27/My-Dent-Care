@@ -271,18 +271,6 @@ parameters:
 			path: app/Domains/Asset/Services/AssetService.php
 
 		-
-			message: '#^Unknown parameter \$status in call to static method App\\Core\\Support\\ApiResponse\:\:error\(\)\.$#'
-			identifier: argument.unknown
-			count: 11
-			path: app/Domains/Authentication/Controllers/AuthController.php
-
-		-
-			message: '#^Unknown parameter \$status in call to static method App\\Core\\Support\\ApiResponse\:\:success\(\)\.$#'
-			identifier: argument.unknown
-			count: 10
-			path: app/Domains/Authentication/Controllers/AuthController.php
-
-		-
 			message: '#^Deprecated in PHP 8\.0\: Required parameter \$accessToken follows optional parameter \$tokenType\.$#'
 			identifier: parameter.requiredAfterOptional
 			count: 1
@@ -435,13 +423,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Laravel\\Sanctum\\PersonalAccessToken\:\:\$session_id\.$#'
 			identifier: property.notFound
-			count: 4
-			path: app/Domains/Authentication/Services/AuthService.php
-
-		-
-			message: '#^Missing parameter \$tokenType \(string\) in call to App\\Domains\\Authentication\\DTO\\TokenPairDTO constructor\.$#'
-			identifier: argument.missing
-			count: 1
+			count: 3
 			path: app/Domains/Authentication/Services/AuthService.php
 
 		-
