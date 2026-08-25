@@ -66,7 +66,14 @@ final class FileStorageService implements FileStorageServiceInterface
         $path = "{$folder->value}/{$organizationId}/{$branchId}/{$yearMonth}/{$storedName}";
         
         // Compute hash
-        $hash = hash_file('sha256', $file->getRealPath());
+        $realPath = $file->getRealPath();
+        if ($realPath === false) {
+            throw new BusinessException('Unable to read uploaded file.');
+        }
+        $hash = hash_file('sha256', $realPath);
+        if ($hash === false) {
+            throw new BusinessException('Unable to compute file hash.');
+        }
         
         // Check for duplicate
         $duplicate = $this->repository->findByHash($hash, $organizationId);

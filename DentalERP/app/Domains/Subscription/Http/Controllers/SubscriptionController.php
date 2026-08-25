@@ -34,7 +34,8 @@ final class SubscriptionController extends Controller
         }
         $sub = Subscription::where('organization_id', $user->organization_id)->firstOrFail();
         $this->ts->transition($sub, SubscriptionStatus::Cancelled, SubscriptionTrigger::SubscriptionCancelled, 'user', auth()->id());
-        return (new SubscriptionResource($sub->fresh()))->response();
+        $sub->refresh();
+        return (new SubscriptionResource($sub))->response();
     }
 
     public function plans(): JsonResponse
