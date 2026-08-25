@@ -12,3 +12,26 @@ supabase/.branches/
 dbtest*.php
 test_db.php
 _iso_check.php
+
+# Archived / unused frontends
+dental-erp-frontend/
+dental-erp-frontend-archived/
+frontend-code/
+frontend-vue-archived/
+
+# Large binary files
+*.zip
+
+# Node modules (ignore per-project)
+frontend/node_modules/
+dental-erp-frontend/node_modules/
+
+# Build outputs
+frontend/dist/
+dental-erp-frontend/.next/
+dental-erp-frontend/out/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
