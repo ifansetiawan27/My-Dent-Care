@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 use Illuminate\Support\Facades\Route; use App\Domains\Odontogram\Controllers\OdontogramController;
-Route::prefix('api/v1/odontograms')->middleware('auth:sanctum')->group(function() {
+Route::prefix('v1/odontograms')->middleware('auth:sanctum')->group(function() {
     Route::get('/',[OdontogramController::class,'index']);
     Route::get('/{id}',[OdontogramController::class,'show']);
     Route::post('/',[OdontogramController::class,'store']);

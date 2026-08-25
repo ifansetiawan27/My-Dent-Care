@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useAuth } from '@/core/auth/useAuth'
-import { useRouter } from 'vue-router'
-import logoImg from '@/assets/logo.png'
+import { useRouter, useRoute } from 'vue-router'
+import logoImg from '@/assets/logo-anim.png'
 
 const { login, loading, error: authError } = useAuth()
 const router = useRouter()
+const route = useRoute()
 const email = ref('')
 const password = ref('')
 const localError = ref<string | null>(null)
@@ -27,7 +28,8 @@ async function handleLogin(): Promise<void> {
   localError.value = null
   try {
     await login(email.value, password.value)
-    router.push('/dashboard')
+    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/dashboard'
+    router.push(redirect)
   } catch {
     localError.value = authError.value ?? 'Login gagal. Periksa email dan password Anda.'
   }

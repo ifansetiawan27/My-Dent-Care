@@ -48,8 +48,8 @@ class LockoutService implements LockoutServiceInterface
         try {
             $key = $this->buildKey($identifier, $ipAddress);
 
-            Cache::store('redis')->increment($key);
-            Cache::store('redis')->set(
+            Cache::store(config('cache.default'))->increment($key);
+            Cache::store(config('cache.default'))->set(
                 $key . ':ttl',
                 true,
                 now()->addMinutes(self::TTL_MINUTES),
@@ -74,7 +74,7 @@ class LockoutService implements LockoutServiceInterface
     {
         try {
             $key = $this->buildKey($identifier, $ipAddress);
-            $count = (int) Cache::store('redis')->get($key, 0);
+            $count = (int) Cache::store(config('cache.default'))->get($key, 0);
 
             return $count >= self::MAX_ATTEMPTS;
         } catch (Throwable $e) {
@@ -96,8 +96,8 @@ class LockoutService implements LockoutServiceInterface
         try {
             $key = $this->buildKey($identifier, $ipAddress);
 
-            Cache::store('redis')->forget($key);
-            Cache::store('redis')->forget($key . ':ttl');
+            Cache::store(config('cache.default'))->forget($key);
+            Cache::store(config('cache.default'))->forget($key . ':ttl');
 
             $this->logInfo('clear', 'Lockout counter cleared.', [
                 'identifier' => $identifier,
@@ -118,7 +118,7 @@ class LockoutService implements LockoutServiceInterface
     {
         try {
             $key = $this->buildKey($identifier, $ipAddress);
-            $count = (int) Cache::store('redis')->get($key, 0);
+            $count = (int) Cache::store(config('cache.default'))->get($key, 0);
 
             return max(0, self::MAX_ATTEMPTS - $count);
         } catch (Throwable $e) {

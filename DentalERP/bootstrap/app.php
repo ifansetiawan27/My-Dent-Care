@@ -6,11 +6,35 @@ use Illuminate\Foundation\Application;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
+        // Every domain registers its own vertical slice of the API here so the
+        // `api` middleware group and the single `/api` prefix are applied exactly
+        // once. Domain service providers must NOT call loadRoutesFrom(), because
+        // that bypasses this prefix and produced duplicated `/api/api/v1/*` URIs.
         api: [
-            base_path('app/Domains/Branch/Routes/api.php'),
-            base_path('app/Domains/Authentication/Routes/api.php'),
-            base_path('app/Domains/Organization/Routes/settings.php'),
             base_path('app/Domains/AI/Routes/api.php'),
+            base_path('app/Domains/Appointment/Routes/api.php'),
+            base_path('app/Domains/Asset/Routes/api.php'),
+            base_path('app/Domains/Authentication/Routes/api.php'),
+            base_path('app/Domains/Billing/Routes/api.php'),
+            base_path('app/Domains/Branch/Routes/api.php'),
+            base_path('app/Domains/CRM/Routes/api.php'),
+            base_path('app/Domains/Dashboard/Routes/api.php'),
+            base_path('app/Domains/Doctor/Routes/api.php'),
+            base_path('app/Domains/EMR/Routes/api.php'),
+            base_path('app/Domains/Employee/Routes/api.php'),
+            base_path('app/Domains/HR/Routes/api.php'),
+            base_path('app/Domains/IntegrationHub/Routes/api.php'),
+            base_path('app/Domains/Inventory/Routes/api.php'),
+            base_path('app/Domains/Laboratory/Routes/api.php'),
+            base_path('app/Domains/MasterData/Routes/api.php'),
+            base_path('app/Domains/Odontogram/Routes/api.php'),
+            base_path('app/Domains/Organization/Routes/settings.php'),
+            base_path('app/Domains/Patient/Routes/api.php'),
+            base_path('app/Domains/Pharmacy/Routes/api.php'),
+            base_path('app/Domains/Procurement/Routes/api.php'),
+            base_path('app/Domains/Reporting/Routes/api.php'),
+            base_path('app/Domains/Subscription/Routes/api.php'),
+            base_path('app/Domains/Treatment/Routes/api.php'),
         ],
         health: '/up',
     )

@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Domains\IntegrationHub\Controllers\IntegrationHubController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('api/v1/integration-configs')->middleware('auth:sanctum')->group(function (): void {
+Route::prefix('v1/integration-configs')->middleware('auth:sanctum')->group(function (): void {
     Route::get('/',                          [IntegrationHubController::class, 'index']);
     Route::get('/{id}',                      [IntegrationHubController::class, 'show']);
     Route::post('/',                         [IntegrationHubController::class, 'store']);

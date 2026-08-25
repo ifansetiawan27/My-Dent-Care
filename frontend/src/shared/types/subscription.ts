@@ -39,4 +39,5 @@ export interface PlanResource {
   price: number
   storage_gb: number
   branches: number
+  trial_days?: number
 }

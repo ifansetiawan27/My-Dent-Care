@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 use Illuminate\Support\Facades\Route; use App\Domains\Appointment\Controllers\AppointmentController;
-Route::prefix('api/v1/appointments')->middleware('auth:sanctum')->group(function() {
+Route::prefix('v1/appointments')->middleware('auth:sanctum')->group(function() {
     Route::get('/',[AppointmentController::class,'index']);
     Route::get('/{id}',[AppointmentController::class,'show']);
     Route::post('/',[AppointmentController::class,'store']);

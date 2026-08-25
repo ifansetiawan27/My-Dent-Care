@@ -25,9 +25,7 @@ class SubscriptionResource extends JsonResource
             'plan'                  => $this->plan_code,
             'status'                => $this->status->value,
             'status_label'          => $this->status->label(),
-            'price'                => match ($this->plan_code) {
-                'professional' => 399000, 'enterprise' => 499000, default => 299000,
-            },
+            'price'                => 299000,
             'trial'                 => $trial,
             'is_trial'              => $this->status->value === 'trial',
             'is_restricted'         => $this->isAccessRestricted(),

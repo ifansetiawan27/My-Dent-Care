@@ -31,10 +31,9 @@ final class SubscriptionController extends Controller
 
     public function plans(): JsonResponse
     {
+        // Single plan — konsisten dengan landing page
         return response()->json(['data' => [
-            ['code' => 'starter',      'name' => 'Starter',      'price' => 299000, 'storage_gb' => 10,  'branches' => 1],
-            ['code' => 'professional',  'name' => 'Professional',  'price' => 399000, 'storage_gb' => 50,  'branches' => 5],
-            ['code' => 'enterprise',   'name' => 'Enterprise',   'price' => 499000, 'storage_gb' => 500, 'branches' => -1],
+            ['code' => 'professional', 'name' => 'My Dent Care', 'price' => 299000, 'storage_gb' => -1, 'branches' => 1, 'trial_days' => 30],
         ]]);
     }
 }

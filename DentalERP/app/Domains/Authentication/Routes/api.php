@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Domains\Authentication\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('api/v1/auth')->name('auth.')->group(function (): void {
+Route::prefix('v1/auth')->name('auth.')->group(function (): void {
     Route::post('/login',            [AuthController::class, 'login'])->name('login');
     Route::post('/lookup',           [AuthController::class, 'lookup'])->name('lookup');
     Route::post('/logout',           [AuthController::class, 'logout'])->name('logout')->middleware('auth:sanctum');

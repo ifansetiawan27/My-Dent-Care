@@ -173,7 +173,7 @@ class AuthController extends BaseController
                 'current_session_active'    => true,
                 'other_sessions_revoked'    => true,
                 'registered_devices_retained' => true,
-            ], message: 'Password changed successfully.', status: 200);
+            ], message: 'Password changed successfully.');
         } catch (BusinessException $e) {
             return ApiResponse::error(message: $e->getMessage(), code: 401);
         } catch (Throwable $e) {
@@ -186,7 +186,7 @@ class AuthController extends BaseController
         try {
             $result = $this->service->getProfile();
 
-            return ApiResponse::success(data: new ProfileResource($result), message: 'Profile retrieved successfully.', status: 200);
+            return ApiResponse::success(data: new ProfileResource($result), message: 'Profile retrieved successfully.');
         } catch (BusinessException $e) {
             return ApiResponse::error(message: $e->getMessage(), code: 401);
         } catch (Throwable $e) {
@@ -201,9 +201,9 @@ class AuthController extends BaseController
 
             $result = $this->service->getProfile();
 
-            return ApiResponse::success(data: new ProfileResource($result), message: 'Profile updated successfully.', status: 200);
+            return ApiResponse::success(data: new ProfileResource($result), message: 'Profile updated successfully.');
         } catch (BusinessException $e) {
-            return ApiResponse::error(message: $e->getMessage(), status: 403);
+            return ApiResponse::error(message: $e->getMessage(), code: 403);
         } catch (Throwable $e) {
             return ApiResponse::serverError($e->getMessage());
         }
@@ -248,7 +248,7 @@ class AuthController extends BaseController
         try {
             $this->service->revokeDevice($deviceId);
 
-            return ApiResponse::success(data: null, message: 'Device revoked successfully.', status: 200);
+            return ApiResponse::success(data: null, message: 'Device revoked successfully.');
         } catch (BusinessException $e) {
             $message = $e->getMessage();
             $status  = match (true) {

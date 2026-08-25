@@ -1,4 +1,5 @@
 import api from '@/core/api/client'
+import type { ApiResponse } from '@/shared/types/api'
 
 export interface AuthUser {
   id: string
@@ -16,6 +17,11 @@ export interface LookupResult {
 }
 
 export const authApi = {
+  async profile(): Promise<AuthUser> {
+    const { data } = await api.get<ApiResponse<AuthUser>>('/v1/auth/profile')
+    return data.data
+  },
+
   async lookup(identifier: string): Promise<LookupResult> {
     const { data } = await api.post('/v1/auth/lookup', { identifier })
     return data.data

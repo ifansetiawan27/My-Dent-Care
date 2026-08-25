@@ -24,6 +24,7 @@ export function useAuth() {
         lookup.branch_id,
       )
       localStorage.setItem('auth_token', data.token)
+      localStorage.setItem('auth_user', JSON.stringify(data.user))
       user.value = data.user
     } catch (e: any) {
       error.value = e?.message ?? 'Login gagal. Periksa email dan password Anda.'

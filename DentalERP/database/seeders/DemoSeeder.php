@@ -12,6 +12,7 @@ use App\Domains\User\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class DemoSeeder extends Seeder
 {
@@ -58,7 +59,14 @@ class DemoSeeder extends Seeder
             'status' => 'active',
         ]);
 
-        // 3. Create Demo Users
+        // 3. Create roles (idempotent — safe to run multiple times)
+        $rolesSuperAdmin  = Role::firstOrCreate(['name' => 'super_admin',  'guard_name' => 'sanctum']);
+        $roleAdmin        = Role::firstOrCreate(['name' => 'admin',        'guard_name' => 'sanctum']);
+        $roleDoctor       = Role::firstOrCreate(['name' => 'doctor',       'guard_name' => 'sanctum']);
+        $roleReceptionist = Role::firstOrCreate(['name' => 'receptionist', 'guard_name' => 'sanctum']);
+        Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'sanctum']);
+
+        // 4. Create Demo Users
         $superAdmin = User::create([
             'id' => (string) Str::orderedUuid(),
             'organization_id' => $organization->id,
@@ -104,7 +112,12 @@ class DemoSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        // 4. Create Demo Patients
+        // Assign roles to demo users
+        $superAdmin->assignRole($rolesSuperAdmin);
+        $doctor->assignRole($roleDoctor);
+        $receptionist->assignRole($roleReceptionist);
+
+        // 5. Create Demo Patients
         $patients = [];
         
         $patients[] = Patient::create([

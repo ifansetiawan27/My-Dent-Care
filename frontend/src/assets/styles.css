@@ -1,68 +1,76 @@
-/* Medical/Dental Professional Color Scheme */
+/* ==========================================================================
+   Design system — Mantis Admin (Material UI inspired)
+   Palette diambil dari Mantis Free React Admin Template v2.2.0
+   (ant-design presetPalettes — primary blue)
+   ========================================================================== */
 :root {
-  /* Primary - Medical Blue/Teal */
-  --color-primary: #0ea5e9;
-  --color-primary-dark: #0284c7;
-  --color-primary-light: #38bdf8;
-  
-  /* Secondary - Teal for Health/Wellness */
-  --color-secondary: #14b8a6;
-  --color-secondary-dark: #0d9488;
-  --color-secondary-light: #2dd4bf;
-  
-  /* Accent - Fresh Mint/Dental */
-  --color-accent: #10b981;
-  --color-accent-dark: #059669;
-  --color-accent-light: #34d399;
-  
-  /* Success */
-  --color-success: #10b981;
-  --color-success-bg: #d1fae5;
-  --color-success-text: #065f46;
-  
-  /* Warning */
-  --color-warning: #f59e0b;
-  --color-warning-bg: #fef3c7;
-  --color-warning-text: #92400e;
-  
-  /* Error */
-  --color-error: #ef4444;
-  --color-error-bg: #fee2e2;
-  --color-error-text: #991b1b;
-  
-  /* Info */
-  --color-info: #3b82f6;
-  --color-info-bg: #dbeafe;
-  --color-info-text: #1e40af;
-  
-  /* Neutrals */
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #1f2937;
-  --color-gray-900: #111827;
-  
+  /* Primary - Mantis Blue (#1890ff) */
+  --color-primary: #1890ff;
+  --color-primary-dark: #096dd9;
+  --color-primary-light: #69c0ff;
+  --color-primary-lighter: #e6f7ff;
+  --color-primary-100: #bae7ff;
+  --color-primary-200: #91d5ff;
+
+  /* Secondary - Grey (Mantis) */
+  --color-secondary: #8c8c8c;
+  --color-secondary-dark: #595959;
+  --color-secondary-light: #bfbfbf;
+
+  /* Accent - Cyan */
+  --color-accent: #13c2c2;
+  --color-accent-dark: #08979c;
+  --color-accent-light: #5cdbd3;
+
+  /* Success (Mantis green) */
+  --color-success: #52c41a;
+  --color-success-bg: #f6ffed;
+  --color-success-text: #389e0d;
+
+  /* Warning (Mantis gold) */
+  --color-warning: #faad14;
+  --color-warning-bg: #fffbe6;
+  --color-warning-text: #d48806;
+
+  /* Error (Mantis red) */
+  --color-error: #f5222d;
+  --color-error-bg: #fff1f0;
+  --color-error-text: #cf1322;
+
+  /* Info (Mantis) */
+  --color-info: #1890ff;
+  --color-info-bg: #e6f7ff;
+  --color-info-text: #096dd9;
+
+  /* Neutrals (Mantis grey) */
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #f0f0f0;
+  --color-gray-300: #d9d9d9;
+  --color-gray-400: #bfbfbf;
+  --color-gray-500: #8c8c8c;
+  --color-gray-600: #595959;
+  --color-gray-700: #262626;
+  --color-gray-800: #141414;
+  --color-gray-900: #000000;
+
   /* Gradients */
-  --gradient-medical: linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%);
-  --gradient-medical-soft: linear-gradient(135deg, #bae6fd 0%, #99f6e4 100%);
-  --gradient-hero: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #14b8a6 100%);
-  
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --shadow-medical: 0 10px 30px -5px rgba(14, 165, 233, 0.3);
-  
-  /* Border Radius */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  --gradient-medical: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%);
+  --gradient-medical-soft: linear-gradient(135deg, #e6f7ff 0%, #f0faff 100%);
+  --gradient-hero: linear-gradient(135deg, #40a9ff 0%, #1890ff 60%, #096dd9 100%);
+
+  /* Shadows — Material elevation */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 1px 8px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.10);
+  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.12);
+  --shadow-medical: 0 8px 24px rgba(24, 144, 255, 0.28);
+
+  /* Border Radius — Mantis */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
 }
 
 * {
@@ -187,7 +195,7 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.12);
 }
 
 /* Labels */
@@ -304,3 +312,167 @@ label {
 .bg-success { background-color: var(--color-success); }
 .bg-warning { background-color: var(--color-warning); }
 .bg-error { background-color: var(--color-error); }
+
+/* ==========================================================================
+   Minimal utility layer
+   --------------------------------------------------------------------------
+   The app pages (Dashboard, Subscription, Settings) are authored with
+   Tailwind-style class names, but Tailwind is intentionally NOT a dependency
+   of this build. Without these declarations those pages render unstyled.
+   Only the utilities actually used by the templates are defined here.
+   ========================================================================== */
+
+/* Layout */
+.block { display: block; }
+.inline-block { display: inline-block; }
+.flex { display: flex; }
+.grid { display: grid; }
+.relative { position: relative; }
+.absolute { position: absolute; }
+.items-start { align-items: flex-start; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.text-center { text-align: center; }
+
+/* Sizing */
+.w-full { width: 100%; }
+.w-5 { width: 1.25rem; }
+.h-5 { height: 1.25rem; }
+.max-w-4xl { max-width: 56rem; }
+.max-w-6xl { max-width: 72rem; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+
+/* Grid */
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+
+/* Spacing */
+.p-6 { padding: 1.5rem; }
+.px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+.pt-6 { padding-top: 1.5rem; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-4 { margin-top: 1rem; }
+.mt-6 { margin-top: 1.5rem; }
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+.mr-2 { margin-right: 0.5rem; }
+.my-3 { margin-top: 0.75rem; margin-bottom: 0.75rem; }
+.-top-3 { top: -0.75rem; }
+.right-4 { right: 1rem; }
+.space-y-3 > * + * { margin-top: 0.75rem; }
+.space-y-6 > * + * { margin-top: 1.5rem; }
+
+/* Typography */
+.text-xs { font-size: 0.75rem; line-height: 1rem; }
+.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+.text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+.text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+.text-2xl { font-size: 1.5rem; line-height: 2rem; }
+.text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+.text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+.font-normal { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+.uppercase { text-transform: uppercase; }
+.tracking-wide { letter-spacing: 0.025em; }
+.text-gray-500 { color: var(--color-gray-500); }
+.text-gray-600 { color: var(--color-gray-600); }
+.text-gray-700 { color: var(--color-gray-700); }
+.text-gray-800 { color: var(--color-gray-800); }
+
+/* Borders & effects */
+.rounded { border-radius: var(--radius-md); }
+.border { border: 1px solid var(--color-gray-200); }
+.border-t-2 { border-top-width: 2px; border-top-style: solid; }
+.border-gray-100 { border-color: var(--color-gray-100); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+
+/* Responsive (md breakpoint) */
+@media (min-width: 768px) {
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .md\:grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .md\:col-span-2 { grid-column: span 2 / span 2; }
+}
+
+/* ==========================================================================
+   Module page shared styles (ModulePage, Radiology, Organization, Users)
+   ========================================================================== */
+.mp-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.mp-title { font-size: 1.5rem; font-weight: 800; color: var(--color-gray-900); margin: 0 0 0.25rem; }
+.mp-desc { font-size: 0.875rem; color: var(--color-gray-500); margin: 0; }
+.mp-toolbar { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.mp-search-wrap { position: relative; flex: 1; min-width: 200px; }
+.mp-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--color-gray-300); }
+.mp-search { width: 100%; padding: 0.625rem 0.625rem 0.625rem 2.5rem; border: 1.5px solid var(--color-gray-200); border-radius: 10px; font-size: 0.875rem; font-family: inherit; outline: none; background: #fff; }
+.mp-search:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.12); }
+.mp-table-wrap { background: #fff; border: 1px solid var(--color-gray-200); border-radius: 12px; overflow-x: auto; }
+.mp-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.mp-table th { background: var(--color-gray-50); color: var(--color-gray-500); font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; font-size: 0.75rem; padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--color-gray-200); white-space: nowrap; }
+.mp-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--color-gray-100); color: var(--color-gray-600); }
+.mp-table tr:last-child td { border-bottom: none; }
+.mp-table tr:hover td { background: var(--color-gray-50); }
+
+/* Badges */
+.badge { display: inline-block; padding: 0.25rem 0.625rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+.badge-green { background: var(--color-success-bg); color: var(--color-success-text); }
+.badge-gray { background: var(--color-gray-100); color: var(--color-gray-600); }
+.badge-blue { background: var(--color-info-bg); color: var(--color-info-text); }
+.badge-cyan { background: #cffafe; color: #155e75; }
+.badge-red { background: #fee2e2; color: #991b1b; }
+.badge-yellow { background: #fef3c7; color: #92400e; }
+.badge-orange { background: #ffedd5; color: #9a3412; }
+
+.mp-empty { text-align: center; padding: 3rem 1rem; }
+.mp-empty-icon { color: #cbd5e1; margin-bottom: 1rem; }
+.mp-empty h3 { font-size: 1.125rem; color: var(--color-gray-900); margin: 0 0 0.5rem; }
+.mp-empty p { font-size: 0.875rem; color: var(--color-gray-300); margin: 0; }
+.mp-status { text-align: center; padding: 3rem; color: var(--color-gray-500); font-size: 0.9375rem; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 1rem; }
+.modal { background: #fff; border-radius: 16px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 30px 80px rgba(2, 6, 23, 0.25); }
+.modal-head { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-gray-200); }
+.modal-head h3 { margin: 0; font-size: 1.125rem; font-weight: 800; color: var(--color-gray-900); }
+.modal-close { background: none; border: none; font-size: 1.5rem; color: var(--color-gray-300); cursor: pointer; }
+.modal-body { padding: 1.5rem; }
+.modal-foot { padding: 1rem 1.5rem; border-top: 1px solid var(--color-gray-200); display: flex; gap: 0.625rem; justify-content: flex-end; }
+
+.mp-field { margin-bottom: 1rem; }
+.mp-field label { display: block; font-size: 0.8125rem; font-weight: 600; color: var(--color-gray-700); margin-bottom: 0.375rem; }
+.mp-req { color: var(--color-error); margin-left: 2px; }
+.mp-input { width: 100%; padding: 0.5rem 0.625rem; border: 1.5px solid var(--color-gray-200); border-radius: 8px; font-size: 0.875rem; font-family: inherit; outline: none; background: #fff; }
+.mp-input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1); }
+.mp-textarea { min-height: 80px; resize: vertical; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 0.4375rem; padding: 0.5625rem 1.125rem; border: none; border-radius: 9px; font-size: 0.875rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s; background: transparent; }
+.btn-primary { background: var(--gradient-medical); color: #fff; box-shadow: 0 6px 16px rgba(14, 165, 233, 0.3); }
+.btn-primary:hover { transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
+.btn-ghost { background: transparent; color: var(--color-gray-500); border: 1.5px solid var(--color-gray-200); }
+.btn-ghost:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.btn-sm { padding: 0.375rem 0.5rem; }
+.btn-danger { color: var(--color-error); background: #fef2f2; border: 1px solid #fecaca; }
+.btn-danger:hover { background: #fee2e2; }
+.btn-success { background: var(--color-success); color: #fff; }
+.btn-success:hover { transform: translateY(-1px); }
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+@media (max-width: 640px) {
+  .mp-head { flex-direction: column; }
+  .mp-title { font-size: 1.25rem; }
+}
