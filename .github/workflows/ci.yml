@@ -117,9 +117,9 @@ jobs:
       - name: Show PHPStan log in annotations
         if: failure()
         run: |
-          while IFS= read -r line; do
-            echo "::error::PHPSTAN $line"
-          done < phpstan.log
+          head -100 phpstan.log | while IFS= read -r line; do
+            echo "::error file=phpstan.log,title=PHPSTAN::${line}"
+          done
 
   security:
     name: Dependency audit
