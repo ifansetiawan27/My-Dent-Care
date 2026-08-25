@@ -32,6 +32,11 @@
         <env name="REDIS_HOST" value="redis" force="true"/>
         <env name="REDIS_PORT" value="6379" force="true"/>
         <env name="CACHE_DRIVER" value="array" force="true"/>
+        <env name="CACHE_STORE" value="array" force="true"/>
+        <env name="SESSION_DRIVER" value="array" force="true"/>
+        <env name="QUEUE_CONNECTION" value="sync" force="true"/>
+        <env name="BROADCAST_DRIVER" value="log" force="true"/>
+        <env name="MAIL_MAILER" value="array" force="true"/>
         <server name="APP_ENV" value="testing"/>
         <server name="APP_KEY" value="base64:0AUqeIwG3ZIkXiD+g4+wAGt1m6dS6C4D7xeP9nWcOpE="/>
         <server name="DB_CONNECTION" value="pgsql"/>
@@ -46,5 +51,10 @@
         <server name="REDIS_HOST" value="redis"/>
         <server name="REDIS_PORT" value="6379"/>
         <server name="CACHE_DRIVER" value="array"/>
+        <server name="CACHE_STORE" value="array"/>
+        <server name="SESSION_DRIVER" value="array"/>
+        <server name="QUEUE_CONNECTION" value="sync"/>
+        <server name="BROADCAST_DRIVER" value="log"/>
+        <server name="MAIL_MAILER" value="array"/>
     </php>
 </phpunit>
