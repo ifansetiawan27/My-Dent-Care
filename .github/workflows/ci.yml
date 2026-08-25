@@ -112,7 +112,8 @@ jobs:
         run: |
           if [ ! -f .env ]; then
             cp .env.example .env
-            sed -i 's/^APP_KEY=$/APP_KEY=base64:0AUqeIwG3ZIkXiD+g4+wAGt1m6dS6C4D7xeP9nWcOpE=/' .env
+            php -r "echo trim(base64_encode(random_bytes(32)));" > /tmp/app_key_value.txt
+            sed -i "s|^APP_KEY=$|APP_KEY=base64:$(cat /tmp/app_key_value.txt)|" .env
             sed -i 's/^CACHE_STORE=redis/CACHE_STORE=array/' .env
             sed -i 's/^SESSION_DRIVER=redis/SESSION_DRIVER=array/' .env
             sed -i 's/^QUEUE_CONNECTION=redis/QUEUE_CONNECTION=sync/' .env
@@ -133,7 +134,7 @@ jobs:
       - name: Show PHPStan log in annotations
         if: failure()
         run: |
-          head -100 phpstan.log | while IFS= read -r line; do
+          grep -E "Error|Exception|error|failed|not found|Could not|Unable" phpstan.log | head -40 | while IFS= read -r line; do
             echo "::error file=phpstan.log,title=PHPSTAN::${line}"
           done
 
