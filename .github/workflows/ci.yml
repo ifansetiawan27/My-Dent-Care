@@ -103,7 +103,16 @@ jobs:
         run: composer install --no-interaction --prefer-dist --no-progress
 
       - name: Run PHPStan
-        run: ./vendor/bin/phpstan analyse --memory-limit=2G --no-progress --error-format=github
+        run: |
+          ./vendor/bin/phpstan analyse --memory-limit=2G --no-progress --error-format=raw 2>&1 | tee phpstan.log
+          exit ${PIPESTATUS[0]}
+
+      - name: Upload PHPStan log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpstan-log
+          path: DentalERP/phpstan.log
 
   security:
     name: Dependency audit
