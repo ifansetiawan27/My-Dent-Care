@@ -35,7 +35,7 @@ jobs:
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
-          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 \
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=60 -o ServerAliveInterval=10 \
             -i ~/.ssh/id_ed25519 \
             $EC2_USER@$EC2_HOST 'bash -s' << 'REMOTE_SCRIPT'
           set -e
@@ -46,6 +46,24 @@ jobs:
           echo "=========================================="
           echo "  GitHub Actions - Auto Deploy"
           echo "=========================================="
+
+          # Pre-check: ensure docker commands work
+          echo ""
+          echo "[Pre-check] Checking docker access..."
+          if docker ps >/dev/null 2>&1; then
+            DOCKER_CMD="docker"
+            echo "  OK: docker works without sudo"
+          elif sudo -n docker ps >/dev/null 2>&1; then
+            DOCKER_CMD="sudo -n docker"
+            echo "  OK: docker works with sudo -n"
+          else
+            echo "  ERR: Cannot access docker. Run this on the server first:"
+            echo "    sudo usermod -aG docker ubuntu"
+            echo "    sudo usermod -aG sudo ubuntu"
+            echo "    echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/ubuntu-nopasswd"
+            echo "  Then re-run this workflow."
+            exit 1
+          fi
 
           # Step 1: Git pull
           echo ""
@@ -75,14 +93,14 @@ jobs:
           # Step 3: Docker build
           echo ""
           echo "[Step 3/6] Building Docker image..."
-          sudo docker compose -f docker/compose.staging.yaml build --no-cache
+          $DOCKER_CMD compose -f docker/compose.staging.yaml build --no-cache
           echo "  OK: Docker image built"
 
           # Step 4: Restart containers
           echo ""
           echo "[Step 4/6] Restarting containers..."
-          sudo docker compose -f docker/compose.staging.yaml down
-          sudo docker compose -f docker/compose.staging.yaml up -d
+          $DOCKER_CMD compose -f docker/compose.staging.yaml down
+          $DOCKER_CMD compose -f docker/compose.staging.yaml up -d
           echo "  OK: Containers restarted"
 
           # Step 5: Wait for healthy
@@ -101,10 +119,10 @@ jobs:
           # Step 6: Migrate + seed + clear caches
           echo ""
           echo "[Step 6/6] Running migrations and seeding..."
-          sudo docker compose -f docker/compose.staging.yaml exec -T app php artisan migrate --force || echo "  WARN: Migration skipped"
-          sudo docker compose -f docker/compose.staging.yaml exec -T app php artisan db:seed || echo "  WARN: Seeder skipped (may already be seeded)"
-          sudo docker compose -f docker/compose.staging.yaml exec -T app php artisan config:clear
-          sudo docker compose -f docker/compose.staging.yaml exec -T app php artisan route:clear
+          $DOCKER_CMD compose -f docker/compose.staging.yaml exec -T app php artisan migrate --force || echo "  WARN: Migration skipped"
+          $DOCKER_CMD compose -f docker/compose.staging.yaml exec -T app php artisan db:seed || echo "  WARN: Seeder skipped (may already be seeded)"
+          $DOCKER_CMD compose -f docker/compose.staging.yaml exec -T app php artisan config:clear
+          $DOCKER_CMD compose -f docker/compose.staging.yaml exec -T app php artisan route:clear
           echo "  OK: Migrations and caches done"
 
           # Final verification
@@ -116,7 +134,7 @@ jobs:
           echo "Backend API:  http://${{ secrets.EC2_HOST }}:8080"
           echo "Health Check: http://${{ secrets.EC2_HOST }}:8080/up"
           echo ""
-          sudo docker compose -f docker/compose.staging.yaml ps
+          $DOCKER_CMD compose -f docker/compose.staging.yaml ps
           echo ""
           curl -s http://localhost:8080/up || echo "Health endpoint not responding yet"
           REMOTE_SCRIPT
