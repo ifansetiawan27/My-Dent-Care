@@ -7,7 +7,7 @@
 #   4. Run migrations + DemoSeeder
 #   5. Verify health endpoint
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
 # Configuration
 $PEM_FILE = "C:\Users\ifan.setiawan_klikde\Downloads\Ifansetiawan093600.pem"
