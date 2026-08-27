@@ -13,6 +13,7 @@ interface AIServiceInterface
     public function paginate(array $filters): LengthAwarePaginator;
     public function findById(string $id, string $organizationId): AI;
     public function create(CreateAIDTO $dto): AI;
+    public function executeQuery(string $id, string $organizationId): AI;
     public function retry(string $id, string $organizationId): AI;
     public function cancel(string $id, string $organizationId): AI;
 }

@@ -53,4 +53,20 @@ return [
         'is_production' => (bool) env('MIDTRANS_IS_PRODUCTION', false),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | AI / LLM
+    |--------------------------------------------------------------------------
+    |
+    | AI service configuration for the dental clinic assistant.
+    | Supports OpenAI-compatible endpoints (OpenAI, Bailian/DashScope, local LLMs).
+    |
+    */
+
+    'ai' => [
+        'base_url' => env('AI_API_BASE_URL', 'https://api.openai.com/v1'),
+        'api_key' => env('AI_API_KEY'),
+        'model' => env('AI_MODEL', 'gpt-4o-mini'),
+    ],
+
 ];

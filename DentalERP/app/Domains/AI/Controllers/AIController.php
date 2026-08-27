@@ -80,4 +80,20 @@ final class AIController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
     }
+
+    /**
+     * Execute the AI query by calling the configured LLM API.
+     * POST /api/v1/ai-queries/{id}/execute
+     */
+    public function execute(string $id): JsonResponse
+    {
+        try {
+            $ai = $this->svc->executeQuery($id, auth()->user()->organization_id);
+            return response()->json(new AIResource($ai));
+        } catch (NotFoundException) {
+            return response()->json(['success' => false, 'message' => 'AI query not found.'], 404);
+        } catch (BusinessException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+    }
 }
