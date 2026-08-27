@@ -7,7 +7,8 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 
 export function useAuth() {
-  const isAuthenticated = () => !!localStorage.getItem('auth_token')
+  // Auth status determined by Sanctum HttpOnly cookies — no localStorage needed
+  const isAuthenticated = () => !!user.value
 
   async function login(identifier: string, password: string): Promise<void> {
     loading.value = true
@@ -17,14 +18,13 @@ export function useAuth() {
       const lookup = await authApi.lookup(identifier)
 
       // Step 2: login dengan org & branch id yang benar
+      // Sanctum will set HttpOnly cookies automatically — no token to store
       const data = await authApi.login(
         identifier,
         password,
         lookup.organization_id,
         lookup.branch_id,
       )
-      localStorage.setItem('auth_token', data.token)
-      localStorage.setItem('auth_user', JSON.stringify(data.user))
       user.value = data.user
     } catch (e: any) {
       error.value = e?.message ?? 'Login gagal. Periksa email dan password Anda.'
@@ -36,7 +36,6 @@ export function useAuth() {
 
   async function logout(): Promise<void> {
     try { await authApi.logout() } catch { /* ignore */ }
-    localStorage.removeItem('auth_token')
     user.value = null
     router.push('/login')
   }
