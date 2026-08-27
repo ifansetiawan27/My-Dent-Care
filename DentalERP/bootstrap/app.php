@@ -22,7 +22,9 @@ return Application::configure(basePath: dirname(__DIR__))
             base_path('app/Domains/Doctor/Routes/api.php'),
             base_path('app/Domains/EMR/Routes/api.php'),
             base_path('app/Domains/Employee/Routes/api.php'),
+            base_path('app/Domains/Finance/Routes/api.php'),
             base_path('app/Domains/HR/Routes/api.php'),
+            base_path('app/Domains/Integration/Routes/api.php'),
             base_path('app/Domains/IntegrationHub/Routes/api.php'),
             base_path('app/Domains/Inventory/Routes/api.php'),
             base_path('app/Domains/Laboratory/Routes/api.php'),
@@ -32,7 +34,9 @@ return Application::configure(basePath: dirname(__DIR__))
             base_path('app/Domains/Patient/Routes/api.php'),
             base_path('app/Domains/Pharmacy/Routes/api.php'),
             base_path('app/Domains/Procurement/Routes/api.php'),
+            base_path('app/Domains/Radiology/Routes/api.php'),
             base_path('app/Domains/Reporting/Routes/api.php'),
+            base_path('app/Domains/Scanner/Routes/api.php'),
             base_path('app/Domains/Subscription/Routes/api.php'),
             base_path('app/Domains/Treatment/Routes/api.php'),
         ],
@@ -64,6 +68,10 @@ return Application::configure(basePath: dirname(__DIR__))
         App\Domains\Dashboard\Providers\DashboardServiceProvider::class,
         App\Domains\IntegrationHub\Providers\IntegrationHubServiceProvider::class,
         App\Domains\AI\Providers\AIServiceProvider::class,
+        App\Domains\Finance\Providers\FinanceServiceProvider::class,
+        App\Domains\Integration\Providers\IntegrationServiceProvider::class,
+        App\Domains\Radiology\Providers\RadiologyServiceProvider::class,
+        App\Domains\Scanner\Providers\ScannerServiceProvider::class,
     ])
     ->withExceptions(function (\Illuminate\Foundation\Configuration\Exceptions $exceptions): void {
         // This application only serves an API, so every error must be rendered
