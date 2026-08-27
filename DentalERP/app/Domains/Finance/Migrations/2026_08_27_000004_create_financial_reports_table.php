@@ -12,7 +12,7 @@ return new class extends Migration
     {
         Schema::create('financial_reports', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('organization_id')->index();
+            $table->char('organization_id', 36)->index();
             $table->string('report_type', 50); // balance_sheet, income_statement, cash_flow, trial_balance
             $table->string('report_name', 255);
             $table->date('period_start');
@@ -23,15 +23,17 @@ return new class extends Migration
             $table->string('export_format', 20)->nullable(); // pdf, excel, csv
             $table->string('generated_by')->nullable();
             $table->timestamp('generated_at')->nullable();
-            $table->uuid('created_by')->nullable();
-            $table->uuid('updated_by')->nullable();
+            $table->char('created_by', 36)->nullable();
+            $table->char('updated_by', 36)->nullable();
             $table->timestamps();
 
             $table->foreign('organization_id')->references('id')->on('organizations')->cascadeOnDelete();
             $table->index(['report_type', 'period_start', 'period_end']);
-            $table->check("report_type IN ('balance_sheet', 'income_statement', 'cash_flow', 'trial_balance')");
-            $table->check("status IN ('draft', 'generated', 'exported')");
         });
+
+        // Add CHECK constraints via raw SQL (PostgreSQL compatible)
+        DB::statement("ALTER TABLE financial_reports ADD CONSTRAINT financial_reports_report_type_check CHECK (report_type IN ('balance_sheet', 'income_statement', 'cash_flow', 'trial_balance'))");
+        DB::statement("ALTER TABLE financial_reports ADD CONSTRAINT financial_reports_status_check CHECK (status IN ('draft', 'generated', 'exported'))");
     }
 
     public function down(): void
