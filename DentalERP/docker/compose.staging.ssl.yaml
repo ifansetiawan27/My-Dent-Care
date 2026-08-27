@@ -1,0 +1,131 @@
+# Staging topology for DentalERP with Nginx reverse proxy + SSL
+#
+# Usage:
+#   docker compose -f docker/compose.staging.ssl.yaml --env-file .env.staging up -d
+#
+# Includes:
+#   - Nginx reverse proxy (HTTP → HTTPS redirect)
+#   - Certbot for automatic Let's Encrypt SSL certificates
+#   - Laravel app, queue worker, scheduler
+#
+# Environment variables:
+#   APP_PORT=8080          - Port for HTTP (internal, nginx proxies to it)
+#   SSL_PORT=443           - HTTPS port
+#   LETSENCRYPT_EMAIL=     - Your email for Let's Encrypt notifications
+#   LETSENCRYPT_DOMAIN=    - Your domain (e.g., api.mydentcare.com)
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.staging
+    image: dentalerp:staging
+    container_name: dentalerp_staging_app
+    command: php -S 0.0.0.0:8000 -t public
+    working_dir: /var/www
+    env_file:
+      - ../.env.staging
+    volumes:
+      - ../.env.staging:/var/www/.env:ro
+    # No ports exposed directly - nginx handles external traffic
+    healthcheck:
+      test: ["CMD-SHELL", "php -r \"exit(@file_get_contents('http://127.0.0.1:8000/up') === false ? 1 : 0);\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - dentalerp_staging
+
+  queue:
+    image: dentalerp:staging
+    container_name: dentalerp_staging_queue
+    command: php artisan queue:work --tries=3 --max-time=3600 --sleep=1
+    working_dir: /var/www
+    env_file:
+      - ../.env.staging
+    volumes:
+      - ../.env.staging:/var/www/.env:ro
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - dentalerp_staging
+
+  scheduler:
+    image: dentalerp:staging
+    container_name: dentalerp_staging_scheduler
+    command: php artisan schedule:work
+    working_dir: /var/www
+    env_file:
+      - ../.env.staging
+    volumes:
+      - ../.env.staging:/var/www/.env:ro
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - dentalerp_staging
+
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: dentalerp_staging_nginx
+    ports:
+      - "${APP_PORT:-8080}:80"
+      - "${SSL_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - nginx_ssl:/etc/nginx/ssl:rw
+      - certbot_webroot:/var/www/certbot:rw
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - dentalerp_staging
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: dentalerp_staging_certbot
+    volumes:
+      - certbot_data:/etc/letsencrypt:rw
+      - certbot_webroot:/var/www/certbot:rw
+      - nginx_ssl:/etc/nginx/ssl:rw
+    entrypoint: >
+      /bin/sh -c "
+        trap exit TERM;
+        # Initial cert issuance (if certificates don't exist)
+        if [ ! -f /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/fullchain.pem ]; then
+          certbot certonly --webroot --webroot-path=/var/www/certbot
+            --email ${LETSENCRYPT_EMAIL}
+            --agree-tos --no-eff-email
+            -d ${LETSENCRYPT_DOMAIN}
+            --force-renewal
+          # Copy certs to nginx-readable location
+          cp /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/fullchain.pem /etc/nginx/ssl/fullchain.pem
+          cp /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/privkey.pem /etc/nginx/ssl/privkey.pem
+        fi
+        # Renewal check (runs daily)
+        while true; do
+          certbot renew --webroot --webroot-path=/var/www/certbot --quiet
+          cp /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/fullchain.pem /etc/nginx/ssl/fullchain.pem 2>/dev/null
+          cp /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}/privkey.pem /etc/nginx/ssl/privkey.pem 2>/dev/null
+          sleep 86400 &
+          wait $! || exit 0
+        done
+      "
+    restart: unless-stopped
+    networks:
+      - dentalerp_staging
+
+volumes:
+  nginx_ssl:
+  certbot_data:
+  certbot_webroot:
+
+networks:
+  dentalerp_staging:
+    driver: bridge

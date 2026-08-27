@@ -17,14 +17,14 @@ final class ChartOfAccountService implements ChartOfAccountServiceInterface
         private readonly ChartOfAccountRepositoryInterface $repository,
     ) {}
 
-    public function paginate(array $filters): LengthAwarePaginator
+    public function paginate(array $params = []): LengthAwarePaginator
     {
-        return $this->repository->paginate($filters);
+        return $this->repository->paginate($params);
     }
 
-    public function findById(string $id, string $organizationId): ChartOfAccount
+    public function getById(string $id): ChartOfAccount
     {
-        $account = $this->repository->findById($id, $organizationId);
+        $account = $this->repository->find($id);
         if (! $account) {
             throw new NotFoundException('Chart of Account not found.');
         }
@@ -36,15 +36,41 @@ final class ChartOfAccountService implements ChartOfAccountServiceInterface
         return DB::transaction(fn (): ChartOfAccount => $this->repository->create($data));
     }
 
-    public function update(string $id, array $data, string $organizationId): ChartOfAccount
+    public function update(string $id, array $data): ChartOfAccount
     {
-        $account = $this->findById($id, $organizationId);
+        $account = $this->getById($id);
         return DB::transaction(fn (): ChartOfAccount => $this->repository->update($account, $data));
     }
 
-    public function delete(string $id, string $organizationId): bool
+    public function delete(string $id): bool
     {
-        $account = $this->findById($id, $organizationId);
+        $account = $this->getById($id);
+        return $this->repository->delete($account);
+    }
+
+    public function findByIdWithOrganization(string $id, string $organizationId): ChartOfAccount
+    {
+        $account = $this->repository->findById($id, $organizationId);
+        if (! $account) {
+            throw new NotFoundException('Chart of Account not found.');
+        }
+        return $account;
+    }
+
+    public function createForOrganization(array $data, string $organizationId): ChartOfAccount
+    {
+        return DB::transaction(fn (): ChartOfAccount => $this->repository->create($data));
+    }
+
+    public function updateForOrganization(string $id, array $data, string $organizationId): ChartOfAccount
+    {
+        $account = $this->findByIdWithOrganization($id, $organizationId);
+        return DB::transaction(fn (): ChartOfAccount => $this->repository->update($account, $data));
+    }
+
+    public function deleteForOrganization(string $id, string $organizationId): bool
+    {
+        $account = $this->findByIdWithOrganization($id, $organizationId);
         return $this->repository->delete($account);
     }
 }

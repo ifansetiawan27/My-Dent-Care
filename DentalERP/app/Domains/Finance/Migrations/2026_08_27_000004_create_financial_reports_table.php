@@ -12,7 +12,7 @@ return new class extends Migration
     {
         Schema::create('financial_reports', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->char('organization_id', 36)->index();
+            $table->uuid('organization_id')->index();
             $table->string('report_type', 50); // balance_sheet, income_statement, cash_flow, trial_balance
             $table->string('report_name', 255);
             $table->date('period_start');
@@ -23,8 +23,8 @@ return new class extends Migration
             $table->string('export_format', 20)->nullable(); // pdf, excel, csv
             $table->string('generated_by')->nullable();
             $table->timestamp('generated_at')->nullable();
-            $table->char('created_by', 36)->nullable();
-            $table->char('updated_by', 36)->nullable();
+            $table->uuid('created_by')->nullable();
+            $table->uuid('updated_by')->nullable();
             $table->timestamps();
 
             $table->foreign('organization_id')->references('id')->on('organizations')->cascadeOnDelete();

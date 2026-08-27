@@ -10,10 +10,10 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface FinancialReportServiceInterface extends ServiceInterface
 {
-    public function paginate(array $filters): LengthAwarePaginator;
-    public function findById(string $id, string $organizationId): FinancialReport;
-    public function create(array $data): FinancialReport;
-    public function update(string $id, array $data, string $organizationId): FinancialReport;
-    public function delete(string $id, string $organizationId): bool;
+    public function paginate(array $params = []): LengthAwarePaginator;
+    public function findByIdWithOrganization(string $id, string $organizationId): FinancialReport;
+    public function createForOrganization(array $data, string $organizationId): FinancialReport;
+    public function updateForOrganization(string $id, array $data, string $organizationId): FinancialReport;
+    public function deleteForOrganization(string $id, string $organizationId): bool;
     public function generateReport(string $id, string $organizationId): FinancialReport;
 }

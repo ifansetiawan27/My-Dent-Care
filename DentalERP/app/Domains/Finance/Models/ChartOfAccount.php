@@ -4,11 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domains\Finance\Models;
 
-use App\Core\Traits\HasAudit;
-use App\Core\Traits\HasCreatedBy;
-use App\Core\Traits\HasDeletedBy;
-use App\Core\Traits\HasStatus;
-use App\Core\Traits\HasUpdatedBy;
 use App\Core\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ChartOfAccount extends Model
 {
-    use HasFactory, HasUuid, HasAudit, HasCreatedBy, HasUpdatedBy, HasDeletedBy, SoftDeletes;
+    use HasFactory, HasUuid, SoftDeletes;
 
     protected $table = 'chart_of_accounts';
 

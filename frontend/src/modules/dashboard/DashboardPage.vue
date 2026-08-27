@@ -1,50 +1,26 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { subscriptionApi } from '@/modules/subscription/api/subscriptionApi'
-import { useApi } from '@/shared/composables/useApi'
-import type { SubscriptionResource } from '@/shared/types/subscription'
+import { useAuth } from '@/core/auth/useAuth'
 
 const router = useRouter()
-const { data: sub, loading, error, refresh } = useApi<SubscriptionResource>(() => subscriptionApi.get())
-onMounted(refresh)
+const { user } = useAuth()
 
-const bannerInfo = computed(() => {
-  if (!sub.value) return null
-  const s = sub.value
-  if (s.status === 'trial' && s.trial) return { type: 'info', text: `Trial ends in ${s.trial.days_remaining} days` }
-  if (s.status === 'past_due') return { type: 'warning', text: 'Payment failed — update your payment method' }
-  if (s.status === 'grace' && s.billing.grace_ends_at) return { type: 'warning', text: 'Payment overdue — grace period active' }
-  if (s.status === 'expired') return { type: 'error', text: 'Subscription expired — reactivate to restore access' }
-  if (s.status === 'cancelled') return { type: 'error', text: 'Subscription cancelled' }
-  return null
-})
-
-const planLabel = computed(() => {
-  if (!sub.value) return ''
-  const p = sub.value.plan
-  return p.charAt(0).toUpperCase() + p.slice(1)
-})
-
-const userName = computed(() => {
-  const stored = localStorage.getItem('auth_user')
-  if (!stored) return 'User'
-  try { return (JSON.parse(stored) as { name?: string }).name ?? 'User' } catch { return 'User' }
-})
+const userName = computed(() => user.value?.name ?? 'User')
 
 const stats = computed(() => [
-  { label: 'Subscription', value: sub.value ? sub.value.status_label : '—', color: '#1890ff' },
-  { label: 'Plan', value: sub.value ? planLabel.value : '—', color: '#13c2c2' },
-  { label: 'Storage', value: sub.value ? `${sub.value.storage.used_gb}/${sub.value.storage.limit_gb} GB` : '—', color: '#52c41a' },
-  { label: 'Users', value: '∞', color: '#faad14' },
+  { label: 'Patients', value: '3', color: '#1890ff' },
+  { label: 'Appointments', value: '8', color: '#13c2c2' },
+  { label: 'Treatments', value: '5', color: '#52c41a' },
+  { label: 'Invoices', value: '5', color: '#faad14' },
 ])
 
 const quickActions = [
-  { title: 'Appointment', desc: 'Manage schedule', to: '/appointments', icon: 'calendar' },
+  { title: 'Appointments', desc: 'Manage schedule', to: '/appointments', icon: 'calendar' },
   { title: 'Patients', desc: 'Register patient', to: '/patients', icon: 'users' },
   { title: 'Medical Records', desc: 'EMR input', to: '/emr', icon: 'file' },
   { title: 'Billing', desc: 'Create invoice', to: '/billing', icon: 'invoice' },
-  { title: 'Treatment', desc: 'Treatments', to: '/treatments', icon: 'layers' },
+  { title: 'Treatments', desc: 'Treatments', to: '/treatments', icon: 'layers' },
   { title: 'Reports', desc: 'Analytics', to: '/reports', icon: 'chart' },
   { title: 'Inventory', desc: 'Stock', to: '/inventory', icon: 'box' },
   { title: 'Settings', desc: 'Clinic profile', to: '/settings', icon: 'settings' },
@@ -66,21 +42,6 @@ const quickActions = [
         <button class="btn-contained" @click="router.push('/patients')">+ Patient</button>
       </div>
     </div>
-
-    <div v-if="bannerInfo" class="dash-alert" :class="{
-      'dash-alert-info': bannerInfo?.type === 'info',
-      'dash-alert-warning': bannerInfo?.type === 'warning',
-      'dash-alert-error': bannerInfo?.type === 'error',
-    }">
-      <span>{{ bannerInfo?.text }}</span>
-      <button v-if="sub?.status !== 'active' && sub?.status !== 'trial'" class="dash-alert-link" @click="router.push('/subscription')">View Subscription</button>
-    </div>
-
-    <div v-if="loading" class="dash-loading">
-      <div class="spinner" style="margin:0 auto 1rem"></div>
-      <p style="color:#8c8c8c">Loading...</p>
-    </div>
-    <div v-else-if="error" class="alert alert-error">{{ error }}</div>
 
     <!-- Stat cards -->
     <div class="dash-stats">
@@ -129,12 +90,6 @@ const quickActions = [
 .btn-outlined { display: inline-flex; align-items: center; gap: 0.375rem; background: #fff; color: #1890ff; border: 1px solid #1890ff; border-radius: 6px; padding: 0.5625rem 1.125rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .2s; }
 .btn-outlined:hover { background: #e6f7ff; }
 
-.dash-alert { display: flex; align-items: center; gap: 0.625rem; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.875rem; }
-.dash-alert-link { margin-left: auto; background: none; border: none; font-size: 0.875rem; font-weight: 700; color: inherit; cursor: pointer; text-decoration: underline; font-family: inherit; }
-.dash-alert-info { background: #e6f7ff; color: #096dd9; border: 1px solid #bae7ff; }
-.dash-alert-warning { background: #fffbe6; color: #d48806; border: 1px solid #ffe58f; }
-.dash-alert-error { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
-
 .dash-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
 .stat-card { background: #fff; border: 1px solid #f0f0f0; border-radius: 8px; padding: 1.25rem; display: flex; align-items: center; gap: 0.875rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: box-shadow .2s; }
 .stat-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.10); }
@@ -152,8 +107,6 @@ const quickActions = [
 .action-text { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }
 .action-text strong { font-size: 0.875rem; color: #262626; }
 .action-text span { font-size: 0.75rem; color: #bfbfbf; }
-
-.dash-loading { text-align: center; padding: 3rem 0; }
 
 @media (max-width: 1100px) { .dash-stats { grid-template-columns: repeat(2, 1fr); } .dash-actions { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 760px) { .dash-actions { grid-template-columns: repeat(2, 1fr); } }

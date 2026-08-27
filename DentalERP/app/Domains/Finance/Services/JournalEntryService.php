@@ -19,14 +19,52 @@ final class JournalEntryService implements JournalEntryServiceInterface
         private readonly JournalEntryRepositoryInterface $repository,
     ) {}
 
-    public function paginate(array $filters): LengthAwarePaginator
+    public function paginate(array $params = []): LengthAwarePaginator
     {
-        return $this->repository->paginate($filters);
+        return $this->repository->paginate($params);
     }
 
-    public function findById(string $id, string $organizationId): JournalEntry
+    public function findByIdWithOrganization(string $id, string $organizationId): JournalEntry
     {
         $entry = $this->repository->findById($id, $organizationId);
+        if (! $entry) {
+            throw new NotFoundException('Journal Entry not found.');
+        }
+        return $entry;
+    }
+
+    public function createForOrganization(array $data, string $organizationId): JournalEntry
+    {
+        $data['entry_number'] = $this->generateEntryNumber();
+
+        return DB::transaction(fn (): JournalEntry => $this->repository->create($data));
+    }
+
+    public function updateForOrganization(string $id, array $data, string $organizationId): JournalEntry
+    {
+        $entry = $this->findByIdWithOrganization($id, $organizationId);
+
+        if (JournalEntryStatus::from($entry->status) !== JournalEntryStatus::DRAFT) {
+            throw new BusinessException('Can only update journal entries in draft status.');
+        }
+
+        return DB::transaction(fn (): JournalEntry => $this->repository->update($entry, $data));
+    }
+
+    public function deleteForOrganization(string $id, string $organizationId): bool
+    {
+        $entry = $this->findByIdWithOrganization($id, $organizationId);
+
+        if (JournalEntryStatus::from($entry->status) !== JournalEntryStatus::DRAFT) {
+            throw new BusinessException('Can only delete journal entries in draft status.');
+        }
+
+        return $this->repository->delete($entry);
+    }
+
+    public function getById(string $id): JournalEntry
+    {
+        $entry = $this->repository->find($id);
         if (! $entry) {
             throw new NotFoundException('Journal Entry not found.');
         }
@@ -36,29 +74,18 @@ final class JournalEntryService implements JournalEntryServiceInterface
     public function create(array $data): JournalEntry
     {
         $data['entry_number'] = $this->generateEntryNumber();
-
         return DB::transaction(fn (): JournalEntry => $this->repository->create($data));
     }
 
-    public function update(string $id, array $data, string $organizationId): JournalEntry
+    public function update(string $id, array $data): JournalEntry
     {
-        $entry = $this->findById($id, $organizationId);
-
-        if (JournalEntryStatus::from($entry->status) !== JournalEntryStatus::DRAFT) {
-            throw new BusinessException('Can only update journal entries in draft status.');
-        }
-
+        $entry = $this->getById($id);
         return DB::transaction(fn (): JournalEntry => $this->repository->update($entry, $data));
     }
 
-    public function delete(string $id, string $organizationId): bool
+    public function delete(string $id): bool
     {
-        $entry = $this->findById($id, $organizationId);
-
-        if (JournalEntryStatus::from($entry->status) !== JournalEntryStatus::DRAFT) {
-            throw new BusinessException('Can only delete journal entries in draft status.');
-        }
-
+        $entry = $this->getById($id);
         return $this->repository->delete($entry);
     }
 

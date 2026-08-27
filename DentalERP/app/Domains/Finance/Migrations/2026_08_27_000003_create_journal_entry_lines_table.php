@@ -23,9 +23,11 @@ return new class extends Migration
 
             $table->foreign('journal_entry_id')->references('id')->on('journal_entries')->cascadeOnDelete();
             $table->foreign('account_id')->references('id')->on('chart_of_accounts')->restrictOnDelete();
-            $table->check('amount >= 0');
-            $table->check("entry_type IN ('debit', 'credit')");
         });
+
+        // PostgreSQL check constraints via raw SQL
+        DB::statement('ALTER TABLE journal_entry_lines ADD CONSTRAINT chk_amount_positive CHECK (amount >= 0)');
+        DB::statement("ALTER TABLE journal_entry_lines ADD CONSTRAINT chk_entry_type CHECK (entry_type IN ('debit', 'credit'))");
     }
 
     public function down(): void

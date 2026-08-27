@@ -30,7 +30,7 @@ final class JournalEntryController extends Controller
     public function show(string $id): JsonResponse
     {
         try {
-            return (new JournalEntryResource($this->svc->findById($id, auth()->user()->organization_id)))->response();
+            return (new JournalEntryResource($this->svc->findByIdWithOrganization($id, auth()->user()->organization_id)))->response();
         } catch (NotFoundException) {
             return response()->json(['success' => false, 'message' => 'Journal Entry not found.'], 404);
         }
@@ -44,7 +44,7 @@ final class JournalEntryController extends Controller
                 'organization_id' => auth()->user()->organization_id,
                 'status'          => 'draft',
             ];
-            return (new JournalEntryResource($this->svc->create($data)))->response()->setStatusCode(201);
+            return (new JournalEntryResource($this->svc->createForOrganization($data, auth()->user()->organization_id)))->response()->setStatusCode(201);
         } catch (BusinessException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         } catch (NotFoundException $e) {
@@ -55,7 +55,7 @@ final class JournalEntryController extends Controller
     public function update(string $id, UpdateJournalEntryRequest $r): JsonResponse
     {
         try {
-            return (new JournalEntryResource($this->svc->update($id, $r->validated(), auth()->user()->organization_id)))->response();
+            return (new JournalEntryResource($this->svc->updateForOrganization($id, $r->validated(), auth()->user()->organization_id)))->response();
         } catch (BusinessException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         } catch (NotFoundException $e) {
@@ -65,7 +65,7 @@ final class JournalEntryController extends Controller
 
     public function destroy(string $id): JsonResponse
     {
-        $this->svc->delete($id, auth()->user()->organization_id);
+        $this->svc->deleteForOrganization($id, auth()->user()->organization_id);
         return response()->json(['success' => true, 'message' => 'Deleted.'], 200);
     }
 

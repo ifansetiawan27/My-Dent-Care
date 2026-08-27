@@ -20,16 +20,20 @@
     <php>
         <env name="APP_ENV" value="testing" force="true"/>
         <env name="APP_KEY" value="base64:0AUqeIwG3ZIkXiD+g4+wAGt1m6dS6C4D7xeP9nWcOpE=" force="true"/>
-        <env name="DB_CONNECTION" value="pgsql" force="true"/>
-        <env name="DB_HOST" value="postgres" force="true"/>
-        <env name="DB_PORT" value="5432" force="true"/>
-        <env name="DB_DATABASE" value="dentalerp_test" force="true"/>
-        <env name="DB_USERNAME" value="postgres" force="true"/>
-        <env name="DB_PASSWORD" value="postgres" force="true"/>
+        <!-- Use SQLite for fast local testing; override with pgsql in CI -->
+        <env name="DB_CONNECTION" value="sqlite" force="true"/>
+        <env name="DB_DATABASE" value=":memory:" force="true"/>
+        <!-- PostgreSQL settings for CI/Docker -->
+        <env name="DB_CONNECTION_PG" value="pgsql"/>
+        <env name="DB_HOST" value="postgres"/>
+        <env name="DB_PORT" value="5432"/>
+        <env name="DB_DATABASE_PG" value="dentalerp_test"/>
+        <env name="DB_USERNAME" value="postgres"/>
+        <env name="DB_PASSWORD" value="postgres"/>
         <env name="FILESYSTEM_DISK" value="local" force="true"/>
         <env name="AWS_ENDPOINT" value="" force="true"/>
         <env name="AWS_BUCKET" value="test-bucket" force="true"/>
-        <env name="REDIS_HOST" value="redis" force="true"/>
+        <env name="REDIS_HOST" value="127.0.0.1" force="true"/>
         <env name="REDIS_PORT" value="6379" force="true"/>
         <env name="CACHE_DRIVER" value="array" force="true"/>
         <env name="CACHE_STORE" value="array" force="true"/>
@@ -37,18 +41,15 @@
         <env name="QUEUE_CONNECTION" value="sync" force="true"/>
         <env name="BROADCAST_DRIVER" value="log" force="true"/>
         <env name="MAIL_MAILER" value="array" force="true"/>
+        <env name="SANCTUM_STATEFUL_DOMAINS" value="localhost" force="true"/>
         <server name="APP_ENV" value="testing"/>
         <server name="APP_KEY" value="base64:0AUqeIwG3ZIkXiD+g4+wAGt1m6dS6C4D7xeP9nWcOpE="/>
-        <server name="DB_CONNECTION" value="pgsql"/>
-        <server name="DB_HOST" value="postgres"/>
-        <server name="DB_PORT" value="5432"/>
-        <server name="DB_DATABASE" value="dentalerp_test"/>
-        <server name="DB_USERNAME" value="postgres"/>
-        <server name="DB_PASSWORD" value="postgres"/>
+        <server name="DB_CONNECTION" value="sqlite"/>
+        <server name="DB_DATABASE" value=":memory:"/>
         <server name="FILESYSTEM_DISK" value="local"/>
         <server name="AWS_ENDPOINT" value=""/>
         <server name="AWS_BUCKET" value="test-bucket"/>
-        <server name="REDIS_HOST" value="redis"/>
+        <server name="REDIS_HOST" value="127.0.0.1"/>
         <server name="REDIS_PORT" value="6379"/>
         <server name="CACHE_DRIVER" value="array"/>
         <server name="CACHE_STORE" value="array"/>
@@ -56,5 +57,6 @@
         <server name="QUEUE_CONNECTION" value="sync"/>
         <server name="BROADCAST_DRIVER" value="log"/>
         <server name="MAIL_MAILER" value="array"/>
+        <server name="SANCTUM_STATEFUL_DOMAINS" value="localhost"/>
     </php>
 </phpunit>

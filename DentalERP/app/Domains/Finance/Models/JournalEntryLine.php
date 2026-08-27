@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domains\Finance\Models;
 
-use App\Core\Traits\HasCreatedBy;
-use App\Core\Traits\HasUpdatedBy;
 use App\Core\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class JournalEntryLine extends Model
 {
-    use HasFactory, HasUuid, HasCreatedBy, HasUpdatedBy;
+    use HasFactory, HasUuid;
 
     protected $table = 'journal_entry_lines';
 

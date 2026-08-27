@@ -5,14 +5,18 @@ services:
       dockerfile: docker/Dockerfile
     container_name: dentalerp_test
     working_dir: /var/www
+    command: php -d opcache.enable_cli=1 -d memory_limit=512M -S 0.0.0.0:8000 -t public
     volumes:
-      - ..:/var/www
+      - ..:/var/www:delegated
+    ports:
+      - "8080:8000"
     environment:
       - APP_ENV=staging
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - CACHE_DRIVER=redis
       - SESSION_DRIVER=redis
+      - APP_DEBUG=false
     env_file:
       - ../../.env
     depends_on:

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('account_name', 255);
             $table->string('account_type', 50); // asset, liability, equity, revenue, expense
             $table->string('account_category', 100)->nullable();
-            $table->string('parent_id')->nullable()->index();
+            $table->uuid('parent_id')->nullable()->index();
             $table->boolean('is_active')->default(true);
             $table->boolean('is_system')->default(false); // system-managed accounts cannot be deleted
             $table->text('description')->nullable();
@@ -28,6 +28,10 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->foreign('organization_id')->references('id')->on('organizations')->cascadeOnDelete();
+        });
+
+        // Self-referencing FK must be added separately in PostgreSQL
+        Schema::table('chart_of_accounts', function (Blueprint $table) {
             $table->foreign('parent_id')->references('id')->on('chart_of_accounts')->nullOnDelete();
         });
     }
