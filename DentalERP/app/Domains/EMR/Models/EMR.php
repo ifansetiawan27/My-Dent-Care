@@ -11,10 +11,11 @@ class EMR extends BaseModel
     protected $table = 'emrs';
 
     protected $casts = [
-        'vital_signs' => 'array',
-        'created_at'  => 'datetime',
-        'updated_at'  => 'datetime',
-        'deleted_at'  => 'datetime',
+        'vital_signs'      => 'array',
+        'examination_date' => 'datetime',
+        'created_at'       => 'datetime',
+        'updated_at'       => 'datetime',
+        'deleted_at'       => 'datetime',
     ];
 
     public function patient()
@@ -25,5 +26,10 @@ class EMR extends BaseModel
     public function doctor()
     {
         return $this->belongsTo(\App\Domains\Doctor\Models\Doctor::class);
+    }
+
+    public function appointment()
+    {
+        return $this->belongsTo(\App\Domains\Appointment\Models\Appointment::class);
     }
 }

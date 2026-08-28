@@ -1,5 +1,39 @@
 <?php
+
 declare(strict_types=1);
+
 namespace App\Domains\EMR\Requests;
+
 use Illuminate\Foundation\Http\FormRequest;
-final class UpdateEMRRequest extends FormRequest { public function authorize(): bool { return true; } public function rules(): array { return ['chief_complaint'=>'sometimes|string','diagnosis'=>'sometimes|string','treatment_notes'=>'sometimes|string','vital_signs'=>'nullable|array','status'=>'sometimes|string|max:20']; } }
+
+final class UpdateEMRRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'examination_date'    => 'nullable|date',
+            'tooth_number'        => 'nullable|string|max:50',
+            'icd_code'            => 'nullable|string|max:20',
+            'chief_complaint'     => 'nullable|string',
+            'present_illness'     => 'nullable|string',
+            'medical_history'     => 'nullable|string',
+            'allergies'           => 'nullable|string',
+            'vital_signs'         => 'nullable|array',
+            'extra_oral_exam'     => 'nullable|string',
+            'intra_oral_exam'     => 'nullable|string',
+            'radiology_findings'  => 'nullable|string',
+            'diagnosis'           => 'nullable|string',
+            'secondary_diagnosis' => 'nullable|string',
+            'treatment_notes'     => 'nullable|string',
+            'treatment_plan'      => 'nullable|string',
+            'prescription'        => 'nullable|string',
+            'follow_up_plan'      => 'nullable|string',
+            'status'              => 'sometimes|string|max:20',
+        ];
+    }
+}

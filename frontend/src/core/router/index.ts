@@ -41,8 +41,8 @@ const router = createRouter({
         {
           path: 'emr',
           name: 'emr',
-          component: () => import('@/shared/components/ModulePage.vue'),
-          meta: { title: 'Rekam Medis (EMR)', module: 'emrs', requiresAuth: true },
+          component: () => import('@/modules/emr/EmrPage.vue'),
+          meta: { title: 'Rekam Medis (EMR)', desc: 'Dokumentasi klinis pasien: anamnesis, pemeriksaan, diagnosa, dan perawatan.', requiresAuth: true },
         },
         {
           path: 'odontogram',

@@ -40,16 +40,38 @@ class NotificationQueueService
 
     /**
      * Process all pending notifications that are due.
+     *
+     * Rows are atomically claimed (pending -> processing) inside a
+     * transaction so concurrent workers or overlapping scheduler runs
+     * cannot send the same notification twice. Rows stuck in
+     * "processing" for more than 10 minutes (crashed run) are
+     * returned to "pending" for retry.
      */
     public function processDue(): array
     {
-        $due = DB::table('notification_queue')
-            ->where('status', 'pending')
-            ->where('scheduled_at', '<=', now())
-            ->where('retry_count', '<', 3)
-            ->orderBy('scheduled_at')
-            ->limit(50)
-            ->get();
+        $this->recoverStaleProcessing();
+
+        $due = DB::transaction(function () {
+            $rows = DB::table('notification_queue')
+                ->where('status', 'pending')
+                ->where('scheduled_at', '<=', now())
+                ->where('retry_count', '<', 3)
+                ->orderBy('scheduled_at')
+                ->limit(50)
+                ->lockForUpdate()
+                ->get();
+
+            if ($rows->isNotEmpty()) {
+                DB::table('notification_queue')
+                    ->whereIn('id', $rows->pluck('id'))
+                    ->update([
+                        'status' => 'processing',
+                        'updated_at' => now(),
+                    ]);
+            }
+
+            return $rows;
+        });
 
         if ($due->isEmpty()) {
             return ['processed' => 0, 'success' => 0, 'failed' => 0];
@@ -86,6 +108,22 @@ class NotificationQueueService
             'success' => $success,
             'failed' => $failed,
         ];
+    }
+
+    /**
+     * Return notifications stuck in "processing" (crashed worker) back to
+     * "pending" so they can be retried. retry_count is not incremented
+     * because the send never completed.
+     */
+    private function recoverStaleProcessing(): void
+    {
+        DB::table('notification_queue')
+            ->where('status', 'processing')
+            ->where('updated_at', '<', now()->subMinutes(10))
+            ->update([
+                'status' => 'pending',
+                'updated_at' => now(),
+            ]);
     }
 
     /**

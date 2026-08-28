@@ -21,10 +21,23 @@ it('EmailChannel implements NotificationChannelInterface', function (): void {
 });
 
 it('WhatsAppChannel implements NotificationChannelInterface', function (): void {
-    $channel = new WhatsAppChannel();
+    $waService = Mockery::mock(App\Domains\WhatsApp\Services\WhatsAppService::class);
+    $waService->shouldReceive('getSessionStatus')
+        ->andReturn(['status' => 'disconnected']);
+
+    $channel = new WhatsAppChannel($waService);
     expect($channel)->toBeInstanceOf(NotificationChannelInterface::class);
     expect($channel->channel())->toBe(NotificationChannel::WhatsApp);
     expect($channel->isAvailableFor('org-1'))->toBeFalse();
+});
+
+it('WhatsAppChannel is available when bridge session is connected', function (): void {
+    $waService = Mockery::mock(App\Domains\WhatsApp\Services\WhatsAppService::class);
+    $waService->shouldReceive('getSessionStatus')
+        ->andReturn(['status' => 'connected']);
+
+    $channel = new WhatsAppChannel($waService);
+    expect($channel->isAvailableFor('org-1'))->toBeTrue();
 });
 
 it('SmsChannel implements NotificationChannelInterface', function (): void {

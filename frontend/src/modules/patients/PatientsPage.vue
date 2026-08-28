@@ -87,20 +87,40 @@ function editItem(item: any) {
   showModal.value = true
 }
 
+function currentUser(): Record<string, any> {
+  try { return JSON.parse(localStorage.getItem('auth_user') || '{}') } catch { return {} }
+}
+
+function generatePatientCode(): string {
+  const d = new Date()
+  const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`
+  const rand = Math.random().toString(36).slice(2, 6).toUpperCase()
+  return `PAT${ymd}${rand}`
+}
+
 async function handleSave() {
   saving.value = true
   saveMsg.value = ''
   try {
+    const payload: Record<string, any> = { ...formData.value }
+    if (!payload.patient_code) {
+      payload.patient_code = generatePatientCode()
+    }
     if (formData.value.id) {
-      await api.put(`/v1/patients/${formData.value.id}`, formData.value)
+      await api.put(`/v1/patients/${formData.value.id}`, payload)
     } else {
-      await api.post('/v1/patients', formData.value)
+      const u = currentUser()
+      payload.organization_id = u.organization_id
+      payload.branch_id = u.branch_id || null
+      await api.post('/v1/patients', payload)
     }
     saveMsg.value = 'Berhasil disimpan.'
     showModal.value = false
     await fetchData()
   } catch (e: any) {
-    saveMsg.value = e?.response?.data?.message ?? e?.message ?? 'Gagal menyimpan.'
+    const errs = e?.response?.data?.errors
+    const firstField = errs ? Object.values(errs).flat()[0] : null
+    saveMsg.value = firstField ?? e?.response?.data?.message ?? e?.message ?? 'Gagal menyimpan.'
   } finally {
     saving.value = false
   }

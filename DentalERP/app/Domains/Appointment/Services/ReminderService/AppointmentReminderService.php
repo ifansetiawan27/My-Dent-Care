@@ -24,20 +24,22 @@ class AppointmentReminderService
      * It finds appointments where:
      *   - reminder_minutes is set
      *   - reminder_sent is false
-     *   - scheduled_at is within reminder_minutes from now
+     *   - scheduled_at is still in the future
      *   - status is scheduled or confirmed (not cancelled)
+     *
+     * A reminder is due once `scheduled_at - reminder_minutes` has passed.
+     * Overdue reminders (e.g. after scheduler downtime) are still delivered
+     * as long as the appointment itself has not started yet.
      */
     public function processReminders(): array
     {
         $now = now();
-        $reminderWindow = now()->copy()->addMinutes(15); // look ahead 15 min window
 
         $appointments = DB::table('appointments')
             ->whereNotNull('reminder_minutes')
             ->where('reminder_sent', false)
             ->whereIn('status', ['scheduled', 'confirmed'])
             ->where('scheduled_at', '>=', $now)
-            ->where('scheduled_at', '<=', $reminderWindow)
             ->get();
 
         $queued = 0;
@@ -46,9 +48,9 @@ class AppointmentReminderService
         foreach ($appointments as $appointment) {
             // Check if it's time to send the reminder
             $scheduledAt = \Carbon\Carbon::parse($appointment->scheduled_at);
-            $reminderTime = $scheduledAt->copy()->subMinutes($appointment->reminder_minutes);
+            $reminderTime = $scheduledAt->copy()->subMinutes((int) $appointment->reminder_minutes);
 
-            if ($now->gte($reminderTime) && $now->lt($reminderTime->copy()->addMinutes(15))) {
+            if ($now->gte($reminderTime)) {
                 // Queue the reminder
                 $patient = DB::table('patients')->find($appointment->patient_id);
                 $doctor = DB::table('doctors')->find($appointment->doctor_id);

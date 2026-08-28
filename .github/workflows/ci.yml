@@ -99,6 +99,13 @@ jobs:
           EOF
           fi
 
+      - name: Create dedicated test database
+        run: |
+          php -r '$pdo = new PDO("pgsql:host=postgres;port=5432;dbname=dentalerp_test", "postgres", "postgres");
+          $exists = $pdo->query("SELECT 1 FROM pg_database WHERE datname = '"'"'dentalerp_phpunit'"'"'")->fetchColumn();
+          if (!$exists) { $pdo->exec("CREATE DATABASE dentalerp_phpunit"); echo "created dentalerp_phpunit\n"; }
+          else { echo "dentalerp_phpunit already exists\n"; }'
+
       - name: Run test suite
         run: php artisan test
 

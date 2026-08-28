@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import api from '@/core/api/client'
 
-const waStatus = ref({ status: 'disconnected', message: '' })
+const waStatus = ref<{ status: string; message?: string; phone_number?: string; qr_code?: string }>({ status: 'disconnected', message: '' })
 const qrImage = ref('')
 const loading = ref(false)
 const generating = ref(false)

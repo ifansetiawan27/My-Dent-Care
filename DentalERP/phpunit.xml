@@ -20,16 +20,21 @@
     <php>
         <env name="APP_ENV" value="testing" force="true"/>
         <env name="APP_KEY" value="base64:0AUqeIwG3ZIkXiD+g4+wAGt1m6dS6C4D7xeP9nWcOpE=" force="true"/>
-        <!-- Use SQLite for fast local testing; override with pgsql in CI -->
-        <env name="DB_CONNECTION" value="sqlite" force="true"/>
-        <env name="DB_DATABASE" value=":memory:" force="true"/>
-        <!-- PostgreSQL settings for CI/Docker -->
-        <env name="DB_CONNECTION_PG" value="pgsql"/>
-        <env name="DB_HOST" value="postgres"/>
-        <env name="DB_PORT" value="5432"/>
-        <env name="DB_DATABASE_PG" value="dentalerp_test"/>
-        <env name="DB_USERNAME" value="postgres"/>
-        <env name="DB_PASSWORD" value="postgres"/>
+        <!-- Tests run against PostgreSQL on a DEDICATED database
+             ("dentalerp_phpunit") so RefreshDatabase/migrate:fresh never wipes
+             the app/preview database ("dentalerp_test"). CI creates
+             dentalerp_phpunit explicitly; docker compose provisions it via an
+             entrypoint init script. Several migrations are pinned to the pgsql
+             connection and use pgsql-only SQL (RLS), so sqlite cannot run the
+             full migration set. -->
+        <env name="DB_CONNECTION" value="pgsql" force="true"/>
+        <env name="DB_HOST" value="postgres" force="true"/>
+        <env name="DB_PORT" value="5432" force="true"/>
+        <env name="DB_DATABASE" value="dentalerp_phpunit" force="true"/>
+        <env name="DB_USERNAME" value="postgres" force="true"/>
+        <env name="DB_PASSWORD" value="postgres" force="true"/>
+        <env name="DB_SCHEMA" value="public" force="true"/>
+        <env name="DB_SSLMODE" value="disable" force="true"/>
         <env name="FILESYSTEM_DISK" value="local" force="true"/>
         <env name="AWS_ENDPOINT" value="" force="true"/>
         <env name="AWS_BUCKET" value="test-bucket" force="true"/>
@@ -44,8 +49,14 @@
         <env name="SANCTUM_STATEFUL_DOMAINS" value="localhost" force="true"/>
         <server name="APP_ENV" value="testing"/>
         <server name="APP_KEY" value="base64:0AUqeIwG3ZIkXiD+g4+wAGt1m6dS6C4D7xeP9nWcOpE="/>
-        <server name="DB_CONNECTION" value="sqlite"/>
-        <server name="DB_DATABASE" value=":memory:"/>
+        <server name="DB_CONNECTION" value="pgsql"/>
+        <server name="DB_HOST" value="postgres"/>
+        <server name="DB_PORT" value="5432"/>
+        <server name="DB_DATABASE" value="dentalerp_phpunit"/>
+        <server name="DB_USERNAME" value="postgres"/>
+        <server name="DB_PASSWORD" value="postgres"/>
+        <server name="DB_SCHEMA" value="public"/>
+        <server name="DB_SSLMODE" value="disable"/>
         <server name="FILESYSTEM_DISK" value="local"/>
         <server name="AWS_ENDPOINT" value=""/>
         <server name="AWS_BUCKET" value="test-bucket"/>

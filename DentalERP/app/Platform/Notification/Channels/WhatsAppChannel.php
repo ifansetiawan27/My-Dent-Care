@@ -8,6 +8,7 @@ use App\Domains\WhatsApp\Services\WhatsAppService;
 use App\Platform\Notification\Contracts\NotificationChannelInterface;
 use App\Platform\Notification\DTO\NotificationMessageDTO;
 use App\Platform\Notification\Enums\NotificationChannel;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 final class WhatsAppChannel implements NotificationChannelInterface
@@ -23,13 +24,23 @@ final class WhatsAppChannel implements NotificationChannelInterface
 
     public function deliver(NotificationMessageDTO $message): bool
     {
-        if (!$this->isAvailableFor('')) {
+        if (!$this->isAvailableFor($message->organizationId ?? '')) {
             Log::warning('WhatsApp channel not available, skipping delivery.');
             return false;
         }
 
-        $phone = $message->to;
-        $text = $message->content;
+        $phone = $this->resolvePhone($message);
+        if ($phone === null) {
+            Log::warning('WhatsApp delivery skipped: no phone number resolvable.', [
+                'notifiable_type' => $message->notifiableType,
+                'notifiable_id'   => $message->notifiableId,
+            ]);
+            return false;
+        }
+
+        $text = $message->title !== ''
+            ? $message->title . "\n" . $message->body
+            : $message->body;
 
         $result = $this->waService->sendMessage($phone, $text);
 
@@ -46,5 +57,25 @@ final class WhatsAppChannel implements NotificationChannelInterface
     {
         $status = $this->waService->getSessionStatus();
         return $status['status'] === 'connected';
+    }
+
+    /**
+     * Resolve the recipient phone number. Prefers an explicit phone in the
+     * message data payload, then falls back to the notifiable's stored phone.
+     */
+    private function resolvePhone(NotificationMessageDTO $message): ?string
+    {
+        $phone = $message->data['phone'] ?? null;
+        if (is_string($phone) && $phone !== '') {
+            return $phone;
+        }
+
+        $record = match (class_basename($message->notifiableType)) {
+            'Patient' => DB::table('patients')->find($message->notifiableId),
+            'User'    => DB::table('users')->find($message->notifiableId),
+            default   => null,
+        };
+
+        return isset($record->phone) && $record->phone !== '' ? $record->phone : null;
     }
 }

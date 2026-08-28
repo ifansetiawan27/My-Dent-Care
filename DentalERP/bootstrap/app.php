@@ -114,7 +114,7 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($result['queued'] > 0) {
                 \Illuminate\Support\Facades\Log::info('WhatsApp reminders processed: ' . json_encode($result));
             }
-        })->name('appointment-whatsapp-reminders')->everyFiveMinutes();
+        })->name('appointment-whatsapp-reminders')->everyFiveMinutes()->withoutOverlapping();
 
         // Process notification queue — every 2 minutes
         $schedule->call(function (): void {
@@ -123,6 +123,6 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($result['processed'] > 0) {
                 \Illuminate\Support\Facades\Log::info('Notification queue processed: ' . json_encode($result));
             }
-        })->name('notification-queue-processor')->everyTwoMinutes();
+        })->name('notification-queue-processor')->everyTwoMinutes()->withoutOverlapping();
     })
     ->create();

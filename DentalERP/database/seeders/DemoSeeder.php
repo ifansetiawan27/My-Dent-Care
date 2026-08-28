@@ -6,6 +6,8 @@ namespace Database\Seeders;
 
 use App\Domains\Appointment\Models\Appointment;
 use App\Domains\Branch\Models\Branch;
+use App\Domains\Doctor\Models\Doctor;
+use App\Domains\EMR\Models\EMR;
 use App\Domains\Organization\Models\Organization;
 use App\Domains\Patient\Models\Patient;
 use App\Domains\User\Models\User;
@@ -165,8 +167,153 @@ class DemoSeeder extends Seeder
             'created_by' => $receptionist->id,
         ]);
 
-        // 6. Create Demo Appointments (skipped — schema mismatch, will fix later)
-        // Appointment::create([...]);
+        // 6. Create a doctor profile (doctors table) for appointments.
+        $doctorProfile = Doctor::create([
+            'id'              => (string) Str::orderedUuid(),
+            'organization_id' => $organization->id,
+            'branch_id'       => $branch->id,
+            'doctor_code'     => 'DOC20260001',
+            'full_name'       => 'drg. Jane Doe',
+            'phone'           => '+62 813 8888 9999',
+            'email'           => 'jane.doe@demodental.com',
+            'gender'          => 'female',
+            'is_active'       => true,
+            'created_by'      => $superAdmin->id,
+        ]);
+
+        // 7. Create Demo Appointments.
+        $appointments = [];
+
+        // Near-term (reminder due soon) — exercises the WhatsApp reminder flow.
+        $appointments[] = Appointment::create([
+            'id'               => (string) Str::orderedUuid(),
+            'organization_id'  => $organization->id,
+            'branch_id'        => $branch->id,
+            'patient_id'       => $patients[0]->id,
+            'doctor_id'        => $doctorProfile->id,
+            'scheduled_at'     => now()->addMinutes(75),
+            'end_at'           => now()->addMinutes(105),
+            'status'           => 'confirmed',
+            'type'             => 'checkup',
+            'notes'            => 'Kontrol rutin.',
+            'reminder_minutes' => 30,
+            'reminder_sent'    => false,
+            'created_by'       => $receptionist->id,
+        ]);
+
+        $appointments[] = Appointment::create([
+            'id'               => (string) Str::orderedUuid(),
+            'organization_id'  => $organization->id,
+            'branch_id'        => $branch->id,
+            'patient_id'       => $patients[1]->id,
+            'doctor_id'        => $doctorProfile->id,
+            'scheduled_at'     => now()->addDay()->setTime(10, 0),
+            'end_at'           => now()->addDay()->setTime(11, 0),
+            'status'           => 'scheduled',
+            'type'             => 'treatment',
+            'notes'            => 'Perawatan saluran akar.',
+            'reminder_minutes' => 1440,
+            'reminder_sent'    => false,
+            'created_by'       => $receptionist->id,
+        ]);
+
+        $appointments[] = Appointment::create([
+            'id'               => (string) Str::orderedUuid(),
+            'organization_id'  => $organization->id,
+            'branch_id'        => $branch->id,
+            'patient_id'       => $patients[2]->id,
+            'doctor_id'        => $doctorProfile->id,
+            'scheduled_at'     => now()->addDays(2)->setTime(14, 30),
+            'end_at'           => now()->addDays(2)->setTime(15, 0),
+            'status'           => 'scheduled',
+            'type'             => 'consultation',
+            'notes'            => 'Konsultasi orthodonti.',
+            'reminder_minutes' => 60,
+            'reminder_sent'    => false,
+            'created_by'       => $receptionist->id,
+        ]);
+
+        // 8. Create Demo EMR (Rekam Medis) records with full SOAP detail.
+        $emrs = [];
+
+        $emrs[] = EMR::create([
+            'id'                  => (string) Str::orderedUuid(),
+            'organization_id'     => $organization->id,
+            'patient_id'          => $patients[0]->id,
+            'doctor_id'           => $doctorProfile->id,
+            'appointment_id'      => $appointments[0]->id,
+            'examination_date'    => now()->subDays(1),
+            'tooth_number'        => '46',
+            'icd_code'            => 'K02.1',
+            'chief_complaint'     => 'Sakit gigi belakang kanan bawah saat makan manis dan dingin.',
+            'present_illness'     => 'Nyeri sejak 3 hari, terasa tajam saat terkena makanan manis/dingin, hilang timbul.',
+            'medical_history'     => 'Tidak ada riwayat penyakit sistemik (diabetes, hipertensi, jantung disangkal).',
+            'allergies'           => 'Tidak ada alergi obat maupun makanan.',
+            'vital_signs'         => ['blood_pressure' => '120/80', 'pulse' => 78, 'temperature' => 36.5, 'respiratory_rate' => 18],
+            'extra_oral_exam'     => 'Tidak ada pembengkakan pada pipi kanan, KGB submandibula tidak teraba membesar.',
+            'intra_oral_exam'     => 'Karies media pada oklusal gigi 46, perkusi (-), palpasi (-), tes vitalitas (+) normal.',
+            'radiology_findings'  => 'Radiograf periapikal: radiolusensi pada oklusal 46 mencapai dentin, belum mencapai pulpa.',
+            'diagnosis'           => 'Karies media gigi 46 (K02.1)',
+            'secondary_diagnosis' => '-',
+            'treatment_notes'     => 'Preparasi kavitas dan restorasi komposit light-cured pada gigi 46.',
+            'treatment_plan'      => 'Restorasi komposit; kontrol 1 minggu untuk evaluasi adaptasi restorasi.',
+            'prescription'        => 'Paracetamol 500 mg, 3x1 sehari bila nyeri.',
+            'follow_up_plan'      => 'Kontrol 1 minggu lagi. Hindari makanan terlalu manis/dingin sementara.',
+            'status'              => 'completed',
+            'created_by'          => $doctorProfile->id,
+        ]);
+
+        $emrs[] = EMR::create([
+            'id'                  => (string) Str::orderedUuid(),
+            'organization_id'     => $organization->id,
+            'patient_id'          => $patients[1]->id,
+            'doctor_id'           => $doctorProfile->id,
+            'examination_date'    => now()->subDays(3),
+            'tooth_number'        => '11, 21',
+            'icd_code'            => 'K03.6',
+            'chief_complaint'     => 'Karang gigi dan gusi mudah berdarah saat menyikat gigi.',
+            'present_illness'     => 'Keluhan sejak 2 bulan, gusi depan atas terasa bengkak dan mudah berdarah.',
+            'medical_history'     => 'Riwayat hipertensi terkontrol dengan obat.',
+            'allergies'           => 'Alergi penisilin.',
+            'vital_signs'         => ['blood_pressure' => '140/90', 'pulse' => 82, 'temperature' => 36.7, 'respiratory_rate' => 20],
+            'extra_oral_exam'     => 'Simetris, tidak ada kelainan.',
+            'intra_oral_exam'     => 'Akumulasi kalkulus pada region anterior rahang atas, gingiva hiperemis dan mudah berdarah pada probing.',
+            'radiology_findings'  => 'Tidak dilakukan.',
+            'diagnosis'           => 'Gingivitis akibat kalkulus (K03.6)',
+            'secondary_diagnosis' => 'Deposit kalkulus supragingiva',
+            'treatment_notes'     => 'Scaling ultrasonik rahang atas region anterior.',
+            'treatment_plan'      => 'Scaling penuh dilanjutkan root planing bila diperlukan; edukasi oral hygiene.',
+            'prescription'        => 'Obat kumur chlorhexidine 0.12%, 2x sehari selama 1 minggu.',
+            'follow_up_plan'      => 'Kontrol 2 minggu untuk evaluasi kebersihan mulut dan rencana scaling lanjutan.',
+            'status'              => 'open',
+            'created_by'          => $doctorProfile->id,
+        ]);
+
+        $emrs[] = EMR::create([
+            'id'                  => (string) Str::orderedUuid(),
+            'organization_id'     => $organization->id,
+            'patient_id'          => $patients[2]->id,
+            'doctor_id'           => $doctorProfile->id,
+            'examination_date'    => now()->subHours(2),
+            'tooth_number'        => '38',
+            'icd_code'            => 'K05.3',
+            'chief_complaint'     => 'Nyeri dan bengkak pada gusi belakang kiri bawah.',
+            'present_illness'     => 'Bengkak sejak 2 hari, sulit membuka mulut dan menelan, nyeri berdenyut.',
+            'medical_history'     => 'Tidak ada penyakit sistemik.',
+            'allergies'           => 'Tidak ada alergi.',
+            'vital_signs'         => ['blood_pressure' => '118/76', 'pulse' => 88, 'temperature' => 37.8, 'respiratory_rate' => 19],
+            'extra_oral_exam'     => 'Pembengkakan ringan pada pipi kiri bawah, trismus ringan.',
+            'intra_oral_exam'     => 'Gigi 38 impaksi sebagian, operkulum hiperemis dan bengkak, ada pus pada tekanan.',
+            'radiology_findings'  => 'Panoramic: gigi 38 impaksi mesioangular, mendekati kanalis mandibula.',
+            'diagnosis'           => 'Perikoronitis gigi 38 (K05.3)',
+            'secondary_diagnosis' => 'Impaksi gigi 38',
+            'treatment_notes'     => 'Irigasi operkulum, drainase, dan pembersihan area perikoronal.',
+            'treatment_plan'      => 'Antibiotik dan analgesik; rencana odontektomi 38 setelah fase akut teratasi.',
+            'prescription'        => 'Amoxicillin 500 mg 3x1 (7 hari), Asam mefenamat 500 mg 3x1.',
+            'follow_up_plan'      => 'Kontrol 3 hari untuk evaluasi infeksi; jadwalkan odontektomi setelah kondisi stabil.',
+            'status'              => 'open',
+            'created_by'          => $doctorProfile->id,
+        ]);
 
         $this->command->info('✅ Demo data seeded successfully!');
         $this->command->info('');
@@ -191,6 +338,7 @@ class DemoSeeder extends Seeder
         $this->command->info('Organization: ' . $organization->company_name);
         $this->command->info('Branch: ' . $branch->branch_name);
         $this->command->info('Patients: ' . count($patients) . ' demo patients created');
-        $this->command->info('Appointments: 3 upcoming appointments');
+        $this->command->info('Appointments: ' . count($appointments) . ' upcoming appointments');
+        $this->command->info('EMR: ' . count($emrs) . ' rekam medis created');
     }
 }

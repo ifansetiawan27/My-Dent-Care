@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domains\WhatsApp\Services;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -19,6 +20,8 @@ use Illuminate\Support\Str;
  */
 class WhatsAppService
 {
+    public const DEFAULT_SESSION_NAME = 'default';
+
     private string $bridgeUrl;
     private int $timeout;
 
@@ -38,7 +41,10 @@ class WhatsAppService
                 ->get("{$this->bridgeUrl}/api/status");
 
             if ($response->successful()) {
-                return $response->json();
+                $status = $response->json();
+                $this->syncSessionRecord($status);
+
+                return $status;
             }
         } catch (\Exception $e) {
             Log::warning('WhatsApp bridge unreachable: ' . $e->getMessage());
@@ -58,7 +64,10 @@ class WhatsAppService
                 ->post("{$this->bridgeUrl}/api/qr");
 
             if ($response->successful()) {
-                return $response->json();
+                $result = $response->json();
+                $this->syncSessionRecord($result);
+
+                return $result;
             }
         } catch (\Exception $e) {
             Log::error('Failed to generate WhatsApp QR: ' . $e->getMessage());
@@ -165,6 +174,8 @@ _Terima kasih, sampai jumpa!_ 😊";
                 ->post("{$this->bridgeUrl}/api/logout");
 
             if ($response->successful()) {
+                $this->syncSessionRecord(['status' => 'disconnected']);
+
                 return $response->json();
             }
         } catch (\Exception $e) {
@@ -172,5 +183,46 @@ _Terima kasih, sampai jumpa!_ 😊";
         }
 
         return ['status' => 'error', 'message' => 'Failed to disconnect'];
+    }
+
+    /**
+     * Persist the bridge session state into the whatsapp_sessions table so
+     * the clinic's WhatsApp connection history is auditable locally.
+     * Failures here must never break the calling flow.
+     */
+    private function syncSessionRecord(array $status): void
+    {
+        try {
+            $state = $status['status'] ?? 'disconnected';
+            $existing = DB::table('whatsapp_sessions')
+                ->where('display_name', self::DEFAULT_SESSION_NAME)
+                ->first();
+
+            $attributes = [
+                'status' => $state,
+                'phone_number' => $status['phone'] ?? $status['phone_number'] ?? ($existing->phone_number ?? null),
+                'qr_code' => $status['qr_code'] ?? $status['qr'] ?? null,
+                'last_seen_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            if ($state === 'connected') {
+                $attributes['connected_at'] = $existing->connected_at ?? now();
+            }
+
+            if ($existing) {
+                DB::table('whatsapp_sessions')
+                    ->where('id', $existing->id)
+                    ->update($attributes);
+            } else {
+                DB::table('whatsapp_sessions')->insert(array_merge($attributes, [
+                    'id' => Str::orderedUuid()->toString(),
+                    'display_name' => self::DEFAULT_SESSION_NAME,
+                    'created_at' => now(),
+                ]));
+            }
+        } catch (\Exception $e) {
+            Log::warning('Could not sync WhatsApp session record: ' . $e->getMessage());
+        }
     }
 }
