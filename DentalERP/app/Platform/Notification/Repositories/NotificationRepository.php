@@ -79,7 +79,16 @@ class NotificationRepository
 
     public function markAsRead(string $id): bool
     {
-        return $this->update($id, ['read_at' => now()]);
+        $notification = $this->findById($id);
+
+        if (!$notification || $notification->channel !== 'in_app') {
+            return false;
+        }
+
+        return $notification->update([
+            'read_at' => now(),
+            'status'  => 'read',
+        ]);
     }
 
     public function markAsSent(string $id, ?string $externalId = null): bool
@@ -102,7 +111,7 @@ class NotificationRepository
         return $notification->update([
             'status' => 'failed',
             'failed_at' => now(),
-            'error_message' => $errorMessage,
+            'failed_reason' => $errorMessage,
             'retry_count' => $notification->retry_count + 1,
         ]);
     }

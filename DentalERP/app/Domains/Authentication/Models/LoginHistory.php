@@ -72,6 +72,7 @@ class LoginHistory extends Model
         'login_status'  => LoginStatus::class,
         'login_at'      => 'datetime',
         'logout_at'     => 'datetime',
+        'created_at'    => 'datetime',
     ];
 
     public function user(): BelongsTo

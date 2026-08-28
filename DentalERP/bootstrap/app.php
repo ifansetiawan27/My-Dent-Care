@@ -80,6 +80,15 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             static fn (): bool => true,
         );
+
+        // Normalize validation failures into the standard ApiResponse envelope
+        // so clients always receive { success, message, errors }.
+        $exceptions->render(function (\Illuminate\Validation\ValidationException $e) {
+            return \App\Core\Support\ApiResponse::validationError(
+                errors: $e->errors(),
+                message: $e->getMessage(),
+            );
+        });
     })
     ->withMiddleware(function (\Illuminate\Foundation\Configuration\Middleware $middleware): void {
         // Laravel defaults to redirecting guests to route('login'), which this

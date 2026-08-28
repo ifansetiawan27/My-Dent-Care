@@ -50,6 +50,8 @@ final class AppointmentController extends Controller
                 status: $r->validated('status'),
                 type: $r->validated('type'),
                 notes: $r->validated('notes'),
+                reminderMinutes: $r->validated('reminder_minutes'),
+                durationMinutes: $r->validated('duration_minutes'),
             );
             return response()->json($this->svc->create($dto), 201);
         } catch (BusinessException $e) {
@@ -65,6 +67,8 @@ final class AppointmentController extends Controller
             status: $r->validated('status'),
             type: $r->validated('type'),
             notes: $r->validated('notes'),
+            reminderMinutes: $r->validated('reminder_minutes'),
+            durationMinutes: $r->validated('duration_minutes'),
         );
         return response()->json($this->svc->update($id, $dto, auth()->user()->organization_id));
     }

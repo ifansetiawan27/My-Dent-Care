@@ -53,7 +53,7 @@ class SendNotificationJob implements ShouldQueue
                 'type' => $this->message->type,
                 'channel' => $this->channel->value,
                 'status' => 'pending',
-                'subject' => $this->message->title,
+                'title' => $this->message->title,
                 'body' => $this->message->body,
                 'data' => $this->message->data,
                 'retry_count' => 0,

@@ -21,10 +21,13 @@ uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     Auth::shouldReceive('check')->andReturn(false);
+    Auth::shouldReceive('user')->andReturn(null);
     Storage::fake('local');
+
     $mockAudit = mock(AuditServiceInterface::class);
     $mockAudit->shouldReceive('log')->byDefault();
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
+    app()->instance(AuditServiceInterface::class, $mockAudit);
+    app()->bind(FileStorageServiceInterface::class, fn () => app(FileStorageService::class));
 
     $this->organizationId = (string) Str::orderedUuid();
     $this->branchId       = (string) Str::orderedUuid();
@@ -78,11 +81,6 @@ it('store validates size against folder limit', function (): void {
 });
 
 it('store accepts valid file and returns StoredFileDTO', function (): void {
-    Storage::fake('local');
-    $mockAudit = mock(AuditServiceInterface::class);
-    $mockAudit->shouldReceive('log')->once();
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
-
     $folder = StorageFolder::Patient;
     $file = UploadedFile::fake()->create('patient-photo.jpg', 100, 'image/jpeg');
 
@@ -103,11 +101,6 @@ it('store accepts valid file and returns StoredFileDTO', function (): void {
 });
 
 it('store generates UUID-based stored name', function (): void {
-    Storage::fake('local');
-    $mockAudit = mock(AuditServiceInterface::class);
-    $mockAudit->shouldReceive('log')->once();
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
-
     $file = UploadedFile::fake()->create('photo.jpg', 100, 'image/jpeg');
     $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Patient, $this->organizationId);
 
@@ -116,11 +109,6 @@ it('store generates UUID-based stored name', function (): void {
 });
 
 it('store computes SHA-256 hash', function (): void {
-    Storage::fake('local');
-    $mockAudit = mock(AuditServiceInterface::class);
-    $mockAudit->shouldReceive('log')->once();
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
-
     $file = UploadedFile::fake()->create('doc.pdf', 50, 'application/pdf');
     $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Patient, $this->organizationId);
 
@@ -129,11 +117,6 @@ it('store computes SHA-256 hash', function (): void {
 });
 
 it('store builds multi-tenant path', function (): void {
-    Storage::fake('local');
-    $mockAudit = mock(AuditServiceInterface::class);
-    $mockAudit->shouldReceive('log')->once();
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
-
     $file = UploadedFile::fake()->create('file.jpg', 100, 'image/jpeg');
     $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Patient, $this->organizationId, $this->branchId);
 
@@ -141,11 +124,6 @@ it('store builds multi-tenant path', function (): void {
 });
 
 it('store uses global branch path when branchId is null', function (): void {
-    Storage::fake('local');
-    $mockAudit = mock(AuditServiceInterface::class);
-    $mockAudit->shouldReceive('log')->once();
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
-
     $file = UploadedFile::fake()->create('file.jpg', 100, 'image/jpeg');
     $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Organization, $this->organizationId, null);
 
@@ -153,10 +131,6 @@ it('store uses global branch path when branchId is null', function (): void {
 });
 
 it('temporaryUrl generates signed URL with default 15-minute expiry', function (): void {
-    Storage::fake('local');
-    $mockAudit = mock(AuditServiceInterface::class);
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
-
     $service = app(FileStorageServiceInterface::class);
     $url = $service->temporaryUrl('patient/org-1/global/2026/08/uuid.jpg');
 
@@ -164,11 +138,6 @@ it('temporaryUrl generates signed URL with default 15-minute expiry', function (
 });
 
 it('exists returns true for stored file', function (): void {
-    Storage::fake('local');
-    $mockAudit = mock(AuditServiceInterface::class);
-    $mockAudit->shouldReceive('log')->once();
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
-
     $file = UploadedFile::fake()->create('doc.pdf', 50, 'application/pdf');
     $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Patient, $this->organizationId);
 
@@ -177,20 +146,11 @@ it('exists returns true for stored file', function (): void {
 });
 
 it('exists returns false for nonexistent path', function (): void {
-    Storage::fake('local');
-    $mockAudit = mock(AuditServiceInterface::class);
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
-
     $service = app(FileStorageServiceInterface::class);
     expect($service->exists('nonexistent/path/file.pdf'))->toBeFalse();
 });
 
 it('get returns file contents for existing file', function (): void {
-    Storage::fake('local');
-    $mockAudit = mock(AuditServiceInterface::class);
-    $mockAudit->shouldReceive('log')->once();
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
-
     $file = UploadedFile::fake()->create('doc.pdf', 50, 'application/pdf');
     $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Patient, $this->organizationId);
 
@@ -200,32 +160,22 @@ it('get returns file contents for existing file', function (): void {
 });
 
 it('get returns null for nonexistent file', function (): void {
-    Storage::fake('local');
-    $mockAudit = mock(AuditServiceInterface::class);
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
-
     $service = app(FileStorageServiceInterface::class);
     expect($service->get('nonexistent/path'))->toBeNull();
 });
 
 it('delete soft-deletes file record and returns true', function (): void {
-    Storage::fake('local');
-    $mockAudit = mock(AuditServiceInterface::class);
-    $mockAudit->shouldReceive('log')->twice();
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
-
     $file = UploadedFile::fake()->create('doc.pdf', 50, 'application/pdf');
     $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Patient, $this->organizationId);
 
     $service = app(FileStorageServiceInterface::class);
     expect($service->delete($dto->path))->toBeTrue();
+
+    expect(File::where('id', $dto->id)->first())->toBeNull();
+    expect(File::withTrashed()->where('id', $dto->id)->first())->not->toBeNull();
 });
 
 it('delete returns false for nonexistent path', function (): void {
-    Storage::fake('local');
-    $mockAudit = mock(AuditServiceInterface::class);
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
-
     $service = app(FileStorageServiceInterface::class);
     expect($service->delete('nonexistent/path'))->toBeFalse();
 });

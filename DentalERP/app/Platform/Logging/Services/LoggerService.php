@@ -9,6 +9,8 @@ use App\Platform\Logging\Enums\LogLevel;
 use App\Platform\Logging\Jobs\LogJob;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Throwable;
 
 /**
  * LoggerService
@@ -21,6 +23,11 @@ final class LoggerService implements LoggerServiceInterface
 {
     public function log(LogLevel $level, string $message, array $context = []): void
     {
+        // Debug noise is suppressed entirely in production.
+        if ($level === LogLevel::Debug && config('app.env') === 'production') {
+            return;
+        }
+
         // Always log to file (Laravel's default channel)
         $this->logToFile($level, $message, $context);
 
@@ -79,24 +86,46 @@ final class LoggerService implements LoggerServiceInterface
     {
         $user = Auth::user();
         $request = request();
-        
         $exception = $context['exception'] ?? null;
+
+        $exceptionClass = match (true) {
+            $exception instanceof Throwable => get_class($exception),
+            is_string($exception) && $exception !== '' => $exception,
+            default => null,
+        };
 
         dispatch(new LogJob(
             level: $level,
             message: $message,
             context: $context,
-            organizationId: $user?->organization_id ?? $request->input('organization_id'),
-            userId: $user?->id,
-            exceptionClass: $exception ? get_class($exception) : null,
-            exceptionMessage: $exception?->getMessage(),
-            exceptionTrace: $exception?->getTraceAsString(),
-            requestId: $request->header('X-Request-ID') ?? \Illuminate\Support\Str::uuid()->toString(),
-            ipAddress: $request->ip(),
+            channel: $this->extractChannel($message),
+            organizationId: $context['organization_id'] ?? $user?->organization_id ?? $request->input('organization_id'),
+            branchId: $context['branch_id'] ?? $user?->branch_id,
+            userId: $context['user_id'] ?? $user?->id,
+            exceptionClass: $exceptionClass,
+            exceptionMessage: $exception instanceof Throwable ? $exception->getMessage() : null,
+            file: $context['file'] ?? ($exception instanceof Throwable ? $exception->getFile() : null),
+            line: isset($context['line']) ? (int) $context['line'] : ($exception instanceof Throwable ? $exception->getLine() : null),
+            trace: $context['trace'] ?? ($exception instanceof Throwable ? $exception->getTraceAsString() : null),
+            requestId: $request->header('X-Request-ID') ?? Str::uuid()->toString(),
+            ipAddress: $context['ip_address'] ?? $request->ip(),
             userAgent: $request->userAgent(),
             method: $request->method(),
             url: $request->fullUrl(),
         ));
+    }
+
+    /**
+     * Extract the emitting module from a "[Module::action] message" prefix.
+     * Falls back to "system" when no prefix is present.
+     */
+    private function extractChannel(string $message): string
+    {
+        if (preg_match('/^\[([A-Za-z0-9_]+)(?:::[A-Za-z0-9_]+)?\]/', $message, $matches) === 1) {
+            return $matches[1];
+        }
+
+        return 'system';
     }
 
     private function shouldLogToDatabase(LogLevel $level): bool

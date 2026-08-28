@@ -12,6 +12,8 @@ final readonly class UpdateAppointmentDTO
         public ?string $status = null,
         public ?string $type = null,
         public ?string $notes = null,
+        public ?int $reminderMinutes = null,
+        public ?int $durationMinutes = null,
     ) {}
 
     public function toArray(): array
@@ -22,6 +24,8 @@ final readonly class UpdateAppointmentDTO
             'status'       => $this->status,
             'type'         => $this->type,
             'notes'        => $this->notes,
+            'reminder_minutes' => $this->reminderMinutes,
+            'duration_minutes' => $this->durationMinutes,
         ], fn ($v) => $v !== null);
     }
 }

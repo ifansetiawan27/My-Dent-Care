@@ -16,6 +16,8 @@ final readonly class CreateAppointmentDTO
         public ?string $status,
         public ?string $type,
         public ?string $notes,
+        public ?int $reminderMinutes = null,
+        public ?int $durationMinutes = null,
     ) {}
 
     public function toArray(): array
@@ -30,6 +32,8 @@ final readonly class CreateAppointmentDTO
             'status'          => $this->status ?? 'scheduled',
             'type'            => $this->type,
             'notes'           => $this->notes,
+            'reminder_minutes' => $this->reminderMinutes,
+            'duration_minutes' => $this->durationMinutes,
         ];
     }
 }

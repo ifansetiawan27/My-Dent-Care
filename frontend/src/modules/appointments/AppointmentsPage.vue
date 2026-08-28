@@ -209,20 +209,32 @@ function openDetail(item: any) {
   showDetail.value = true
 }
 
+function currentUser(): Record<string, any> {
+  try { return JSON.parse(localStorage.getItem('auth_user') || '{}') } catch { return {} }
+}
+
 async function handleSave() {
   saving.value = true
   saveMsg.value = ''
   try {
+    const u = currentUser()
+    const payload: Record<string, any> = {
+      ...formData.value,
+      organization_id: u.organization_id,
+      branch_id: u.branch_id || null,
+    }
     if (formData.value.id) {
-      await api.put(`/v1/appointments/${formData.value.id}`, formData.value)
+      await api.put(`/v1/appointments/${formData.value.id}`, payload)
     } else {
-      await api.post('/v1/appointments', formData.value)
+      await api.post('/v1/appointments', payload)
     }
     saveMsg.value = 'Berhasil disimpan.'
     showModal.value = false
     await fetchData()
   } catch (e: any) {
-    saveMsg.value = e?.response?.data?.message ?? e?.message ?? 'Gagal menyimpan.'
+    const errs = e?.response?.data?.errors
+    const firstField = errs ? Object.values(errs).flat()[0] : null
+    saveMsg.value = firstField ?? e?.response?.data?.message ?? e?.message ?? 'Gagal menyimpan.'
   } finally {
     saving.value = false
   }

@@ -29,6 +29,24 @@ class CriticalPathTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * Build a valid login payload matching the current LoginRequest contract
+     * (identifier + organization/branch scoping + device tracking).
+     */
+    private function loginPayload(User $user, string $identifier): array
+    {
+        return [
+            'identifier'      => $identifier,
+            'password'        => 'password',
+            'organization_id' => $user->organization_id,
+            'branch_id'       => $user->branch_id,
+            'device_uuid'     => 'test-device-uuid',
+            'device_name'     => 'test-device',
+            'device_type'     => 'web',
+            'platform'        => 'web',
+        ];
+    }
+
     // -------------------------------------------------------------------------
     // 1. Health Check
     // -------------------------------------------------------------------------
@@ -51,11 +69,7 @@ class CriticalPathTest extends TestCase
             ->create();
 
         // Login
-        $loginResponse = $this->postJson('/api/v1/auth/login', [
-            'email' => 'test@dentcare.com',
-            'password' => 'password',
-            'device_name' => 'test-device',
-        ]);
+        $loginResponse = $this->postJson('/api/v1/auth/login', $this->loginPayload($user, 'test@dentcare.com'));
 
         $loginResponse->assertOk();
         $loginResponse->assertJsonStructure([
@@ -77,16 +91,15 @@ class CriticalPathTest extends TestCase
 
     public function test_login_fails_with_wrong_password(): void
     {
-        User::factory()
+        $user = User::factory()
             ->withEmail('wrong@dentcare.com')
             ->withPassword('correct-password')
             ->create();
 
-        $response = $this->postJson('/api/v1/auth/login', [
-            'email' => 'wrong@dentcare.com',
-            'password' => 'wrong-password',
-            'device_name' => 'test',
-        ]);
+        $payload = $this->loginPayload($user, 'wrong@dentcare.com');
+        $payload['password'] = 'wrong-password';
+
+        $response = $this->postJson('/api/v1/auth/login', $payload);
 
         $response->assertUnauthorized();
     }
@@ -104,16 +117,16 @@ class CriticalPathTest extends TestCase
             ->withPassword('password')
             ->create();
 
-        $loginResponse = $this->postJson('/api/v1/auth/login', [
-            'email' => 'logout@dentcare.com',
-            'password' => 'password',
-            'device_name' => 'test',
-        ]);
+        $loginResponse = $this->postJson('/api/v1/auth/login', $this->loginPayload($user, 'logout@dentcare.com'));
 
         $token = $loginResponse->json('data.access_token');
 
         $logoutResponse = $this->withToken($token)->postJson('/api/v1/auth/logout');
         $logoutResponse->assertOk();
+
+        // Reset cached guards so the next sub-request re-resolves the token
+        // (in production every HTTP request starts with a fresh guard).
+        $this->app['auth']->forgetGuards();
 
         // Token should be invalid after logout
         $profileResponse = $this->withToken($token)->getJson('/api/v1/auth/profile');
@@ -172,11 +185,7 @@ class CriticalPathTest extends TestCase
             ->create();
 
         // Authenticate as user1
-        $loginResponse = $this->postJson('/api/v1/auth/login', [
-            'email' => 'user1@org-a.com',
-            'password' => 'password',
-            'device_name' => 'test',
-        ]);
+        $loginResponse = $this->postJson('/api/v1/auth/login', $this->loginPayload($user1, 'user1@org-a.com'));
         $token = $loginResponse->json('data.access_token');
 
         // user1's profile should show org1 data, not org2
@@ -216,11 +225,7 @@ class CriticalPathTest extends TestCase
             ->withPassword('password')
             ->create();
 
-        $loginResponse = $this->postJson('/api/v1/auth/login', [
-            'email' => 'format@dentcare.com',
-            'password' => 'password',
-            'device_name' => 'test',
-        ]);
+        $loginResponse = $this->postJson('/api/v1/auth/login', $this->loginPayload($user, 'format@dentcare.com'));
 
         // All API responses should have 'success' key
         $loginResponse->assertJsonStructure(['success', 'data', 'message']);

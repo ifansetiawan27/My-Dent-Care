@@ -19,10 +19,13 @@ uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
     Auth::shouldReceive('check')->andReturn(false);
+    Auth::shouldReceive('user')->andReturn(null);
     Storage::fake('local');
+
     $mockAudit = mock(AuditServiceInterface::class);
     $mockAudit->shouldReceive('log')->byDefault();
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
+    app()->instance(AuditServiceInterface::class, $mockAudit);
+    app()->bind(FileStorageServiceInterface::class, fn () => app(FileStorageService::class));
 
     $this->organizationId = (string) Str::orderedUuid();
     $this->branchId       = (string) Str::orderedUuid();
@@ -61,7 +64,8 @@ beforeEach(function (): void {
 it('persists file metadata after store', function (): void {
     $mockAudit = mock(AuditServiceInterface::class);
     $mockAudit->shouldReceive('log')->once();
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
+    app()->instance(AuditServiceInterface::class, $mockAudit);
+    app()->bind(FileStorageServiceInterface::class, fn () => app(FileStorageService::class));
 
     $file = UploadedFile::fake()->create('photo.jpg', 100, 'image/jpeg');
     $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Patient, $this->organizationId, $this->branchId);
@@ -84,7 +88,8 @@ it('persists file metadata after store', function (): void {
 it('file metadata matches DTO after store', function (): void {
     $mockAudit = mock(AuditServiceInterface::class);
     $mockAudit->shouldReceive('log')->once();
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
+    app()->instance(AuditServiceInterface::class, $mockAudit);
+    app()->bind(FileStorageServiceInterface::class, fn () => app(FileStorageService::class));
 
     $file = UploadedFile::fake()->create('doc.pdf', 50, 'application/pdf');
     $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Doctor, $this->organizationId, null);
@@ -107,7 +112,8 @@ it('file metadata matches DTO after store', function (): void {
 it('soft-deletes file via BaseModel SoftDeletes trait', function (): void {
     $mockAudit = mock(AuditServiceInterface::class);
     $mockAudit->shouldReceive('log')->twice();
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
+    app()->instance(AuditServiceInterface::class, $mockAudit);
+    app()->bind(FileStorageServiceInterface::class, fn () => app(FileStorageService::class));
 
     $file = UploadedFile::fake()->create('doc.pdf', 50, 'application/pdf');
     $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Patient, $this->organizationId);
@@ -124,7 +130,8 @@ it('soft-deletes file via BaseModel SoftDeletes trait', function (): void {
 it('audit records are created for upload and delete', function (): void {
     $mockAudit = mock(AuditServiceInterface::class);
     $mockAudit->shouldReceive('log')->twice();
-    app()->bind(FileStorageServiceInterface::class, fn () => new FileStorageService($mockAudit));
+    app()->instance(AuditServiceInterface::class, $mockAudit);
+    app()->bind(FileStorageServiceInterface::class, fn () => app(FileStorageService::class));
 
     $file = UploadedFile::fake()->create('doc.pdf', 50, 'application/pdf');
     $dto = app(FileStorageServiceInterface::class)->store($file, StorageFolder::Patient, $this->organizationId);

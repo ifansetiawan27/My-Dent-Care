@@ -46,7 +46,7 @@ beforeEach(function (): void {
     ]);
 });
 
-it('send creates pending notification records — one per channel', function (): void {
+it('send pushes one SendNotificationJob per channel', function (): void {
     $message = new NotificationMessageDTO(
         type:           'appointment_reminder',
         notifiableType: 'App\\Models\\User',
@@ -60,10 +60,29 @@ it('send creates pending notification records — one per channel', function ():
 
     app(NotificationServiceInterface::class)->send($message);
 
+    Queue::assertPushed(SendNotificationJob::class, 2);
+});
+
+it('SendNotificationJob creates one notification record and marks it sent', function (): void {
+    $message = new NotificationMessageDTO(
+        type:           'appointment_reminder',
+        notifiableType: 'App\\Models\\User',
+        notifiableId:   $this->notifiableId,
+        channels:       [NotificationChannel::Email, NotificationChannel::Sms],
+        title:          'Reminder',
+        body:           'Your appointment is tomorrow.',
+        organizationId: $this->orgId,
+        branchId:       $this->branchId,
+    );
+
+    foreach ($message->channels as $channel) {
+        (new SendNotificationJob($message, $channel))->handle(app(\App\Platform\Notification\Repositories\NotificationRepository::class));
+    }
+
     $records = Notification::all();
     expect($records)->toHaveCount(2);
-    expect($records->pluck('channel')->toArray())->toBe(['email', 'sms']);
-    expect($records->every(fn ($r) => $r->status === 'pending'))->toBeTrue();
+    expect($records->pluck('channel')->sort()->values()->toArray())->toBe(['email', 'sms']);
+    expect($records->every(fn ($r) => $r->status === 'sent'))->toBeTrue();
 });
 
 it('send dispatches SendNotificationJob to queue', function (): void {
@@ -96,7 +115,7 @@ it('sendMany dispatches for each message', function (): void {
 
     app(NotificationServiceInterface::class)->sendMany($messages);
 
-    expect(Notification::count())->toBe(2);
+    Queue::assertPushed(SendNotificationJob::class, 2);
 });
 
 it('markAsRead returns false for non-in-app channel', function (): void {
@@ -175,6 +194,7 @@ it('SendNotificationJob has 3 retry attempts with exponential backoff', function
             type: 'test', notifiableType: 'U', notifiableId: '1',
             channels: [NotificationChannel::Email], title: 'T', body: 'B',
         ),
+        NotificationChannel::Email,
     );
 
     expect($job->tries)->toBe(3);

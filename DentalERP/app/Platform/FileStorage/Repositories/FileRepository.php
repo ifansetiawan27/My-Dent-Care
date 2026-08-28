@@ -24,6 +24,14 @@ class FileRepository
         return $this->model->find($id);
     }
 
+    public function findByPath(string $path): ?File
+    {
+        return $this->model
+            ->where('path', $path)
+            ->whereNull('deleted_at')
+            ->first();
+    }
+
     public function findByHash(string $hash, string $organizationId): ?File
     {
         return $this->model

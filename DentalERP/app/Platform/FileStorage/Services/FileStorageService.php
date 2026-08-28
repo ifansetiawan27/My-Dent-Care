@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Platform\FileStorage\Services;
 
 use App\Core\Exceptions\BusinessException;
+use App\Platform\Audit\Contracts\AuditServiceInterface;
+use App\Platform\Audit\Enums\AuditAction;
 use App\Platform\FileStorage\Contracts\FileStorageServiceInterface;
 use App\Platform\FileStorage\DTO\StoredFileDTO;
 use App\Platform\FileStorage\Enums\StorageDriver;
@@ -24,11 +26,10 @@ use Illuminate\Support\Str;
  */
 final class FileStorageService implements FileStorageServiceInterface
 {
-    private const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
-    
     private const ALLOWED_MIMES = [
-        'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+        'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
         'application/pdf',
+        'application/dicom',
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'application/vnd.ms-excel',
@@ -36,7 +37,8 @@ final class FileStorageService implements FileStorageServiceInterface
     ];
 
     public function __construct(
-        private readonly FileRepository $repository
+        private readonly FileRepository $repository,
+        private readonly AuditServiceInterface $audit,
     ) {
     }
 
@@ -46,7 +48,7 @@ final class FileStorageService implements FileStorageServiceInterface
         ?string       $organizationId = null,
         ?string       $branchId       = null,
     ): StoredFileDTO {
-        $this->validate($file);
+        $this->validate($file, $folder);
 
         $user = Auth::user();
         $organizationId = $organizationId ?? $user?->organization_id;
@@ -58,12 +60,13 @@ final class FileStorageService implements FileStorageServiceInterface
 
         // Generate UUID for file
         $fileId = (string) Str::orderedUuid();
-        $extension = $file->getClientOriginalExtension();
-        $storedName = "{$fileId}.{$extension}";
-        
-        // Build multi-tenant path
+        $extension = strtolower($file->getClientOriginalExtension());
+        $storedName = $fileId;
+
+        // Build multi-tenant path; org-level files without a branch use "global"
+        $branchSegment = $branchId ?? 'global';
         $yearMonth = now()->format('Y/m');
-        $path = "{$folder->value}/{$organizationId}/{$branchId}/{$yearMonth}/{$storedName}";
+        $path = "{$folder->value}/{$organizationId}/{$branchSegment}/{$yearMonth}/{$storedName}.{$extension}";
         
         // Compute hash
         $realPath = $file->getRealPath();
@@ -115,6 +118,15 @@ final class FileStorageService implements FileStorageServiceInterface
             'created_by' => $user?->id,
         ]);
 
+        $this->audit->log(
+            AuditAction::Create,
+            'FileStorage',
+            File::class,
+            $fileRecord->id,
+            [],
+            ['path' => $fileRecord->path, 'folder' => $fileRecord->folder, 'size' => $fileRecord->size],
+        );
+
         return new StoredFileDTO(
             id: $fileRecord->id,
             folder: StorageFolder::from($fileRecord->folder),
@@ -162,15 +174,43 @@ final class FileStorageService implements FileStorageServiceInterface
     public function delete(string $path): bool
     {
         $disk = config('filesystems.default', 'local');
-        return Storage::disk($disk)->delete($path);
+
+        $record = $this->repository->findByPath($path);
+        $existsOnDisk = Storage::disk($disk)->exists($path);
+
+        if (!$record && !$existsOnDisk) {
+            return false;
+        }
+
+        if ($record) {
+            $record->delete();
+            $this->audit->log(
+                AuditAction::Delete,
+                'FileStorage',
+                File::class,
+                $record->id,
+                ['path' => $record->path],
+                [],
+            );
+        }
+
+        return $existsOnDisk ? Storage::disk($disk)->delete($path) : true;
     }
 
-    private function validate(UploadedFile $file): void
+    private function validate(UploadedFile $file, StorageFolder $folder): void
     {
-        // Size validation
-        if ($file->getSize() > self::MAX_FILE_SIZE) {
+        // Size validation (per-folder business rule)
+        if ($file->getSize() > $folder->maxSizeBytes()) {
             throw new BusinessException(
-                'File size exceeds maximum allowed size of ' . (self::MAX_FILE_SIZE / 1024 / 1024) . ' MB'
+                'File size exceeds maximum allowed size of ' . ($folder->maxSizeBytes() / 1024 / 1024) . ' MB for this folder'
+            );
+        }
+
+        // Extension whitelist validation (per-folder business rule)
+        $extension = strtolower($file->getClientOriginalExtension());
+        if (!in_array($extension, $folder->allowedExtensions(), true)) {
+            throw new BusinessException(
+                'File type not allowed. Allowed types: ' . implode(', ', $folder->allowedExtensions())
             );
         }
 
