@@ -11,14 +11,24 @@ const api = axios.create({
   },
 })
 
-// No manual token management needed — Sanctum handles auth via HttpOnly cookies.
-// The withCredentials: true flag ensures cookies are sent with every request.
+// Attach Bearer token from localStorage if present (SPA token auth fallback)
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth_token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     const normalized = normalizeError(error)
-    // 401 means session expired — let the app router handle redirect
+    // 401 means session expired — clear stale token and let router handle redirect
+    if (error.response?.status === 401) {
+      localStorage.removeItem('auth_token')
+      localStorage.removeItem('auth_user')
+    }
     return Promise.reject(normalized)
   },
 )

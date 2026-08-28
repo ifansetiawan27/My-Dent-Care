@@ -39,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
             base_path('app/Domains/Scanner/Routes/api.php'),
             base_path('app/Domains/Subscription/Routes/api.php'),
             base_path('app/Domains/Treatment/Routes/api.php'),
+            base_path('app/Domains/WhatsApp/Routes/api.php'),
         ],
         health: '/up',
     )
@@ -105,5 +106,23 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->job(App\Domains\Subscription\Jobs\ProcessSubscriptionRenewals::class)->everyFifteenMinutes();
         $schedule->job(App\Domains\Subscription\Jobs\RetryFailedSubscriptionPayment::class)->everyFifteenMinutes();
         $schedule->job(App\Domains\Subscription\Jobs\ProcessGraceExpiration::class)->everyFifteenMinutes();
+
+        // WhatsApp appointment reminders — every 5 minutes
+        $schedule->call(function (): void {
+            $service = app(App\Domains\Appointment\Services\ReminderService\AppointmentReminderService::class);
+            $result = $service->processReminders();
+            if ($result['queued'] > 0) {
+                \Illuminate\Support\Facades\Log::info('WhatsApp reminders processed: ' . json_encode($result));
+            }
+        })->name('appointment-whatsapp-reminders')->everyFiveMinutes();
+
+        // Process notification queue — every 2 minutes
+        $schedule->call(function (): void {
+            $service = app(App\Domains\Notification\Services\NotificationQueueService::class);
+            $result = $service->processDue();
+            if ($result['processed'] > 0) {
+                \Illuminate\Support\Facades\Log::info('Notification queue processed: ' . json_encode($result));
+            }
+        })->name('notification-queue-processor')->everyTwoMinutes();
     })
     ->create();

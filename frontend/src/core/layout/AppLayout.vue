@@ -116,13 +116,14 @@ async function loadProfile(): Promise<void> {
     localStorage.setItem('auth_user', JSON.stringify(profile))
     userPerms.value = getUserPermsFromStorage()
   } catch {
+    // Profile fetch failed — use cached user data from login response
     try {
       const u = JSON.parse(localStorage.getItem('auth_user') || '{}') as AuthUser
-      userName.value = u.name ?? ''
+      userName.value = u.name ?? 'User'
       userEmail.value = u.email ?? ''
       userInitial.value = (u.name ?? 'U').charAt(0).toUpperCase()
       userPerms.value = getUserPermsFromStorage()
-    } catch { /* ignore */ }
+    } catch { /* no cached data either, show defaults */ }
   }
 }
 

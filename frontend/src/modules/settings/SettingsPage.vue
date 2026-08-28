@@ -4,6 +4,7 @@ import { settingsApi, type ClinicSettings } from './api/settingsApi'
 import { useApi } from '@/shared/composables/useApi'
 import { ref } from 'vue'
 import type { SubscriptionResource } from '@/shared/types/subscription'
+import WhatsAppSettings from './WhatsAppSettings.vue'
 
 const { data: settings, loading, refresh } = useApi<ClinicSettings>(() => settingsApi.get())
 const saving = ref(false)
@@ -86,5 +87,8 @@ async function save(): Promise<void> {
       <div v-if="message" :class="message.includes('failed') ? 'alert alert-error' : 'alert alert-success'">{{ message }}</div>
       <button type="submit" :disabled="saving" class="btn-primary">{{ saving ? 'Saving...' : 'Save Settings' }}</button>
     </form>
+
+    <!-- WhatsApp Settings Section -->
+    <WhatsAppSettings />
   </div>
 </template>

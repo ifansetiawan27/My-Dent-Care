@@ -6,6 +6,7 @@ Route::prefix('v1/appointments')->middleware('auth:sanctum')->group(function() {
     Route::get('/{id}',[AppointmentController::class,'show']);
     Route::post('/',[AppointmentController::class,'store']);
     Route::put('/{id}',[AppointmentController::class,'update']);
+    Route::patch('/{id}',[AppointmentController::class,'update']);
     Route::delete('/{id}',[AppointmentController::class,'destroy']);
     Route::patch('/{id}/toggle-active',[AppointmentController::class,'toggleActive']);
 });

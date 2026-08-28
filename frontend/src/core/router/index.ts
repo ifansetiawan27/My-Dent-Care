@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { authApi } from '@/modules/auth/api/authApi'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -28,14 +29,14 @@ const router = createRouter({
         {
           path: 'appointments',
           name: 'appointments',
-          component: () => import('@/shared/components/ModulePage.vue'),
-          meta: { title: 'Appointment', module: 'appointments', requiresAuth: true },
+          component: () => import('@/modules/appointments/AppointmentsPage.vue'),
+          meta: { title: 'Appointment', desc: 'Kelola jadwal janji temu pasien, cegah double-booking, dan pantau status appointment.' },
         },
         {
           path: 'patients',
           name: 'patients',
-          component: () => import('@/shared/components/ModulePage.vue'),
-          meta: { title: 'Pasien', module: 'patients', requiresAuth: true },
+          component: () => import('@/modules/patients/PatientsPage.vue'),
+          meta: { title: 'Pasien', desc: 'Registrasi pasien, nomor rekam medis otomatis, dan data demografis.' },
         },
         {
           path: 'emr',
@@ -160,13 +161,38 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, _from, next) => {
-  // Check auth status via reactive user from useAuth composable
-  // Since we use Sanctum HttpOnly cookies, we check user state indirectly
-  // by attempting a profile fetch on protected routes. For now, allow all
-  // navigation — the API will return 401 if unauthenticated and the app
-  // will handle redirect.
-  next()
+let authChecked = false
+
+router.beforeEach(async (to, _from, next) => {
+  // Skip auth check for landing and login pages
+  if (to.name === 'landing' || to.name === 'login') {
+    next()
+    return
+  }
+
+  // Only check auth once on initial load
+  if (!authChecked) {
+    authChecked = true
+    const token = localStorage.getItem('auth_token')
+    if (!token) {
+      // No token stored, redirect to login
+      next({ path: '/login', query: { redirect: to.fullPath } })
+      return
+    }
+    try {
+      await authApi.profile()
+      // User is authenticated, proceed
+      next()
+    } catch {
+      // Token invalid or expired, clear and redirect to login
+      localStorage.removeItem('auth_token')
+      localStorage.removeItem('auth_user')
+      next({ path: '/login', query: { redirect: to.fullPath } })
+      return
+    }
+  } else {
+    next()
+  }
 })
 
 export default router
