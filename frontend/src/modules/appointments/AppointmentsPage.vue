@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
 import api from '@/core/api/client'
 import type { ApiResponse } from '@/shared/types/api'
-
-const route = useRoute()
+import { localDatetimeInput } from '@/shared/utils/datetime'
 
 /* ===== State ===== */
 const data = ref<any[]>([])
@@ -119,9 +117,11 @@ async function fetchData(): Promise<void> {
   error.value = null
   try {
     const [apptsRes, doctorsRes, patientsRes] = await Promise.all([
-      api.get<ApiResponse<any[]>>('/v1/appointments'),
-      api.get<ApiResponse<any[]>>('/v1/doctors'),
-      api.get<ApiResponse<any[]>>('/v1/patients'),
+      // per_page=100 (the backend cap) so the calendar and stats aren't built
+      // from only the first 20 appointments.
+      api.get<ApiResponse<any[]>>('/v1/appointments', { params: { per_page: 100 } }),
+      api.get<ApiResponse<any[]>>('/v1/doctors', { params: { per_page: 100 } }),
+      api.get<ApiResponse<any[]>>('/v1/patients', { params: { per_page: 100 } }),
     ])
     data.value = apptsRes.data.data ?? []
     doctors.value = doctorsRes.data.data ?? []
@@ -186,7 +186,7 @@ async function executeReminder(): Promise<void> {
     })
     reminderMsg.value = '✅ Reminder berhasil dikirim!'
   } catch (e: any) {
-    reminderMsg.value = '❌ Gagal mengirim reminder: ' + (e?.response?.data?.message || e?.message)
+    reminderMsg.value = '❌ Gagal mengirim reminder: ' + (e?.message ?? 'Unknown error')
   } finally {
     sendingReminder.value = false
   }
@@ -195,7 +195,7 @@ async function executeReminder(): Promise<void> {
 /* ===== Actions ===== */
 function openCreate() {
   formData.value = {
-    scheduled_at: new Date().toISOString().slice(0, 16),
+    scheduled_at: localDatetimeInput(),
     status: 'scheduled',
     type: 'checkup',
     reminder_minutes: 60,
@@ -232,9 +232,9 @@ async function handleSave() {
     showModal.value = false
     await fetchData()
   } catch (e: any) {
-    const errs = e?.response?.data?.errors
+    const errs = e?.errors
     const firstField = errs ? Object.values(errs).flat()[0] : null
-    saveMsg.value = firstField ?? e?.response?.data?.message ?? e?.message ?? 'Gagal menyimpan.'
+    saveMsg.value = firstField ?? e?.message ?? 'Gagal menyimpan.'
   } finally {
     saving.value = false
   }
@@ -527,7 +527,7 @@ onMounted(() => { fetchData(); fetchWaStatus() })
             </td>
           </tr>
           <tr v-if="!filteredData.length">
-            <td colspan="7" class="appt-empty">Tidak ada appointment yang sesuai filter.</td>
+            <td colspan="8" class="appt-empty">Tidak ada appointment yang sesuai filter.</td>
           </tr>
         </tbody>
       </table>

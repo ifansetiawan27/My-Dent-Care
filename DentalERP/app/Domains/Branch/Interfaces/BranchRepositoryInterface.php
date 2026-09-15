@@ -188,14 +188,6 @@ interface BranchRepositoryInterface extends RepositoryInterface
      */
     public function hasInventories(string $branchId): bool;
 
-    /**
-     * Check whether the branch has any finance transactions.
-     *
-     * @param  string $branchId
-     * @return bool
-     */
-    public function hasFinanceTransactions(string $branchId): bool;
-
     // -------------------------------------------------------------------------
     // Uniqueness
     // -------------------------------------------------------------------------

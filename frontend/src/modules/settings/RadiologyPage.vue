@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { uuid } from '@/shared/utils/uuid'
 
 interface RadiologyRecord {
   id: string
@@ -42,7 +43,7 @@ const filtered = computed(() => {
 })
 
 function openCreate(): void {
-  form.value = { ...emptyForm(), id: crypto.randomUUID() }
+  form.value = { ...emptyForm(), id: uuid() }
   editing.value = false
   showModal.value = true
   saveMsg.value = ''

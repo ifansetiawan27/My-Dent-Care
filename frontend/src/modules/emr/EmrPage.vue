@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import api from '@/core/api/client'
 import type { ApiResponse } from '@/shared/types/api'
+import { localDatetimeInput } from '@/shared/utils/datetime'
 
 /* ===== Types ===== */
 interface VitalSigns {
@@ -180,7 +181,7 @@ function emptyForm(): Record<string, any> {
 function openCreate(): void {
   editingId.value = null
   form.value = emptyForm()
-  form.value.examination_date = new Date().toISOString().slice(0, 16)
+  form.value.examination_date = localDatetimeInput()
   saveMsg.value = ''
   showForm.value = true
 }
@@ -264,12 +265,6 @@ async function deleteEmr(e: Emr): Promise<void> {
     await api.delete(`/v1/emrs/${e.id}`)
     await fetchData()
   } catch { error.value = 'Gagal menghapus rekam medis.' }
-}
-async function toggleStatus(e: Emr): Promise<void> {
-  try {
-    await api.patch(`/v1/emrs/${e.id}/toggle-active`)
-    await fetchData()
-  } catch { error.value = 'Gagal mengubah status.' }
 }
 function openDetail(e: Emr): void { selected.value = e; showDetail.value = true }
 
@@ -730,7 +725,24 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', onAfterPrint))
 .fade-enter-active, .fade-leave-active { transition: opacity .2s; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 
-/* ===== Print / PDF ===== */
+/* Responsive */
+@media (max-width: 768px) {
+  .emr-stats { grid-template-columns: repeat(2, 1fr); }
+  .emr-filters { flex-direction: column; }
+  .filter-input { min-width: 100%; }
+  .form-row, .form-row-4 { grid-template-columns: 1fr; }
+  .patient-grid, .vital-grid { grid-template-columns: 1fr; }
+  .emr-table { font-size: 0.75rem; }
+}
+</style>
+
+<!--
+  Print styles are deliberately NOT scoped. Inside a <style scoped> block Vue
+  rewrites `body *` into `body *[data-v-<hash>]`, which only hides elements that
+  live inside this component — the sidebar and topbar (owned by AppLayout, a
+  different scope) stayed visible and were included in the printed/PDF output.
+-->
+<style>
 .print-document { display: none; }
 @media print {
   body * { visibility: hidden; }
@@ -751,15 +763,5 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', onAfterPrint))
   .pdf-sign-col { text-align: center; width: 220px; }
   .pdf-sign-space { height: 56px; }
   .pdf-footer { margin-top: 24px; font-size: 10px; color: #666; text-align: center; border-top: 1px solid #ccc; padding-top: 6px; }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .emr-stats { grid-template-columns: repeat(2, 1fr); }
-  .emr-filters { flex-direction: column; }
-  .filter-input { min-width: 100%; }
-  .form-row, .form-row-4 { grid-template-columns: 1fr; }
-  .patient-grid, .vital-grid { grid-template-columns: 1fr; }
-  .emr-table { font-size: 0.75rem; }
 }
 </style>

@@ -7,7 +7,7 @@ import type { ApiResponse } from '@/shared/types/api'
 import api from '@/core/api/client'
 import { ref } from 'vue'
 
-const { data: sub, loading, refresh } = useApi<SubscriptionResource>(() => subscriptionApi.get())
+const { data: sub, refresh } = useApi<SubscriptionResource>(() => subscriptionApi.get())
 const plan = ref<PlanResource | null>(null)
 const loadingPlan = ref(true)
 const message = ref('')

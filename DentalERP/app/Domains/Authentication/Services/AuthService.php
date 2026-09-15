@@ -425,7 +425,7 @@ class AuthService implements AuthServiceInterface
             }
         }
 
-        DB::transaction(function () use ($device): void {
+        DB::transaction(function () use ($device, $user): void {
             $device->update(['revoked_at' => now()]);
 
             $sessions = $this->repository->getActiveUserDeviceSessions($device->id);
@@ -552,8 +552,8 @@ class AuthService implements AuthServiceInterface
             'branch_id'        => $user->branch_id,
             'device_id'        => $device->id,
             'identifier'       => mb_strtolower(trim($user->username ?? $user->email ?? '')),
-            'login_status'     => LoginStatus::Success->value,
-            'failure_reason'   => null,
+            'login_status'     => $success ? LoginStatus::Success->value : LoginStatus::Failed->value,
+            'failure_reason'   => $success ? null : 'Invalid credentials.',
             'ip_address'       => request()->ip(),
             'browser'          => null,
             'operating_system' => null,

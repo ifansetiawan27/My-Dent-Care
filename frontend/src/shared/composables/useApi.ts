@@ -1,5 +1,4 @@
 import { ref, type Ref } from 'vue'
-import api from '@/core/api/client'
 
 export function useApi<T>(fetcher: () => Promise<T>): { data: Ref<T | null>; loading: Ref<boolean>; error: Ref<string | null>; refresh: () => Promise<void> } {
   const data = ref<T | null>(null) as Ref<T | null>

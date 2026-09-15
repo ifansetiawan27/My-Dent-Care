@@ -1,5 +1,6 @@
 import api from '@/core/api/client'
 import type { ApiResponse } from '@/shared/types/api'
+import { uuid } from '@/shared/utils/uuid'
 
 export interface AuthUser {
   id: string
@@ -35,7 +36,7 @@ export const authApi = {
   ): Promise<{ token: string; user: AuthUser }> {
     // Simpan device_uuid agar konsisten antar sesi
     if (!localStorage.getItem('device_uuid')) {
-      localStorage.setItem('device_uuid', crypto.randomUUID())
+      localStorage.setItem('device_uuid', uuid())
     }
     const deviceUuid = localStorage.getItem('device_uuid')!
 

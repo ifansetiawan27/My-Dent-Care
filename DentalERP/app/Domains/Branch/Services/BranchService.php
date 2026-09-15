@@ -355,7 +355,6 @@ class BranchService implements BranchServiceInterface
             'Patients'             => fn (): bool => $this->repository->hasPatients($branchId),
             'Appointments'         => fn (): bool => $this->repository->hasAppointments($branchId),
             'Inventory'            => fn (): bool => $this->repository->hasInventories($branchId),
-            'Finance Transactions' => fn (): bool => $this->repository->hasFinanceTransactions($branchId),
         ];
 
         foreach ($guards as $label => $check) {

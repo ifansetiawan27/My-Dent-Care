@@ -3,7 +3,6 @@ import { onMounted } from 'vue'
 import { settingsApi, type ClinicSettings } from './api/settingsApi'
 import { useApi } from '@/shared/composables/useApi'
 import { ref } from 'vue'
-import type { SubscriptionResource } from '@/shared/types/subscription'
 import WhatsAppSettings from './WhatsAppSettings.vue'
 
 const { data: settings, loading, refresh } = useApi<ClinicSettings>(() => settingsApi.get())

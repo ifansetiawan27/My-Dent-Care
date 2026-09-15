@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
 import api from '@/core/api/client'
 import type { ApiResponse } from '@/shared/types/api'
-
-const route = useRoute()
 
 /* ===== State ===== */
 const data = ref<any[]>([])
@@ -52,12 +49,18 @@ const paginatedData = computed(() => {
 
 const totalPages = computed(() => Math.ceil(filteredData.value.length / perPage.value))
 
+// Typing in the search box can shrink the result below the current page,
+// which would otherwise render an empty table with no empty-state message.
+watch(searchQ, () => { currentPage.value = 1 })
+
 /* ===== API ===== */
 async function fetchData(): Promise<void> {
   loading.value = true
   error.value = null
   try {
-    const { data: res } = await api.get<ApiResponse<any[]>>('/v1/patients')
+    // The backend caps per_page at 100 and defaults to 20. Without this the
+    // table and the client-side search only ever see the first 20 patients.
+    const { data: res } = await api.get<ApiResponse<any[]>>('/v1/patients', { params: { per_page: 100 } })
     data.value = res.data ?? []
   } catch (e: any) {
     error.value = e?.message ?? 'Gagal memuat data.'
@@ -118,9 +121,9 @@ async function handleSave() {
     showModal.value = false
     await fetchData()
   } catch (e: any) {
-    const errs = e?.response?.data?.errors
+    const errs = e?.errors
     const firstField = errs ? Object.values(errs).flat()[0] : null
-    saveMsg.value = firstField ?? e?.response?.data?.message ?? e?.message ?? 'Gagal menyimpan.'
+    saveMsg.value = firstField ?? e?.message ?? 'Gagal menyimpan.'
   } finally {
     saving.value = false
   }

@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { authApi } from '@/modules/auth/api/authApi'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -161,38 +160,24 @@ const router = createRouter({
   ],
 })
 
-let authChecked = false
-
-router.beforeEach(async (to, _from, next) => {
+router.beforeEach((to, _from, next) => {
   // Skip auth check for landing and login pages
   if (to.name === 'landing' || to.name === 'login') {
     next()
     return
   }
 
-  // Only check auth once on initial load
-  if (!authChecked) {
-    authChecked = true
-    const token = localStorage.getItem('auth_token')
-    if (!token) {
-      // No token stored, redirect to login
-      next({ path: '/login', query: { redirect: to.fullPath } })
-      return
-    }
-    try {
-      await authApi.profile()
-      // User is authenticated, proceed
-      next()
-    } catch {
-      // Token invalid or expired, clear and redirect to login
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('auth_user')
-      next({ path: '/login', query: { redirect: to.fullPath } })
-      return
-    }
-  } else {
-    next()
+  // Verify a token exists on every navigation. Token validity is confirmed by
+  // the API itself: a stored-but-expired token triggers a 401, which the axios
+  // interceptor turns into a redirect to /login. Checking presence here (rather
+  // than once via a flag) is what stops an already-logged-out user from
+  // navigating straight into a protected page.
+  if (!localStorage.getItem('auth_token')) {
+    next({ path: '/login', query: { redirect: to.fullPath } })
+    return
   }
+
+  next()
 })
 
 export default router

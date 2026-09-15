@@ -119,8 +119,8 @@ jobs:
           # Step 6: Migrate + seed + clear caches
           echo ""
           echo "[Step 6/6] Running migrations and seeding..."
-          $DOCKER_CMD compose -f docker/compose.staging.yaml exec -T app php artisan migrate --force || echo "  WARN: Migration skipped"
-          $DOCKER_CMD compose -f docker/compose.staging.yaml exec -T app php artisan db:seed || echo "  WARN: Seeder skipped (may already be seeded)"
+          $DOCKER_CMD compose -f docker/compose.staging.yaml exec -T app php artisan migrate --force
+          $DOCKER_CMD compose -f docker/compose.staging.yaml exec -T app php artisan db:seed --force || echo "  WARN: Seeder skipped (may already be seeded)"
           $DOCKER_CMD compose -f docker/compose.staging.yaml exec -T app php artisan config:clear
           $DOCKER_CMD compose -f docker/compose.staging.yaml exec -T app php artisan route:clear
           echo "  OK: Migrations and caches done"

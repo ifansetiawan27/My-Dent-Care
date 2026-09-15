@@ -110,7 +110,7 @@ async function handleSave(): Promise<void> {
     showModal.value = false
     await fetchData()
   } catch (e: any) {
-    saveMsg.value = e?.response?.data?.message ?? e?.message ?? 'Gagal menyimpan.'
+    saveMsg.value = e?.message ?? 'Gagal menyimpan.'
   } finally {
     saving.value = false
   }

@@ -28,6 +28,7 @@ dental-erp-frontend/node_modules/
 
 # Build outputs
 frontend/dist/
+*.tsbuildinfo
 dental-erp-frontend/.next/
 dental-erp-frontend/out/
 

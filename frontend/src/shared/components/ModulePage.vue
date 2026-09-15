@@ -34,6 +34,9 @@ async function fetchData(): Promise<void> {
   try {
     const params: Record<string, string> = {}
     if (searchQ.value) params.search = searchQ.value
+    // The backend defaults to 20 rows per page; request the 100-row cap so the
+    // client-side pagination and search cover a full page of records.
+    params.per_page = '100'
     const qs = new URLSearchParams(params).toString()
     const { data: res } = await api.get<ApiResponse<any[]>>(`${cfg.value.api}${qs ? '?' + qs : ''}`)
     data.value = res.data ?? []
@@ -95,7 +98,7 @@ async function handleSave(): Promise<void> {
     showModal.value = false
     await fetchData()
   } catch (e: any) {
-    saveMsg.value = e?.response?.data?.message ?? e?.message ?? 'Gagal menyimpan.'
+    saveMsg.value = e?.message ?? 'Gagal menyimpan.'
   } finally {
     saving.value = false
   }

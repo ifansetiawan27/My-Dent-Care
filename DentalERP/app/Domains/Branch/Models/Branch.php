@@ -146,13 +146,12 @@ class Branch extends BaseModel
     /**
      * A Branch has many Users.
      *
-     * @return HasMany<\App\Domains\Authentication\Models\User>
+     * @return HasMany<\App\Domains\User\Models\User>
      */
     public function users(): HasMany
     {
-        /** @phpstan-ignore-next-line */
         return $this->hasMany(
-            \App\Domains\Authentication\Models\User::class,
+            \App\Domains\User\Models\User::class,
             'branch_id',
             'id',
         );
@@ -198,21 +197,6 @@ class Branch extends BaseModel
         /** @phpstan-ignore-next-line */
         return $this->hasMany(
             \App\Domains\Inventory\Models\Inventory::class,
-            'branch_id',
-            'id',
-        );
-    }
-
-    /**
-     * A Branch has many Finance Transactions.
-     *
-     * @return HasMany<\App\Domains\Finance\Models\FinanceTransaction>
-     */
-    public function financeTransactions(): HasMany
-    {
-        /** @phpstan-ignore-next-line */
-        return $this->hasMany(
-            \App\Domains\Finance\Models\FinanceTransaction::class,
             'branch_id',
             'id',
         );

@@ -288,14 +288,6 @@ class BranchRepository extends BaseRepository implements BranchRepositoryInterfa
         return $this->hasRelation($branchId, 'inventories');
     }
 
-    /**
-     * Check whether the branch has any finance transactions.
-     */
-    public function hasFinanceTransactions(string $branchId): bool
-    {
-        return $this->hasRelation($branchId, 'financeTransactions');
-    }
-
     // -------------------------------------------------------------------------
     // Uniqueness
     // -------------------------------------------------------------------------

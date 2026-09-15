@@ -31,7 +31,6 @@ export interface ModuleConfig {
 }
 
 const statusBadgeColumns: ColumnDef = { key: 'status', label: 'Status', type: 'badge' }
-const dateCol: ColumnDef = { key: 'created_at', label: 'Dibuat', type: 'datetime' }
 
 export const moduleConfigs: Record<string, ModuleConfig> = {
   appointments: {

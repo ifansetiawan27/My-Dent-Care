@@ -26,6 +26,29 @@ final class PaymentWebhookController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Invalid payload.'], 400);
         }
 
+        // Verify the webhook signature BEFORE trusting anything in the payload.
+        // Midtrans signs notifications with sha512(order_id + status_code +
+        // gross_amount + server_key). Without this check anyone could POST a
+        // forged "settlement" and activate a subscription for free.
+        $serverKey = config('services.midtrans.server_key');
+        if (!is_string($serverKey) || $serverKey === '') {
+            Log::error('[PaymentWebhook] MIDTRANS_SERVER_KEY is not configured; rejecting webhook.', ['order_id' => $orderId]);
+            return response()->json(['status' => 'error', 'message' => 'Payment gateway is not configured.'], 500);
+        }
+
+        $expectedSignature = hash('sha512', implode('', [
+            (string) ($payload['order_id'] ?? ''),
+            (string) ($payload['status_code'] ?? ''),
+            (string) ($payload['gross_amount'] ?? ''),
+            $serverKey,
+        ]));
+
+        $providedSignature = (string) ($payload['signature_key'] ?? '');
+        if ($providedSignature === '' || !hash_equals($expectedSignature, $providedSignature)) {
+            Log::warning('[PaymentWebhook] Invalid webhook signature rejected.', ['order_id' => $orderId]);
+            return response()->json(['status' => 'error', 'message' => 'Invalid signature.'], 403);
+        }
+
         $idempotencyKey = $this->idempotencyService->webhookKey('midtrans', $eventId);
         if ($this->idempotencyService->isProcessed($idempotencyKey)) {
             Log::info('[PaymentWebhook] Duplicate webhook ignored.', ['order_id' => $orderId]);
