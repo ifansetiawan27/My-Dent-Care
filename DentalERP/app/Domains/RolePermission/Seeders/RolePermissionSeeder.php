@@ -122,6 +122,13 @@ class RolePermissionSeeder extends Seeder
             'treatment.update',
             'treatment.delete',
 
+            // Billing (invoices & front-desk cashier workflow)
+            'billing.view',
+            'billing.create',
+            'billing.update',
+            'billing.delete',
+            'billing.export',
+
             // Inventory
             'inventory.view',
             'inventory.create',
@@ -320,22 +327,28 @@ class RolePermissionSeeder extends Seeder
         ]);
     }
 
-    /** Receptionist — patient registration and appointments. */
+    /** Receptionist — patient registration, appointments, and front-desk billing. */
     private function assignReceptionist(): void
     {
         $this->assignToRole('receptionist', [
             'patient.view', 'patient.create', 'patient.update',
             'appointment.view', 'appointment.create', 'appointment.update', 'appointment.delete',
+            'treatment.view',
             'crm.view',
+            'billing.view', 'billing.create', 'billing.update',
+            'finance.view',
             'dashboard.view',
         ]);
     }
 
-    /** Cashier — finance transactions. */
+    /** Cashier — invoicing, payment collection, and billing reports. */
     private function assignCashier(): void
     {
         $this->assignToRole('cashier', [
-            'finance.view', 'finance.create',
+            'patient.view',
+            'treatment.view',
+            'billing.view', 'billing.create', 'billing.update', 'billing.export',
+            'finance.view',
             'dashboard.view',
         ]);
     }

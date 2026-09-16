@@ -10,5 +10,7 @@ Route::prefix('v1/invoices')->middleware('auth:sanctum')->group(function () {
     Route::get('/{id}', [BillingController::class, 'show']);
     Route::post('/', [BillingController::class, 'store']);
     Route::put('/{id}', [BillingController::class, 'update']);
+    Route::patch('/{id}', [BillingController::class, 'update']);
+    Route::post('/{id}/payments', [BillingController::class, 'recordPayment']);
     Route::delete('/{id}', [BillingController::class, 'destroy']);
 });

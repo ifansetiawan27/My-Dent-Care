@@ -15,5 +15,6 @@ interface BillingServiceInterface
     public function findById(string $id, string $organizationId): Billing;
     public function create(CreateBillingDTO $dto): Billing;
     public function update(string $id, UpdateBillingDTO $dto, string $organizationId): Billing;
+    public function recordPayment(string $id, float $amount, string $organizationId): Billing;
     public function delete(string $id, string $organizationId): bool;
 }

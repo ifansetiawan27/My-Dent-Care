@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import api from '@/core/api/client'
 import type { ApiResponse } from '@/shared/types/api'
 import { getModuleConfig, type ModuleConfig, type FieldDef } from '@/shared/config/moduleConfig'
+import { formatRupiahInput, parseRupiahInput, formatRupiah } from '@/shared/utils/money'
 
 const route = useRoute()
 const moduleKey = computed<string>(() => (route.meta.module as string) ?? '')
@@ -15,10 +16,26 @@ const error = ref<string | null>(null)
 const searchQ = ref('')
 const showModal = ref(false)
 const saving = ref(false)
+const editingId = ref<string | null>(null)
 const formData = ref<Record<string, any>>({})
 const saveMsg = ref('')
 const lookupOptions = reactive<Record<string, any[]>>({})
 const lookupLoading = reactive<Record<string, boolean>>({})
+
+/** Display value for a `money` field: grouped digits, no currency prefix. */
+function moneyInputDisplay(field: FieldDef): string {
+  return field.type === 'money' ? formatRupiahInput(formData.value[field.key]) : String(formData.value[field.key] ?? '')
+}
+
+/** Keep the grouped-digit display in sync while the raw value is stored. */
+function onMoneyInput(field: FieldDef, event: Event): void {
+  const input = event.target as HTMLInputElement
+  const parsed = parseRupiahInput(input.value)
+  formData.value[field.key] = parsed
+  // Re-render the grouped digits without moving the caret when unchanged.
+  const grouped = formatRupiahInput(input.value)
+  if (grouped !== input.value) input.value = grouped
+}
 
 const userInfo = computed(() => {
   try {
@@ -39,7 +56,10 @@ async function fetchData(): Promise<void> {
     params.per_page = '100'
     const qs = new URLSearchParams(params).toString()
     const { data: res } = await api.get<ApiResponse<any[]>>(`${cfg.value.api}${qs ? '?' + qs : ''}`)
-    data.value = res.data ?? []
+    // Lists arrive as a Laravel paginator ({ data: [...] }), but some endpoints
+    // return a bare array; accept both so a page never silently empties.
+    const raw: any = res.data
+    data.value = Array.isArray(raw) ? raw : (raw?.data ?? [])
   } catch (e: any) {
     error.value = e?.message ?? 'Gagal memuat data.'
   } finally {
@@ -78,6 +98,7 @@ function fieldLabel(field: FieldDef, item: any): string {
 }
 
 function openCreate(): void {
+  editingId.value = null
   formData.value = {}
   if (cfg.value?.autoFill?.includes('organization_id')) formData.value.organization_id = userInfo.value.orgId
   if (cfg.value?.autoFill?.includes('branch_id')) formData.value.branch_id = userInfo.value.branchId
@@ -88,17 +109,46 @@ function openCreate(): void {
   }
 }
 
+function openEdit(item: any): void {
+  if (!cfg.value) return
+  editingId.value = item.id
+  const next: Record<string, any> = {}
+  for (const f of cfg.value.fields) {
+    next[f.key] = item[f.key] ?? (f.type === 'money' ? null : '')
+  }
+  if (cfg.value.autoFill?.includes('organization_id')) next.organization_id = item.organization_id ?? userInfo.value.orgId
+  if (cfg.value.autoFill?.includes('branch_id')) next.branch_id = item.branch_id ?? userInfo.value.branchId
+  formData.value = next
+  saveMsg.value = ''
+  showModal.value = true
+  for (const f of cfg.value.fields) {
+    if (f.type === 'lookup') loadLookupOptions(f)
+  }
+}
+
 async function handleSave(): Promise<void> {
   if (!cfg.value) return
   saving.value = true
   saveMsg.value = ''
   try {
-    await api.post(cfg.value.api, formData.value)
+    // Money fields are grouped-digit strings in the UI; send plain numbers.
+    const payload: Record<string, any> = { ...formData.value }
+    for (const f of cfg.value.fields) {
+      if (f.type === 'money') payload[f.key] = parseRupiahInput(payload[f.key])
+    }
+    if (editingId.value) {
+      await api.put(`${cfg.value.api}/${editingId.value}`, payload)
+    } else {
+      await api.post(cfg.value.api, payload)
+    }
     saveMsg.value = 'Berhasil disimpan.'
+    editingId.value = null
     showModal.value = false
     await fetchData()
   } catch (e: any) {
-    saveMsg.value = e?.message ?? 'Gagal menyimpan.'
+    const errs = e?.errors
+    const firstField = errs ? Object.values(errs).flat()[0] : null
+    saveMsg.value = firstField ?? e?.message ?? 'Gagal menyimpan.'
   } finally {
     saving.value = false
   }
@@ -128,7 +178,7 @@ function formatValue(val: any, type: string | undefined): string {
   if (val == null || val === '') return '—'
   switch (type) {
     case 'money':
-      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(Number(val))
+      return formatRupiah(val)
     case 'date':
       return new Date(val).toLocaleDateString('id-ID')
     case 'datetime':
@@ -224,9 +274,14 @@ function searchData(): void {
                 <span v-else>{{ formatValue(cellValue(row, col.key), col.type) }}</span>
               </td>
               <td>
-                <button class="btn btn-sm btn-danger" @click="handleDelete(row.id)" title="Hapus">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                </button>
+                <div class="row-actions">
+                  <button class="btn btn-sm btn-ghost" @click="openEdit(row)" title="Edit">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                  </button>
+                  <button class="btn btn-sm btn-danger" @click="handleDelete(row.id)" title="Hapus">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -239,14 +294,24 @@ function searchData(): void {
       <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
         <div class="modal">
           <div class="modal-head">
-            <h3>Tambah {{ cfg?.label }}</h3>
+            <h3>{{ editingId ? 'Edit' : 'Tambah' }} {{ cfg?.label }}</h3>
             <button class="modal-close" @click="showModal = false">&times;</button>
           </div>
           <div class="modal-body">
             <div v-for="f in cfg?.fields ?? []" :key="f.key" class="mp-field">
               <label :for="'f-' + f.key">{{ f.label }}<span v-if="f.required" class="mp-req">*</span></label>
               <input
-                v-if="f.type === 'text' || f.type === 'email' || f.type === 'number'"
+                v-if="f.type === 'money'"
+                :id="'f-' + f.key"
+                :value="moneyInputDisplay(f)"
+                @input="onMoneyInput(f, $event)"
+                inputmode="numeric"
+                placeholder="0"
+                class="mp-input"
+                :required="f.required"
+              />
+              <input
+                v-else-if="f.type === 'text' || f.type === 'email' || f.type === 'number'"
                 :id="'f-' + f.key"
                 v-model="formData[f.key]"
                 :type="f.type === 'number' ? 'number' : f.type === 'email' ? 'email' : 'text'"

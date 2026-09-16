@@ -132,6 +132,16 @@ export const MODULES: Record<string, ModuleDef> = {
     component: () => import('@/shared/components/ModulePage.vue'),
     meta: { module: 'invoices', title: 'Billing & Invoice' },
   },
+  cashier: {
+    key: 'cashier',
+    label: 'Kasir',
+    icon: 'invoice',
+    path: 'cashier',
+    // Front-desk billing workflow. Cashier/receptionist roles hold
+    // billing.view/create/update; finance roles keep full billing module.
+    permission: 'billing.view',
+    component: () => import('@/modules/cashier/CashierPage.vue'),
+  },
   inventory: {
     key: 'inventory',
     label: 'Inventaris',
@@ -402,6 +412,7 @@ export const PORTALS: Record<PortalId, PortalDef> = {
           { label: 'Appointment', icon: 'calendar', module: 'appointments' },
           { label: 'Pasien', icon: 'users', module: 'patients' },
           { label: 'CRM', icon: 'crm', module: 'crm' },
+          { label: 'Kasir', icon: 'invoice', module: 'cashier' },
           { label: 'Billing', icon: 'invoice', module: 'billing' },
         ],
       },

@@ -62,9 +62,54 @@ final class BillingService implements BillingServiceInterface
         }
 
         if (isset($data['paid_amount']) && isset($data['total_amount'])) {
-            if (floatval((string) $data['paid_amount']) === floatval((string) $data['total_amount'])) {
+            $isFullyPaid = floatval((string) $data['paid_amount']) === floatval((string) $data['total_amount']);
+            $currentStatus = InvoiceStatus::from($billing->status);
+
+            // Only auto-settle a live invoice. A cancelled/void invoice must not
+            // be flipped back to Paid just because a paid_amount was sent, and
+            // an already-Paid invoice stays as-is (no state machine violation).
+            if ($isFullyPaid && $currentStatus !== InvoiceStatus::Paid && ! $currentStatus->isTerminal()) {
                 $data['status'] = InvoiceStatus::Paid->value;
             }
+        }
+
+        return DB::transaction(fn (): Billing => $this->repository->update($billing, $data));
+    }
+
+    /**
+     * Record a payment against an invoice (front-desk cashier workflow).
+     *
+     * The amount is added to any existing payment; a fully settled invoice is
+     * transitioned to Paid through the state machine, never by clobbering a
+     * terminal status.
+     */
+    public function recordPayment(string $id, float $amount, string $organizationId): Billing
+    {
+        $billing = $this->findById($id, $organizationId);
+
+        $total = floatval((string) $billing->total_amount);
+        $newPaid = floatval((string) $billing->paid_amount) + $amount;
+
+        if ($amount <= 0.0) {
+            throw new BusinessException('Payment amount must be greater than zero.');
+        }
+
+        if ($newPaid > $total) {
+            throw new BusinessException('Payment exceeds the outstanding balance.');
+        }
+
+        $currentStatus = InvoiceStatus::from($billing->status);
+        if ($currentStatus->isTerminal()) {
+            throw new BusinessException("Cannot record a payment on an invoice in '{$currentStatus->value}' status.");
+        }
+
+        $data = ['paid_amount' => $newPaid];
+
+        if ($total > 0.0 && $newPaid === $total) {
+            if ($currentStatus !== InvoiceStatus::Paid) {
+                $this->validateStatusTransition($currentStatus, InvoiceStatus::Paid);
+            }
+            $data['status'] = InvoiceStatus::Paid->value;
         }
 
         return DB::transaction(fn (): Billing => $this->repository->update($billing, $data));

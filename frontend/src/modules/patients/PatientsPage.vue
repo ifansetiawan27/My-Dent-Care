@@ -61,7 +61,8 @@ async function fetchData(): Promise<void> {
     // The backend caps per_page at 100 and defaults to 20. Without this the
     // table and the client-side search only ever see the first 20 patients.
     const { data: res } = await api.get<ApiResponse<any[]>>('/v1/patients', { params: { per_page: 100 } })
-    data.value = res.data ?? []
+    const raw: any = res.data
+    data.value = Array.isArray(raw) ? raw : (raw?.data ?? [])
   } catch (e: any) {
     error.value = e?.message ?? 'Gagal memuat data.'
   } finally {

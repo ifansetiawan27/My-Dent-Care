@@ -62,6 +62,12 @@ final class TreatmentService implements TreatmentServiceInterface
 
     private function validateStatusTransition(TreatmentStatus $current, TreatmentStatus $new): void
     {
+        // A no-op transition (same status) is always allowed: an update that
+        // re-sends the current status must not fail the state machine.
+        if ($current === $new) {
+            return;
+        }
+
         if ($current->isTerminal()) {
             throw new BusinessException('Cannot update a treatment that is already in a terminal state.');
         }

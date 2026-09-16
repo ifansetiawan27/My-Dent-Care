@@ -9,6 +9,7 @@ use App\Core\Exceptions\NotFoundException;
 use App\Domains\Billing\DTO\CreateBillingDTO;
 use App\Domains\Billing\DTO\UpdateBillingDTO;
 use App\Domains\Billing\Interfaces\BillingServiceInterface;
+use App\Domains\Billing\Requests\RecordPaymentRequest;
 use App\Domains\Billing\Requests\StoreBillingRequest;
 use App\Domains\Billing\Requests\UpdateBillingRequest;
 use App\Domains\Billing\Resources\BillingResource;
@@ -82,5 +83,24 @@ final class BillingController extends Controller
     {
         $this->svc->delete($id, auth()->user()->organization_id);
         return response()->json(['success' => true, 'message' => 'Deleted.'], 200);
+    }
+
+    /**
+     * Record a payment against an invoice (cashier collection).
+     */
+    public function recordPayment(string $id, RecordPaymentRequest $r): JsonResponse
+    {
+        try {
+            $billing = $this->svc->recordPayment(
+                $id,
+                (float) $r->validated('amount'),
+                auth()->user()->organization_id,
+            );
+            return (new BillingResource($billing))->response();
+        } catch (BusinessException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        } catch (NotFoundException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
+        }
     }
 }

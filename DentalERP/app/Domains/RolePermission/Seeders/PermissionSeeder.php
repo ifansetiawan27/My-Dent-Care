@@ -85,6 +85,7 @@ class PermissionSeeder extends Seeder
             $this->medicalRecordPermissions(),
             $this->odontogramPermissions(),
             $this->treatmentPermissions(),
+            $this->billingPermissions(),
             $this->inventoryPermissions(),
             $this->financePermissions(),
             $this->assetPermissions(),
@@ -250,6 +251,23 @@ class PermissionSeeder extends Seeder
             'treatment.update',
             'treatment.delete',
             'treatment.restore',
+        ];
+    }
+
+    /**
+     * Billing — patient invoices and front-desk cashier workflow.
+     *
+     * @return array<string>
+     */
+    private function billingPermissions(): array
+    {
+        return [
+            'billing.view',
+            'billing.create',
+            'billing.update',
+            'billing.delete',
+            'billing.restore',
+            'billing.export',
         ];
     }
 

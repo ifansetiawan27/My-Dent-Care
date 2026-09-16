@@ -5,6 +5,7 @@ import api from '@/core/api/client'
 import type { ApiResponse } from '@/shared/types/api'
 import { usePortal } from '@/core/portal/usePortal'
 import { todayKey, dateKey } from '@/shared/utils/datetime'
+import { formatRupiah } from '@/shared/utils/money'
 
 const router = useRouter()
 const { modulePath } = usePortal()
@@ -21,31 +22,47 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const stats = ref<Stat[]>([])
 const recent = ref<any[]>([])
+const recentEmrs = ref<any[]>([])
 
 async function load(): Promise<void> {
   loading.value = true
   error.value = null
   try {
-    const [apptRes, patientRes] = await Promise.all([
+    const [apptRes, patientRes, emrRes, invoiceRes] = await Promise.all([
       api.get<ApiResponse<any[]>>('/v1/appointments', { params: { per_page: 100 } }),
       api.get<ApiResponse<any[]>>('/v1/patients', { params: { per_page: 100 } }),
+      api.get<ApiResponse<any[]>>('/v1/emrs', { params: { per_page: 100 } }),
+      api.get<ApiResponse<any[]>>('/v1/invoices', { params: { per_page: 100 } }),
     ])
 
     const appts = apptRes.data?.data ?? []
     const patients = patientRes.data?.data ?? []
+    const emrs: any[] = emrRes.data?.data ?? []
+    const invoices: any[] = invoiceRes.data?.data ?? []
     const today = todayKey()
     const todays = appts.filter((a) => dateKey(a.scheduled_at) === today)
+
+    // Outstanding = billed but not yet fully paid (front-desk cashier activity
+    // surfaces here so the admin can follow up on outstanding balances).
+    const outstanding = invoices
+      .filter((i) => i.status !== 'paid' && i.status !== 'void')
+      .reduce((s, i) => s + Number(i.total_amount ?? 0) - Number(i.paid_amount ?? 0), 0)
 
     stats.value = [
       { label: 'Total Pasien', value: String(patients.length), hint: 'terdaftar di klinik', icon: 'users', to: 'patients' },
       { label: 'Appointment Hari Ini', value: String(todays.length), hint: 'jadwal aktif', icon: 'calendar', to: 'appointments' },
-      { label: 'Total Appointment', value: String(appts.length), hint: 'seluruh periode', icon: 'file', to: 'appointments' },
-      { label: 'Cabang Aktif', value: '—', hint: 'lihat daftar cabang', icon: 'branch', to: 'branches' },
+      { label: 'Rekam Medis', value: String(emrs.length), hint: 'dokumentasi klinis', icon: 'file', to: 'emr' },
+      { label: 'Piutang Belum Dibayar', value: formatRupiah(outstanding), hint: 'tagihan berjalan', icon: 'invoice', to: 'billing' },
     ]
 
     recent.value = appts
       .slice()
       .sort((a, b) => String(b.scheduled_at ?? '').localeCompare(String(a.scheduled_at ?? '')))
+      .slice(0, 6)
+
+    recentEmrs.value = emrs
+      .slice()
+      .sort((a, b) => String(b.examination_date ?? b.created_at ?? '').localeCompare(String(a.examination_date ?? a.created_at ?? '')))
       .slice(0, 6)
   } catch (e: any) {
     error.value = e?.message ?? 'Gagal memuat ringkasan.'
@@ -90,29 +107,52 @@ onMounted(() => { load() })
         class="ad-stat"
         @click="go(s.to)"
       >
-        <span class="ad-stat-ico"><svg v-if="s.icon==='users'" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg><svg v-else fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></span>
+        <span class="ad-stat-ico"><svg v-if="s.icon==='users'" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg><svg v-else-if="s.icon==='invoice'" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M7 21l2.5-1.5L12 21l2.5-1.5L17 21V4a1 1 0 00-1-1H8a1 1 0 00-1 1v17z" /></svg><svg v-else fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></span>
         <span class="ad-stat-value">{{ loading ? '…' : s.value }}</span>
         <span class="ad-stat-label">{{ s.label }}</span>
         <span class="ad-stat-hint">{{ s.hint }}</span>
       </button>
     </div>
 
-    <div class="ad-recent">
-      <h3>Appointment Terbaru</h3>
-      <div v-if="recent.length === 0 && !loading" class="ad-empty">Belum ada data appointment.</div>
-      <table v-else class="ad-table">
-        <thead>
-          <tr><th>Pasien</th><th>Dokter</th><th>Jadwal</th><th>Status</th></tr>
-        </thead>
-        <tbody>
-          <tr v-for="r in recent" :key="r.id">
-            <td>{{ r.patient?.full_name ?? r.patient ?? '-' }}</td>
-            <td>{{ r.doctor?.full_name ?? r.doctor ?? '-' }}</td>
-            <td>{{ fmtDate(r.scheduled_at) }}</td>
-            <td><span class="ad-chip">{{ r.status ?? '-' }}</span></td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="ad-recent-grid">
+      <div class="ad-recent">
+        <h3>Appointment Terbaru</h3>
+        <div v-if="recent.length === 0 && !loading" class="ad-empty">Belum ada data appointment.</div>
+        <table v-else class="ad-table">
+          <thead>
+            <tr><th>Pasien</th><th>Dokter</th><th>Jadwal</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr v-for="r in recent" :key="r.id">
+              <td>{{ r.patient?.full_name ?? r.patient ?? '-' }}</td>
+              <td>{{ r.doctor?.full_name ?? r.doctor ?? '-' }}</td>
+              <td>{{ fmtDate(r.scheduled_at) }}</td>
+              <td><span class="ad-chip">{{ r.status ?? '-' }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="ad-recent">
+        <div class="ad-recent-head">
+          <h3>Rekam Medis Terbaru</h3>
+          <button class="ad-link" type="button" @click="go('emr')">Lihat semua →</button>
+        </div>
+        <div v-if="recentEmrs.length === 0 && !loading" class="ad-empty">Belum ada rekam medis.</div>
+        <table v-else class="ad-table">
+          <thead>
+            <tr><th>Pasien</th><th>Diagnosa</th><th>Dokter</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr v-for="e in recentEmrs" :key="e.id">
+              <td>{{ e.patient?.full_name ?? '-' }}</td>
+              <td class="ad-diag">{{ e.diagnosis ?? '-' }}</td>
+              <td>{{ e.doctor?.full_name ?? '-' }}</td>
+              <td><span class="ad-chip">{{ e.status === 'completed' ? 'Selesai' : 'Terbuka' }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
@@ -139,8 +179,16 @@ onMounted(() => { load() })
 .ad-stat-label { font-size: 0.82rem; font-weight: 650; color: #374151; }
 .ad-stat-hint { font-size: 0.72rem; color: #9ca3af; }
 
+.ad-recent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 900px) { .ad-recent-grid { grid-template-columns: 1fr; } }
+
 .ad-recent { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 1.1rem 1.2rem; }
 .ad-recent h3 { margin: 0 0 0.85rem; font-size: 1rem; font-weight: 700; }
+.ad-recent-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem; }
+.ad-recent-head h3 { margin: 0; }
+.ad-link { background: none; border: none; color: #4338ca; font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0; font-family: inherit; }
+.ad-link:hover { text-decoration: underline; }
+.ad-diag { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ad-empty { color: #9ca3af; font-size: 0.85rem; padding: 1rem 0; }
 .ad-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 .ad-table th { text-align: left; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.07em; color: #9ca3af; padding: 0 0.6rem 0.5rem; border-bottom: 1px solid #e5e7eb; }
