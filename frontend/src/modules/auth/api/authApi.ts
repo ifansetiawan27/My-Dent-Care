@@ -8,6 +8,10 @@ export interface AuthUser {
   email: string
   organization_id: string
   branch_id?: string
+  /** Spatie role names, e.g. ["doctor"]. Drives portal selection. */
+  roles?: string[]
+  /** Spatie permission names, e.g. ["patient.view"]. Drives module visibility. */
+  permissions?: string[]
 }
 
 export interface LookupResult {
@@ -33,7 +37,7 @@ export const authApi = {
     password: string,
     organizationId: string,
     branchId: string,
-  ): Promise<{ token: string; user: AuthUser }> {
+  ): Promise<{ token: string; user: AuthUser; roles: string[]; permissions: string[] }> {
     // Simpan device_uuid agar konsisten antar sesi
     if (!localStorage.getItem('device_uuid')) {
       localStorage.setItem('device_uuid', uuid())
@@ -51,18 +55,18 @@ export const authApi = {
       platform: 'web',
     })
 
-    // Response: data.data.access_token, data.data.user
+    // Response: data.data.access_token, data.data.user, data.data.roles,
+    // data.data.permissions. Roles/permissions are emitted at the top level of
+    // the login payload (not inside `user`) and drive portal selection.
     return {
       token: data.data.access_token,
       user: data.data.user,
+      roles: data.data.roles ?? [],
+      permissions: data.data.permissions ?? [],
     }
   },
 
   async logout(): Promise<void> {
     await api.post('/v1/auth/logout')
-  },
-
-  async getCsrfCookie(): Promise<void> {
-    await api.get('/sanctum/csrf-cookie')
   },
 }

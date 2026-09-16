@@ -50,7 +50,10 @@ export function useAuth() {
         lookup.organization_id,
         lookup.branch_id,
       )
-      storeAuth(data.token, data.user)
+      // Roles/permissions arrive at the top level of the login payload; merge
+      // them into the stored user so portal selection works before the
+      // profile endpoint is fetched.
+      storeAuth(data.token, { ...data.user, roles: data.roles, permissions: data.permissions })
     } catch (e: any) {
       error.value = e?.message ?? 'Login gagal. Periksa email dan password Anda.'
       throw e

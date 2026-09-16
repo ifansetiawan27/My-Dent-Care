@@ -1,4 +1,4 @@
-export type FieldType = 'text' | 'number' | 'date' | 'datetime' | 'email' | 'select' | 'textarea' | 'money' | 'lookup'
+﻿export type FieldType = 'text' | 'number' | 'date' | 'datetime' | 'email' | 'select' | 'textarea' | 'money' | 'lookup'
 
 export interface FieldDef {
   key: string
@@ -33,102 +33,6 @@ export interface ModuleConfig {
 const statusBadgeColumns: ColumnDef = { key: 'status', label: 'Status', type: 'badge' }
 
 export const moduleConfigs: Record<string, ModuleConfig> = {
-  appointments: {
-    resource: 'appointments',
-    label: 'Appointment',
-    description: 'Kelola jadwal janji temu pasien, cegah double-booking, dan pantau status appointment.',
-    api: '/v1/appointments',
-    searchKeys: ['patient', 'doctor', 'status', 'type'],
-    columns: [
-      { key: 'patient', label: 'Pasien' },
-      { key: 'doctor', label: 'Dokter' },
-      { key: 'scheduled_at', label: 'Jadwal', type: 'datetime' },
-      { key: 'type', label: 'Tipe' },
-      statusBadgeColumns,
-    ],
-    fields: [
-      { key: 'patient_id', label: 'Pasien', type: 'lookup', lookupEndpoint: '/v1/patients', lookupLabel: 'full_name', lookupValue: 'id', required: true },
-      { key: 'doctor_id', label: 'Dokter', type: 'lookup', lookupEndpoint: '/v1/doctors', lookupLabel: 'full_name', lookupValue: 'id' },
-      { key: 'scheduled_at', label: 'Jadwal', type: 'datetime', required: true },
-      { key: 'type', label: 'Tipe', type: 'select', options: ['checkup', 'treatment', 'consultation', 'follow_up', 'emergency'] },
-      { key: 'status', label: 'Status', type: 'select', options: ['scheduled', 'confirmed', 'completed', 'cancelled', 'no_show'] },
-      { key: 'notes', label: 'Catatan', type: 'textarea' },
-    ],
-    autoFill: ['organization_id', 'branch_id'],
-  },
-  patients: {
-    resource: 'patients',
-    label: 'Pasien',
-    description: 'Registrasi pasien, nomor rekam medis otomatis, dan data demografis lengkap.',
-    api: '/v1/patients',
-    searchKeys: ['patient_code', 'full_name', 'phone', 'email'],
-    columns: [
-      { key: 'patient_code', label: 'No. RM' },
-      { key: 'full_name', label: 'Nama Pasien' },
-      { key: 'gender', label: 'Jenis Kelamin' },
-      { key: 'birth_date', label: 'Tgl Lahir', type: 'date' },
-      { key: 'phone', label: 'Telepon' },
-    ],
-    fields: [
-      { key: 'patient_code', label: 'No. Rekam Medis', type: 'text', required: true, placeholder: 'RM-0001' },
-      { key: 'full_name', label: 'Nama Lengkap', type: 'text', required: true },
-      { key: 'birth_date', label: 'Tanggal Lahir', type: 'date' },
-      { key: 'gender', label: 'Jenis Kelamin', type: 'select', options: ['male', 'female'] },
-      { key: 'blood_type', label: 'Gol. Darah', type: 'select', options: ['A', 'B', 'AB', 'O'] },
-      { key: 'religion', label: 'Agama', type: 'text' },
-      { key: 'marital_status', label: 'Status', type: 'select', options: ['single', 'married', 'divorced', 'widowed'] },
-      { key: 'phone', label: 'Telepon', type: 'text' },
-      { key: 'email', label: 'Email', type: 'email' },
-      { key: 'address', label: 'Alamat', type: 'textarea' },
-    ],
-    autoFill: ['organization_id', 'branch_id'],
-  },
-  emrs: {
-    resource: 'emrs',
-    label: 'Rekam Medis (EMR)',
-    description: 'Rekam medis digital pasien, riwayat kunjungan, diagnosa, dan dokumentasi medis.',
-    api: '/v1/emrs',
-    searchKeys: ['chief_complaint', 'diagnosis', 'status'],
-    columns: [
-      { key: 'patient', label: 'Pasien' },
-      { key: 'chief_complaint', label: 'Keluhan Utama' },
-      { key: 'diagnosis', label: 'Diagnosa' },
-      statusBadgeColumns,
-    ],
-    fields: [
-      { key: 'patient_id', label: 'Pasien', type: 'lookup', lookupEndpoint: '/v1/patients', lookupLabel: 'full_name', lookupValue: 'id', required: true },
-      { key: 'doctor_id', label: 'Dokter', type: 'lookup', lookupEndpoint: '/v1/doctors', lookupLabel: 'full_name', lookupValue: 'id' },
-      { key: 'appointment_id', label: 'Appointment', type: 'lookup', lookupEndpoint: '/v1/appointments', lookupLabel: 'id', lookupValue: 'id' },
-      { key: 'chief_complaint', label: 'Keluhan Utama', type: 'text', required: true },
-      { key: 'diagnosis', label: 'Diagnosa', type: 'text' },
-      { key: 'treatment_notes', label: 'Catatan Perawatan', type: 'textarea' },
-      { key: 'vital_signs', label: 'Tanda Vital (JSON)', type: 'textarea' },
-    ],
-    autoFill: ['organization_id'],
-  },
-  odontograms: {
-    resource: 'odontograms',
-    label: 'Odontogram',
-    description: 'Tooth charting digital untuk pemetaan kondisi gigi dan rencana perawatan.',
-    api: '/v1/odontograms',
-    searchKeys: ['tooth_number', 'condition', 'tooth_type'],
-    columns: [
-      { key: 'patient', label: 'Pasien' },
-      { key: 'tooth_number', label: 'Gigi No.' },
-      { key: 'tooth_type', label: 'Tipe' },
-      { key: 'surface', label: 'Permukaan' },
-      statusBadgeColumns,
-    ],
-    fields: [
-      { key: 'patient_id', label: 'Pasien', type: 'lookup', lookupEndpoint: '/v1/patients', lookupLabel: 'full_name', lookupValue: 'id', required: true },
-      { key: 'tooth_number', label: 'Nomor Gigi', type: 'number', required: true },
-      { key: 'tooth_type', label: 'Tipe Gigi', type: 'select', options: ['permanent', 'deciduous'] },
-      { key: 'surface', label: 'Permukaan', type: 'text' },
-      { key: 'condition', label: 'Kondisi', type: 'text' },
-      { key: 'notes', label: 'Catatan', type: 'textarea' },
-    ],
-    autoFill: ['organization_id'],
-  },
   treatments: {
     resource: 'treatments',
     label: 'Perawatan',

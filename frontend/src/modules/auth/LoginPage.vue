@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useAuth } from '@/core/auth/useAuth'
+import { usePortal } from '@/core/portal/usePortal'
 import { useRouter, useRoute } from 'vue-router'
 import logoImg from '@/assets/logo-anim.png'
 
 const { login, loading, error: authError } = useAuth()
+const { homePath } = usePortal()
 const router = useRouter()
 const route = useRoute()
 const email = ref('')
@@ -28,7 +30,8 @@ async function handleLogin(): Promise<void> {
   localError.value = null
   try {
     await login(email.value, password.value)
-    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/dashboard'
+    // Route the user to their role's portal home (e.g. /doctor/dashboard).
+    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : homePath.value
     router.push(redirect)
   } catch {
     localError.value = authError.value ?? 'Login gagal. Periksa email dan password Anda.'

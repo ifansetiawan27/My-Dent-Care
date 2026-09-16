@@ -10,7 +10,8 @@ use App\Platform\PaymentGateway\Enums\PaymentProvider;
  * PaymentRequestDTO
  *
  * Immutable value object describing a payment charge request.
- * Domains (e.g. Billing) construct this and pass it to PaymentGatewayServiceInterface.
+ * Domains (e.g. Billing) construct this and pass it to a payment provider
+ * (see PaymentProviderInterface).
  * Monetary amounts are integers in the smallest currency unit (e.g. cents/sen).
  */
 final readonly class PaymentRequestDTO

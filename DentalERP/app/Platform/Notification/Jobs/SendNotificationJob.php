@@ -99,7 +99,6 @@ class SendNotificationJob implements ShouldQueue
     private function sendEmail(Notification $notification): void
     {
         // TODO: Integrate with Mail driver (SMTP, Mailgun, SES)
-        // Mail::to($recipient)->send(new NotificationMail($notification));
     }
 
     private function sendWhatsapp(Notification $notification): void

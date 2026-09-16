@@ -1,4 +1,54 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import {
+  PORTALS,
+  PORTAL_LIST,
+  MODULES,
+  type PortalDef,
+  type PortalId,
+} from '@/core/portal/portalConfig'
+import { portalForRoles } from '@/core/portal/usePortal'
+
+/** Layout shell for each portal paradigm. */
+const PORTAL_LAYOUTS: Record<PortalId, () => Promise<{ default: any }>> = {
+  admin: () => import('@/core/layout/portal/AdminLayout.vue'),
+  doctor: () => import('@/core/layout/portal/DoctorLayout.vue'),
+  receptionist: () => import('@/core/layout/portal/ReceptionistLayout.vue'),
+}
+
+/** Build the route subtree for one portal from its declared navigation. */
+function portalRoutes(portal: PortalDef): RouteRecordRaw {
+  const children = portal.nav
+    .flatMap((group) => group.items)
+    .map((item) => {
+      const mod = MODULES[item.module]
+      // The dashboard is portal-specific; every other module shares its page.
+      const component = item.module === 'dashboard' ? portal.dashboard : mod.component
+      if (!component) {
+        throw new Error(`Module "${item.module}" has no page component for portal "${portal.id}"`)
+      }
+      return {
+        path: mod.path,
+        name: `${portal.id}.${item.module}`,
+        component,
+        meta: {
+          title: mod.meta?.title ?? mod.label,
+          // ModulePage reads `meta.module` to pick its config.
+          module: mod.meta?.module ?? item.module,
+          portal: portal.id,
+        },
+      }
+    })
+
+  return {
+    path: portal.prefix,
+    component: PORTAL_LAYOUTS[portal.id],
+    meta: { requiresAuth: true, portal: portal.id },
+    children: [
+      { path: '', redirect: { name: `${portal.id}.dashboard` } },
+      ...children,
+    ],
+  }
+}
 
 const router = createRouter({
   history: createWebHistory(),
@@ -14,145 +64,7 @@ const router = createRouter({
       component: () => import('@/modules/auth/LoginPage.vue'),
       meta: { guestOnly: true },
     },
-    {
-      path: '/',
-      component: () => import('@/core/layout/AppLayout.vue'),
-      meta: { requiresAuth: true },
-      children: [
-        {
-          path: 'dashboard',
-          name: 'dashboard',
-          component: () => import('@/modules/dashboard/DashboardPage.vue'),
-          meta: { title: 'Dashboard', desc: 'Ringkasan operasional klinik Anda' },
-        },
-        {
-          path: 'appointments',
-          name: 'appointments',
-          component: () => import('@/modules/appointments/AppointmentsPage.vue'),
-          meta: { title: 'Appointment', desc: 'Kelola jadwal janji temu pasien, cegah double-booking, dan pantau status appointment.' },
-        },
-        {
-          path: 'patients',
-          name: 'patients',
-          component: () => import('@/modules/patients/PatientsPage.vue'),
-          meta: { title: 'Pasien', desc: 'Registrasi pasien, nomor rekam medis otomatis, dan data demografis.' },
-        },
-        {
-          path: 'emr',
-          name: 'emr',
-          component: () => import('@/modules/emr/EmrPage.vue'),
-          meta: { title: 'Rekam Medis (EMR)', desc: 'Dokumentasi klinis pasien: anamnesis, pemeriksaan, diagnosa, dan perawatan.', requiresAuth: true },
-        },
-        {
-          path: 'odontogram',
-          name: 'odontogram',
-          component: () => import('@/modules/odontogram/OdontogramPage.vue'),
-          meta: { title: 'Odontogram', requiresAuth: true },
-        },
-        {
-          path: 'treatments',
-          name: 'treatments',
-          component: () => import('@/shared/components/ModulePage.vue'),
-          meta: { title: 'Perawatan', module: 'treatments', requiresAuth: true },
-        },
-        {
-          path: 'billing',
-          name: 'billing',
-          component: () => import('@/shared/components/ModulePage.vue'),
-          meta: { title: 'Billing & Invoice', module: 'invoices', requiresAuth: true },
-        },
-        {
-          path: 'inventory',
-          name: 'inventory',
-          component: () => import('@/shared/components/ModulePage.vue'),
-          meta: { title: 'Inventaris', module: 'inventory_items', requiresAuth: true },
-        },
-        {
-          path: 'pharmacy',
-          name: 'pharmacy',
-          component: () => import('@/shared/components/ModulePage.vue'),
-          meta: { title: 'Farmasi', module: 'pharmacy_items', requiresAuth: true },
-        },
-        {
-          path: 'laboratory',
-          name: 'laboratory',
-          component: () => import('@/shared/components/ModulePage.vue'),
-          meta: { title: 'Laboratorium', module: 'lab_orders', requiresAuth: true },
-        },
-        {
-          path: 'radiology',
-          name: 'radiology',
-          component: () => import('@/modules/settings/RadiologyPage.vue'),
-          meta: { title: 'Radiologi', requiresAuth: true },
-        },
-        {
-          path: 'doctors',
-          name: 'doctors',
-          component: () => import('@/shared/components/ModulePage.vue'),
-          meta: { title: 'Dokter', module: 'doctors', requiresAuth: true },
-        },
-        {
-          path: 'employees',
-          name: 'employees',
-          component: () => import('@/shared/components/ModulePage.vue'),
-          meta: { title: 'Karyawan', module: 'employees', requiresAuth: true },
-        },
-        {
-          path: 'branches',
-          name: 'branches',
-          component: () => import('@/shared/components/ModulePage.vue'),
-          meta: { title: 'Cabang', module: 'branches', requiresAuth: true },
-        },
-        {
-          path: 'organization',
-          name: 'organization',
-          component: () => import('@/modules/settings/OrganizationPage.vue'),
-          meta: { title: 'Organisasi', requiresAuth: true },
-        },
-        {
-          path: 'users',
-          name: 'users',
-          component: () => import('@/modules/settings/UsersRolesPage.vue'),
-          meta: { title: 'Users & Roles', requiresAuth: true },
-        },
-        {
-          path: 'crm',
-          name: 'crm',
-          component: () => import('@/shared/components/ModulePage.vue'),
-          meta: { title: 'CRM', module: 'crm_contacts', requiresAuth: true },
-        },
-        {
-          path: 'reports',
-          name: 'reports',
-          component: () => import('@/shared/components/ModulePage.vue'),
-          meta: { title: 'Laporan', module: 'reports', requiresAuth: true },
-        },
-        {
-          path: 'ai',
-          name: 'ai',
-          component: () => import('@/shared/components/ModulePage.vue'),
-          meta: { title: 'AI Assistant', module: 'ai_queries', requiresAuth: true },
-        },
-        {
-          path: 'integrations',
-          name: 'integrations',
-          component: () => import('@/shared/components/ModulePage.vue'),
-          meta: { title: 'Integrasi', module: 'integration_configs', requiresAuth: true },
-        },
-        {
-          path: 'subscription',
-          name: 'subscription',
-          component: () => import('@/modules/subscription/SubscriptionPage.vue'),
-          meta: { title: 'Subscription', desc: 'Kelola langganan, paket, dan billing klinik Anda.' },
-        },
-        {
-          path: 'settings',
-          name: 'settings',
-          component: () => import('@/modules/settings/SettingsPage.vue'),
-          meta: { title: 'Settings', desc: 'Pengaturan profil klinik, invoice, dan informasi billing.' },
-        },
-      ],
-    },
+    ...PORTAL_LIST.map((p) => portalRoutes(p)),
     {
       path: '/:pathMatch(.*)*',
       redirect: '/',
@@ -160,21 +72,52 @@ const router = createRouter({
   ],
 })
 
+/** Read roles/permissions from the cached auth payload. */
+function cachedAuth(): { roles: string[]; permissions: string[] } {
+  try {
+    const raw = JSON.parse(localStorage.getItem('auth_user') || '{}')
+    return {
+      roles: Array.isArray(raw.roles) ? raw.roles : [],
+      permissions: Array.isArray(raw.permissions) ? raw.permissions : [],
+    }
+  } catch {
+    return { roles: [], permissions: [] }
+  }
+}
+
 router.beforeEach((to, _from, next) => {
-  // Skip auth check for landing and login pages
+  // Public pages.
   if (to.name === 'landing' || to.name === 'login') {
     next()
     return
   }
 
-  // Verify a token exists on every navigation. Token validity is confirmed by
-  // the API itself: a stored-but-expired token triggers a 401, which the axios
-  // interceptor turns into a redirect to /login. Checking presence here (rather
-  // than once via a flag) is what stops an already-logged-out user from
-  // navigating straight into a protected page.
-  if (!localStorage.getItem('auth_token')) {
+  const token = localStorage.getItem('auth_token')
+  if (!token) {
     next({ path: '/login', query: { redirect: to.fullPath } })
     return
+  }
+
+  // Enforce the portal boundary: a user may only browse their own portal.
+  const targetPortal = to.meta.portal as PortalId | undefined
+  if (targetPortal) {
+    const { roles, permissions } = cachedAuth()
+    const userPortal = portalForRoles(roles)
+
+    if (userPortal !== targetPortal) {
+      next({ path: `${PORTALS[userPortal].prefix}/dashboard` })
+      return
+    }
+
+    // Enforce module visibility inside the portal.
+    const moduleKey = typeof to.name === 'string' ? to.name.split('.')[1] : undefined
+    if (moduleKey) {
+      const mod = MODULES[moduleKey]
+      if (mod && !permissions.includes(mod.permission)) {
+        next({ path: `${PORTALS[userPortal].prefix}/dashboard` })
+        return
+      }
+    }
   }
 
   next()

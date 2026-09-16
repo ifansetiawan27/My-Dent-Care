@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/core/auth/useAuth'
+import { usePortal } from '@/core/portal/usePortal'
 import logoImg from '@/assets/logo-anim.png'
-import logoAnimImg from '@/assets/logo-anim.png'
 
 const router = useRouter()
 const { isAuthenticated } = useAuth()
+const { homePath } = usePortal()
 
 function goToApp() {
-  router.push(isAuthenticated() ? '/dashboard' : '/login')
+  router.push(isAuthenticated() ? homePath.value : '/login')
 }
 
 function goToBooking() {
@@ -235,7 +236,7 @@ function ratingStars(r: number): number[] {
               <span class="lp-hero-logo-glow"></span>
               <span class="lp-hero-logo-ring r1"></span>
               <span class="lp-hero-logo-ring r2"></span>
-              <img :src="logoAnimImg" alt="" class="lp-hero-logo-img" />
+              <img :src="logoImg" alt="" class="lp-hero-logo-img" />
             </div>
             <div class="lp-mock lp-mock-main">
               <div class="lp-mock-head">
