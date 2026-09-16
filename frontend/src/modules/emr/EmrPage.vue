@@ -739,8 +739,9 @@ onBeforeUnmount(() => window.removeEventListener('afterprint', onAfterPrint))
 <!--
   Print styles are deliberately NOT scoped. Inside a <style scoped> block Vue
   rewrites `body *` into `body *[data-v-<hash>]`, which only hides elements that
-  live inside this component — the sidebar and topbar (owned by AppLayout, a
-  different scope) stayed visible and were included in the printed/PDF output.
+  live inside this component — the sidebar and topbar (owned by the portal
+  layout, a different scope) stayed visible and were included in the printed/PDF
+  output.
 -->
 <style>
 .print-document { display: none; }
